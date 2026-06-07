@@ -67,14 +67,18 @@ Claude needs `--output-format stream-json --verbose` for a trace (plain `json` i
 result object); Codex `exec --json`; Cursor `--output-format stream-json`; **Copilot has no
 structured trace** (degrade to output); OpenCode `run --format json` or the SDK `/event`.
 
-## Phase 2 -- Index, federation, badges, CI
+## Phase 2 -- Index, federation, badges, CI -- DONE
 
-Packages: `@loom/index` (build + client + MCP-Registry federation), opt-in telemetry,
-badge computation (`valid`, `tested`), a GitHub Action wrapping `loom publish`.
+Package: `@loom/index` (build + client + MCP-Registry federation + badges + publish gate).
 
-- [ ] Index builds from a set of plugins; ingests MCP Registry `GET /v0.1/servers`.
-- [ ] `valid`/`tested` badges compute from eval results.
-- [ ] CI action blocks a publish whose deterministic tier fails.
+- [x] `loom index <dirs...>` builds a `loom.index/1` (metadata only) from a set of plugins.
+- [x] `--federate` ingests the MCP Registry `GET /v0.1/servers` (injectable fetch; offline-tested)
+      into `federated[]` + MCP-only entries.
+- [x] `valid`/`tested` badges compute from validation + eval results (`tested` only when a real
+      harness passes; `harnessCoverage` is the passing set -- never UNTESTED).
+- [x] Opt-in aggregate telemetry (`installs` count; no per-user data).
+- [x] `loom publish` runs the deterministic gate (static valid + trace/output evals) and exits 1
+      on failure; `.github/actions/loom-publish` + `publish.yml` block a failing publish in CI.
 
 ## Phase 3 -- Trust & subjective evals
 

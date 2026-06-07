@@ -22,6 +22,7 @@
     "@loom/adapter-opencode": "workspace:*",
     "@loom/core": "workspace:*",
     "@loom/eval": "workspace:*",
+    "@loom/index": "workspace:*",
     "@loom/schema": "workspace:*",
     "citty": "^0.1.6"
   }

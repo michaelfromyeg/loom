@@ -7,17 +7,19 @@ _Generated from the CLI definition by `loom docs` -- do not edit by hand._
 ```
 Author once, compile to every coding-agent harness. (loom v0.1.0)
 
-USAGE `loom init|validate|build|install|update|eval|docs`
+USAGE `loom init|validate|build|install|update|eval|publish|index|docs`
 
 COMMANDS
 
-      `init`    Scaffold a new plugin (loom.yaml + a sample skill)                            
-  `validate`    Statically validate a plugin (the valid badge)                                
-     `build`    Compile a plugin (or a marketplace of plugins) to harness manifests           
-   `install`    Compile + place a plugin into a harness scope, write loom.lock                
-    `update`    Re-resolve refs, recompile, and re-place only artifacts whose hash changed    
-      `eval`    Run a component's evals against the real harnesses (reports UNTESTED honestly)
-      `docs`    Print the full CLI reference (a CLI map), generated from the command tree     
+      `init`    Scaffold a new plugin (loom.yaml + a sample skill)                              
+  `validate`    Statically validate a plugin (the valid badge)                                  
+     `build`    Compile a plugin (or a marketplace of plugins) to harness manifests             
+   `install`    Compile + place a plugin into a harness scope, write loom.lock                  
+    `update`    Re-resolve refs, recompile, and re-place only artifacts whose hash changed      
+      `eval`    Run a component's evals against the real harnesses (reports UNTESTED honestly)  
+   `publish`    Run the deterministic publish gate (static valid + trace/output evals)          
+     `index`    Build a metadata index from plugin dirs (optionally federating the MCP Registry)
+      `docs`    Print the full CLI reference (a CLI map), generated from the command tree       
 
 Use `loom <command> --help` for more information about a command.
 ```
@@ -74,6 +76,25 @@ OPTIONS
     `--harness`    Restrict to these harnesses (comma-separated)
 ```
 
+## `loom index`
+
+Build a metadata index from plugin dirs (optionally federating the MCP Registry)
+
+```
+Build a metadata index from plugin dirs (optionally federating the MCP Registry) (loom index v0.1.0)
+
+USAGE `loom index [OPTIONS] [DIR]`
+
+ARGUMENTS
+
+  `DIR="."`    Plugin directories    
+
+OPTIONS
+
+  `--out="index.json"`    Output index file                          
+          `--federate`    Ingest the MCP Registry (GET /v0.1/servers)
+```
+
 ## `loom init`
 
 Scaffold a new plugin (loom.yaml + a sample skill)
@@ -113,6 +134,20 @@ OPTIONS
              `--only`    Comma-separated component names to install piecemeal (e.g. one skill)
               `--all`    Install to requested targets even if the harness is not detected     
               `--cwd`    Project root for project-scope placement (default: cwd)
+```
+
+## `loom publish`
+
+Run the deterministic publish gate (static valid + trace/output evals)
+
+```
+Run the deterministic publish gate (static valid + trace/output evals) (loom publish v0.1.0)
+
+USAGE `loom publish [OPTIONS] [DIR]`
+
+ARGUMENTS
+
+  `DIR="."`    Plugin directory
 ```
 
 ## `loom update`

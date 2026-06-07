@@ -1,0 +1,26 @@
+name: Publish gate
+
+# The deterministic publish gate (spec §12): a publish is blocked unless static
+# validation passes and no available harness fails its trace/output evals.
+on:
+  workflow_dispatch:
+    inputs:
+      plugin-dir:
+        description: "Plugin directory to publish-check"
+        required: false
+        default: "fixtures/sample-plugin"
+  push:
+    tags:
+      - "*--v*" # plugin release tags, e.g. sample-plugin--v0.1.0
+
+permissions:
+  contents: read
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/loom-publish
+        with:
+          plugin-dir: ${{ github.event.inputs.plugin-dir || 'fixtures/sample-plugin' }}

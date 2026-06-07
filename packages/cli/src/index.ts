@@ -10,6 +10,13 @@ import {
   update,
 } from "@loom/core";
 import { discoverEvals, runEval } from "@loom/eval";
+import {
+  federate,
+  fetchMcpRegistry,
+  indexFromPluginDirs,
+  publishCheck,
+  serializeIndex,
+} from "@loom/index";
 import type { Scope, Target } from "@loom/schema";
 import { defineCommand, runMain } from "citty";
 import { renderCliReference } from "./cli-docs";
@@ -282,6 +289,66 @@ const evalCmd = defineCommand({
   },
 });
 
+const publishCmd = defineCommand({
+  meta: {
+    name: "publish",
+    description: "Run the deterministic publish gate (static valid + trace/output evals)",
+  },
+  args: {
+    dir: { type: "positional", required: false, default: ".", description: "Plugin directory" },
+  },
+  async run({ args }) {
+    try {
+      const res = await publishCheck(args.dir, {
+        registry: buildRegistry(),
+        drivers: allDrivers(),
+      });
+      console.log(`Publish check: ${res.id}@${res.version}`);
+      if (res.diagnostics.length > 0) printDiagnostics(res.diagnostics);
+      console.log(`  valid: ${res.validPassed ? "yes" : "NO"}`);
+      console.log(`  badges: ${res.badges.join(", ") || "none"}`);
+      console.log(`  harness coverage: ${res.harnessCoverage.join(", ") || "none"}`);
+      for (const r of res.evalReports) printEvalReport(r);
+      if (!res.ok) {
+        console.error("\nPublish BLOCKED: the deterministic tier failed.");
+        process.exit(1);
+      }
+      console.log("\nPublish gate passed.");
+    } catch (err) {
+      fail(err);
+    }
+  },
+});
+
+const indexCmd = defineCommand({
+  meta: {
+    name: "index",
+    description: "Build a metadata index from plugin dirs (optionally federating the MCP Registry)",
+  },
+  args: {
+    dir: { type: "positional", required: false, default: ".", description: "Plugin directories" },
+    out: { type: "string", default: "index.json", description: "Output index file" },
+    federate: { type: "boolean", description: "Ingest the MCP Registry (GET /v0.1/servers)" },
+  },
+  async run({ args }) {
+    try {
+      // citty puts every positional in `_`; default to the current dir when none.
+      const positionals = (args._ as string[] | undefined) ?? [];
+      const dirs = positionals.length > 0 ? positionals : ["."];
+      let index = await indexFromPluginDirs(dirs);
+      if (args.federate) {
+        const servers = await fetchMcpRegistry({ limit: 30 });
+        index = federate(index, servers, new Date().toISOString());
+      }
+      writeFileSync(args.out, serializeIndex(index));
+      const fed = args.federate ? `, federated ${index.federated?.length ?? 0} source(s)` : "";
+      console.log(`Wrote index (${index.plugins.length} plugins${fed}) -> ${args.out}`);
+    } catch (err) {
+      fail(err);
+    }
+  },
+});
+
 const docsCmd = defineCommand({
   meta: {
     name: "docs",
@@ -317,6 +384,8 @@ const main = defineCommand({
     install: installCmd,
     update: updateCmd,
     eval: evalCmd,
+    publish: publishCmd,
+    index: indexCmd,
     docs: docsCmd,
   },
 });

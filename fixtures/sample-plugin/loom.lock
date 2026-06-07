@@ -1,11 +1,11 @@
 {
   "loomVersion": "0.1.0",
-  "generatedAt": "2026-06-07T22:31:20.946Z",
+  "generatedAt": "2026-06-07T22:42:00.895Z",
   "plugin": {
     "id": "com.acme/sample-plugin",
     "version": "0.1.0",
     "ref": "main",
-    "sha": "c44574b7d78a55f36ca20fe7576da973a82d3df8"
+    "sha": "47a5b9aef1885e42217d5682753b5f84e692519d"
   },
   "dependencies": [],
   "artifacts": [
@@ -13,7 +13,7 @@
       "component": "com.acme/sample-plugin:code-review",
       "target": "claude",
       "scope": "project",
-      "path": "/tmp/loom-eval-claude-xVsygQ/.claude/plugins/sample-plugin/skills/code-review/SKILL.md",
+      "path": "/tmp/loom-eval-claude-knF3Ig/.claude/plugins/sample-plugin/skills/code-review/SKILL.md",
       "hash": "d08df9702861bac473913f7bcbb674c1a21e8769dbdd36481e19aa58b34cc8d1",
       "placement": "copy",
       "enabled": true
@@ -22,7 +22,7 @@
       "component": "com.acme/sample-plugin",
       "target": "claude",
       "scope": "project",
-      "path": "/tmp/loom-eval-claude-xVsygQ/.claude/plugins/sample-plugin/.claude-plugin/plugin.json",
+      "path": "/tmp/loom-eval-claude-knF3Ig/.claude/plugins/sample-plugin/.claude-plugin/plugin.json",
       "hash": "b427e428578f7ee1055aa17026ab3d1091fa656db2d6a8d9f4c122dcbb13ed2c",
       "placement": "copy",
       "enabled": true

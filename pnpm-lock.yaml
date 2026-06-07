@@ -119,6 +119,9 @@ importers:
       '@loom/eval':
         specifier: workspace:*
         version: link:../eval
+      '@loom/index':
+        specifier: workspace:*
+        version: link:../index
       '@loom/schema':
         specifier: workspace:*
         version: link:../schema
@@ -159,6 +162,21 @@ importers:
       execa:
         specifier: ^9.5.2
         version: 9.6.1
+
+  packages/index:
+    dependencies:
+      '@loom/adapter-kit':
+        specifier: workspace:*
+        version: link:../adapter-kit
+      '@loom/core':
+        specifier: workspace:*
+        version: link:../core
+      '@loom/eval':
+        specifier: workspace:*
+        version: link:../eval
+      '@loom/schema':
+        specifier: workspace:*
+        version: link:../schema
 
   packages/schema:
     dependencies:
