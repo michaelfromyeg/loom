@@ -18,13 +18,23 @@
     "changeset": "changeset",
     "release": "changeset publish",
     "test:coverage": "vitest run --coverage",
-    "docs:cli": "bun packages/cli/src/index.ts docs --out docs/cli.md"
+    "docs:cli": "bun packages/cli/src/index.ts docs --out docs/cli.md",
+    "prepare": "simple-git-hooks || true"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "pnpm exec lint-staged",
+    "pre-push": "pnpm typecheck && pnpm test"
+  },
+  "lint-staged": {
+    "*.{ts,js,mjs,cjs,json,jsonc}": "biome check --write --no-errors-on-unmatched"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.2.0",
     "@changesets/cli": "^2.27.10",
     "@types/node": "^22.10.0",
     "@vitest/coverage-v8": "^3.2.6",
+    "lint-staged": "^17.0.7",
+    "simple-git-hooks": "^2.13.1",
     "tsup": "^8.3.5",
     "typescript": "^5.7.2",
     "vite-tsconfig-paths": "^5.1.4",
