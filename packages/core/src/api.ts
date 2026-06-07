@@ -1,19 +1,30 @@
-import { join } from "node:path";
+import { mkdirSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
 import type { CatalogEntry, ResolvedMarketplace } from "@loom/adapter-kit";
 import type { Lockfile, Marketplace, ParseIssue, Plugin, Scope, Target } from "@loom/schema";
 import { type CompileResult, compile, staticPass } from "./compile";
+import { resolveConfig, type SecretsResult } from "./config";
+import { type DependencyRecord, resolveDependencies } from "./deps";
 import { CompileError, type Diagnostic, type Diagnostics } from "./diagnostics";
-import { loadMarketplaceDir, loadPluginDir } from "./loader";
-import { buildLockfile, writeLock } from "./lockfile";
+import { type FetchedPlugin, loadMarketplaceDir, loadPluginDir } from "./loader";
+import { buildLockfile, readLock, writeLock } from "./lockfile";
 import {
   buildToDir,
   installToScope,
   placeCatalog,
   placePluginArtifacts,
+  planScopeArtifacts,
   type WrittenArtifact,
 } from "./place";
 import type { AdapterRegistry } from "./registry";
-import { gitInfo, resolvePluginRef } from "./resolve";
+import { gitInfo, resolvePluginRefFull } from "./resolve";
+
+/** Load a plugin and resolve its `depends` into a merged tree (spec §9.1 step 2). */
+async function loadResolved(
+  pluginDir: string,
+): Promise<{ fb: FetchedPlugin; dependencies: DependencyRecord[] }> {
+  return resolveDependencies(loadOrThrow(pluginDir));
+}
 
 function issuesToDiagnostics(issues: ParseIssue[]): Diagnostic[] {
   return issues.map((i) => ({ severity: "error", where: i.path, message: i.message }));
@@ -57,8 +68,8 @@ export interface BuildResult {
 }
 
 /** Compile a plugin and write its marketplace + plugin layout into `outDir` (no install). */
-export function build(opts: BuildOptions): BuildResult {
-  const fb = loadOrThrow(opts.pluginDir);
+export async function build(opts: BuildOptions): Promise<BuildResult> {
+  const { fb } = await loadResolved(opts.pluginDir);
   const result = compile(fb, { registry: opts.registry, targets: opts.targets });
   if (result.diagnostics.hasErrors) {
     throw new CompileError("compile failed", result.diagnostics.errors);
@@ -86,7 +97,9 @@ export interface BuildMarketplaceResult {
  * and emit ONE native catalog per target listing them all (spec §6.2). This is
  * the company-marketplace workflow.
  */
-export function buildMarketplace(opts: BuildMarketplaceOptions): BuildMarketplaceResult {
+export async function buildMarketplace(
+  opts: BuildMarketplaceOptions,
+): Promise<BuildMarketplaceResult> {
   const loaded = loadMarketplaceDir(opts.marketplaceDir);
   if (!loaded.ok) {
     throw new CompileError(
@@ -96,10 +109,11 @@ export function buildMarketplace(opts: BuildMarketplaceOptions): BuildMarketplac
   }
   const { marketplace, root } = loaded.value;
 
-  const compiled = marketplace.plugins.map((entry) => {
-    let fb: ReturnType<typeof resolvePluginRef>;
+  const compiled: Array<{ entry: Marketplace["plugins"][number]; result: CompileResult }> = [];
+  for (const entry of marketplace.plugins) {
+    let fb: FetchedPlugin;
     try {
-      fb = resolvePluginRef(entry.plugin, root);
+      fb = (await resolvePluginRefFull(entry.plugin, root)).fb;
     } catch (err) {
       throw new CompileError(`marketplace entry "${entry.plugin}" failed`, [
         { severity: "error", where: "plugins", message: (err as Error).message },
@@ -108,12 +122,14 @@ export function buildMarketplace(opts: BuildMarketplaceOptions): BuildMarketplac
     // An entry version override flows into the compiled plugin.json too, so the
     // catalog and the plugin manifest agree (plugin.json wins at install time).
     if (entry.version) fb = { ...fb, plugin: { ...fb.plugin, version: entry.version } };
-    const result = compile(fb, { registry: opts.registry, targets: opts.targets });
+    // Resolve the entry plugin's own dependencies before compiling it.
+    const merged = (await resolveDependencies(fb)).fb;
+    const result = compile(merged, { registry: opts.registry, targets: opts.targets });
     if (result.diagnostics.hasErrors) {
       throw new CompileError(`plugin "${result.id}" failed`, result.diagnostics.errors);
     }
-    return { entry, result };
-  });
+    compiled.push({ entry, result });
+  }
 
   const targets = opts.targets ?? opts.registry.targets;
   const written: WrittenArtifact[] = [];
@@ -164,11 +180,13 @@ export interface InstallResult {
   result: CompileResult;
   lockfile: Lockfile;
   lockPath: string;
+  /** Declared config resolution summary (never the values) -- spec §11. */
+  secrets: SecretsResult;
 }
 
-/** Compile a plugin, place it into the scope's dirs, and write `loom.lock`. */
+/** Compile a plugin, place it into the scope's dirs, resolve config, write `loom.lock`. */
 export async function install(opts: InstallOptions): Promise<InstallResult> {
-  const fb = loadOrThrow(opts.pluginDir);
+  const { fb, dependencies } = await loadResolved(opts.pluginDir);
   const result = compile(fb, {
     registry: opts.registry,
     targets: opts.targets,
@@ -178,14 +196,60 @@ export async function install(opts: InstallOptions): Promise<InstallResult> {
     throw new CompileError("compile failed", result.diagnostics.errors);
   }
   const artifacts = installToScope(result, opts.scope, opts.cwd);
+  const secrets = resolveConfig(result.fb.plugin, opts.cwd);
   const { ref, sha } = await gitInfo(opts.pluginDir);
   const lockfile = buildLockfile({
     result,
     artifacts,
+    dependencies,
     ref,
     sha,
     generatedAt: opts.now ?? new Date().toISOString(),
   });
   const lockPath = writeLock(opts.pluginDir, lockfile);
-  return { result, lockfile, lockPath };
+  return { result, lockfile, lockPath, secrets };
+}
+
+export interface UpdateResult {
+  lockfile: Lockfile;
+  lockPath: string;
+  /** Artifacts whose content hash changed (or are new) since the prior lockfile. */
+  changed: string[];
+}
+
+/**
+ * Re-resolve refs, recompile, diff artifact content hashes against `loom.lock`,
+ * and re-place ONLY changed artifacts (spec §5, §9.3). Content addressing makes
+ * "is there really a new version?" exact: an unchanged artifact is never rewritten.
+ */
+export async function update(opts: InstallOptions): Promise<UpdateResult> {
+  const prev = readLock(opts.pluginDir);
+  const prevHash = new Map((prev?.artifacts ?? []).map((a) => [a.path, a.hash]));
+
+  const { fb, dependencies } = await loadResolved(opts.pluginDir);
+  const result = compile(fb, { registry: opts.registry, targets: opts.targets, only: opts.only });
+  if (result.diagnostics.hasErrors) {
+    throw new CompileError("compile failed", result.diagnostics.errors);
+  }
+
+  const planned = planScopeArtifacts(result, opts.scope, opts.cwd);
+  const changed: string[] = [];
+  for (const { record, contents } of planned) {
+    if (prevHash.get(record.path) === record.hash) continue; // unchanged -> never rewrite
+    mkdirSync(dirname(record.path), { recursive: true });
+    writeFileSync(record.path, contents);
+    changed.push(record.path);
+  }
+
+  const { ref, sha } = await gitInfo(opts.pluginDir);
+  const lockfile = buildLockfile({
+    result,
+    artifacts: planned.map((p) => p.record),
+    dependencies,
+    ref,
+    sha,
+    generatedAt: opts.now ?? new Date().toISOString(),
+  });
+  const lockPath = writeLock(opts.pluginDir, lockfile);
+  return { lockfile, lockPath, changed };
 }

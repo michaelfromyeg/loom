@@ -80,12 +80,12 @@ describe("parseSource", () => {
 });
 
 describe("resolvePluginRef", () => {
-  it("refuses remote sources as a Phase 1 stub", () => {
-    expect(() => resolvePluginRef("github:a/b", tmp)).toThrow(/Phase 1|local/);
+  it("refuses npm sources as a not-yet-implemented stub", async () => {
+    await expect(resolvePluginRef("npm:some-pkg", tmp)).rejects.toThrow(/npm/);
   });
 
-  it("loads a local plugin fixture into a FetchedPlugin", () => {
-    const fb = resolvePluginRef(PLUGIN, tmp);
+  it("loads a local plugin fixture into a FetchedPlugin", async () => {
+    const fb = await resolvePluginRef(PLUGIN, tmp);
     expect(fb.plugin.name).toBe("sample-plugin");
     expect(fb.root).toBe(PLUGIN);
   });

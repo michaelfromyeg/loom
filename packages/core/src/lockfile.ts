@@ -10,6 +10,7 @@ export interface LockInput {
   ref: string;
   sha: string;
   generatedAt: string;
+  dependencies?: Lockfile["dependencies"];
 }
 
 /** Assemble the `loom.lock` object (spec §6.3) from an install. */
@@ -27,7 +28,7 @@ export function buildLockfile(input: LockInput): Lockfile {
       ref: input.ref,
       sha: input.sha,
     },
-    dependencies: [],
+    dependencies: input.dependencies ?? [],
     artifacts: input.artifacts,
     adapters,
     aliases: input.result.aliases,

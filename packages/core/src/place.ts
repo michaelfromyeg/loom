@@ -69,29 +69,54 @@ export function buildToDir(result: CompileResult, outDir: string): WrittenArtifa
   return written;
 }
 
+function toBuffer(contents: string | Buffer): Buffer {
+  return typeof contents === "string" ? Buffer.from(contents, "utf8") : contents;
+}
+
+export interface PlannedArtifact {
+  record: ArtifactRecord;
+  contents: Buffer;
+}
+
 /**
- * `loom install` placement (spec §9.1 step 6): copies each target's plugin tree
- * into the scope's plugins dir and records every file for the lockfile. Executable
- * / passthrough artifacts are recorded DISABLED (spec §11).
+ * Compute (without writing) where each target's plugin tree would land in the
+ * scope, with content hashes. Drives both install (write all) and update (write
+ * only what changed). Executable/passthrough artifacts are recorded DISABLED (§11).
  */
-export function installToScope(result: CompileResult, scope: Scope, cwd: string): ArtifactRecord[] {
-  const records: ArtifactRecord[] = [];
+export function planScopeArtifacts(
+  result: CompileResult,
+  scope: Scope,
+  cwd: string,
+): PlannedArtifact[] {
+  const planned: PlannedArtifact[] = [];
   const name = result.fb.plugin.name;
   for (const t of result.targets) {
     const paths = t.adapter.detect(scope, cwd);
     const pluginDir = join(paths.plugins, name);
     for (const { componentId, artifact } of t.artifacts) {
-      const { abs, hash } = writeArtifact(pluginDir, artifact.relPath, artifact.contents);
-      records.push({
-        component: componentId,
-        target: t.target,
-        scope,
-        path: abs,
-        hash,
-        placement: "copy",
-        enabled: artifact.executable !== true,
+      const contents = toBuffer(artifact.contents);
+      planned.push({
+        contents,
+        record: {
+          component: componentId,
+          target: t.target,
+          scope,
+          path: join(pluginDir, artifact.relPath),
+          hash: sha256(contents),
+          placement: "copy",
+          enabled: artifact.executable !== true,
+        },
       });
     }
   }
-  return records;
+  return planned;
+}
+
+/** `loom install` placement (spec §9.1 step 6): write every artifact, record each. */
+export function installToScope(result: CompileResult, scope: Scope, cwd: string): ArtifactRecord[] {
+  return planScopeArtifacts(result, scope, cwd).map(({ record, contents }) => {
+    mkdirSync(dirname(record.path), { recursive: true });
+    writeFileSync(record.path, contents);
+    return record;
+  });
 }

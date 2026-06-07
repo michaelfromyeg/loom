@@ -7,6 +7,7 @@ import {
   install,
   LOOM_VERSION,
   lint,
+  update,
 } from "@loom/core";
 import { discoverEvals, runEval } from "@loom/eval";
 import type { Scope, Target } from "@loom/schema";
@@ -101,14 +102,14 @@ const buildCmd = defineCommand({
     out: { type: "string", default: ".loom-out", description: "Output directory" },
     target: { type: "string", description: "Comma-separated targets (default: all registered)" },
   },
-  run({ args }) {
+  async run({ args }) {
     try {
       const registry = buildRegistry();
       const targets = parseTargets(args.target);
 
       // A marketplace.yaml packages many plugins into one catalog.
       if (hasMarketplaceManifest(args.dir)) {
-        const { marketplace, plugins, written } = buildMarketplace({
+        const { marketplace, plugins, written } = await buildMarketplace({
           marketplaceDir: args.dir,
           outDir: args.out,
           registry,
@@ -121,7 +122,7 @@ const buildCmd = defineCommand({
         return;
       }
 
-      const { result, written } = build({
+      const { result, written } = await build({
         pluginDir: args.dir,
         outDir: args.out,
         registry,
@@ -188,7 +189,46 @@ const installCmd = defineCommand({
         `Installed ${result.lockfile.plugin.id}@${result.lockfile.plugin.version} (${scope})`,
       );
       console.log(`  ${result.lockfile.artifacts.length} artifacts placed`);
+      if (result.secrets.resolved.length > 0) {
+        const missing = result.secrets.resolved.filter((r) => r.source === "missing");
+        console.log(
+          `  config: ${result.secrets.resolved.length} declared` +
+            (result.secrets.path ? ` -> ${result.secrets.path} (gitignored)` : "") +
+            (missing.length > 0 ? `; missing: ${missing.map((m) => m.env).join(", ")}` : ""),
+        );
+      }
       console.log(`  lockfile: ${result.lockPath}`);
+    } catch (err) {
+      fail(err);
+    }
+  },
+});
+
+const updateCmd = defineCommand({
+  meta: {
+    name: "update",
+    description: "Re-resolve refs, recompile, and re-place only artifacts whose hash changed",
+  },
+  args: {
+    dir: { type: "positional", required: false, default: ".", description: "Plugin directory" },
+    scope: { type: "string", default: "project", description: "user | project" },
+    target: { type: "string", description: "Comma-separated targets (default: all registered)" },
+    cwd: { type: "string", description: "Project root for project-scope placement (default: cwd)" },
+  },
+  async run({ args }) {
+    try {
+      const scope = (args.scope === "user" ? "user" : "project") as Scope;
+      const result = await update({
+        pluginDir: args.dir,
+        scope,
+        cwd: args.cwd ?? process.cwd(),
+        registry: buildRegistry(),
+        targets: parseTargets(args.target),
+      });
+      console.log(
+        `Updated ${result.lockfile.plugin.id}: ${result.changed.length} artifact(s) changed`,
+      );
+      for (const p of result.changed) console.log(`  ~ ${p}`);
     } catch (err) {
       fail(err);
     }
@@ -275,6 +315,7 @@ const main = defineCommand({
     validate: validateCmd,
     build: buildCmd,
     install: installCmd,
+    update: updateCmd,
     eval: evalCmd,
     docs: docsCmd,
   },

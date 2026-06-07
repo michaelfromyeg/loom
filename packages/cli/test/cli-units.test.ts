@@ -78,8 +78,8 @@ describe("parseList / parseTargets", () => {
 });
 
 describe("report output", () => {
-  it("prints a trust summary covering components and mcp servers", () => {
-    const out = build({
+  it("prints a trust summary covering components and mcp servers", async () => {
+    const out = await build({
       pluginDir: FIXTURE,
       outDir: mkdtempSync(join(tmpdir(), "loom-cli-build-")),
       registry: new AdapterRegistry().register(claudeAdapter),

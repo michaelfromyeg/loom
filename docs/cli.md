@@ -7,7 +7,7 @@ _Generated from the CLI definition by `loom docs` -- do not edit by hand._
 ```
 Author once, compile to every coding-agent harness. (loom v0.1.0)
 
-USAGE `loom init|validate|build|install|eval|docs`
+USAGE `loom init|validate|build|install|update|eval|docs`
 
 COMMANDS
 
@@ -15,6 +15,7 @@ COMMANDS
   `validate`    Statically validate a plugin (the valid badge)                                
      `build`    Compile a plugin (or a marketplace of plugins) to harness manifests           
    `install`    Compile + place a plugin into a harness scope, write loom.lock                
+    `update`    Re-resolve refs, recompile, and re-place only artifacts whose hash changed    
       `eval`    Run a component's evals against the real harnesses (reports UNTESTED honestly)
       `docs`    Print the full CLI reference (a CLI map), generated from the command tree     
 
@@ -111,6 +112,26 @@ OPTIONS
            `--target`    Comma-separated targets (default: all registered)                    
              `--only`    Comma-separated component names to install piecemeal (e.g. one skill)
               `--all`    Install to requested targets even if the harness is not detected     
+              `--cwd`    Project root for project-scope placement (default: cwd)
+```
+
+## `loom update`
+
+Re-resolve refs, recompile, and re-place only artifacts whose hash changed
+
+```
+Re-resolve refs, recompile, and re-place only artifacts whose hash changed (loom update v0.1.0)
+
+USAGE `loom update [OPTIONS] [DIR]`
+
+ARGUMENTS
+
+  `DIR="."`    Plugin directory    
+
+OPTIONS
+
+  `--scope="project"`    user | project                                         
+           `--target`    Comma-separated targets (default: all registered)      
               `--cwd`    Project root for project-scope placement (default: cwd)
 ```
 

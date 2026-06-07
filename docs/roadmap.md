@@ -36,7 +36,7 @@ Acceptance (all met, exercised by `pnpm test`):
 > **marketplace** packages many plugins. There is no separate "bundle" concept. See
 > [concepts.md](concepts.md).
 
-## Phase 1 -- Breadth + drivers + deterministic evals -- MOSTLY DONE
+## Phase 1 -- Breadth + drivers + deterministic evals -- DONE
 
 Packages: the four remaining `@loom/adapter-*` (codex, cursor, copilot, opencode),
 `@loom/eval` (runner + five `HarnessDriver`s via `execa`).
@@ -50,8 +50,13 @@ Packages: the four remaining `@loom/adapter-*` (codex, cursor, copilot, opencode
 - [x] Piecemeal install (`--only`) and namespacing/alias.
 - [x] A community adapter can be authored against `@loom/adapter-kit` without importing core
       internals (verified: every adapter imports only adapter-kit + schema).
-- [ ] Remaining: full **remote** resolver (git clone of `github:`/git deps, drift-aware) and
-      **secrets** (`ConfigVar` declare-not-store resolution to gitignored harness config).
+- [x] **Remote resolver** -- `github:`/git/`file://` sources are git-cloned into `~/.loom/cache`
+      and pinned to a SHA; `depends` vendors selected components into a merged tree (piecemeal +
+      drift-aware copy of shared assets) with cycle detection; deps recorded in `loom.lock`.
+- [x] **Secrets** (`ConfigVar` declare-not-store) -- resolved from env/default to a gitignored
+      `.loom/secrets.local.json`, never to the lockfile/plugin/index.
+- [x] `loom update` -- re-resolves, recompiles, and re-places ONLY artifacts whose content hash
+      changed (content-addressed; an unchanged artifact is never rewritten).
 
 > Many adapter facts beyond Claude are marked `// TODO(verify):` in-code where upstream docs
 > are thin (e.g. Codex `plugin.json` shape, Copilot marketplace shape, Cursor remote MCP

@@ -1,5 +1,7 @@
 export * from "./api";
 export * from "./compile";
+export * from "./config";
+export * from "./deps";
 export * from "./diagnostics";
 export * from "./hash";
 export * from "./loader";

@@ -34,6 +34,14 @@ function walkFiles(root: string, dir: string): string[] {
 
 const MANIFEST_NAMES = ["loom.yaml", "loom.yml", "loom.json5", "loom.json"];
 
+/** Build `read`/`list` accessors rooted at a directory (used for merged plugins too). */
+export function fileAccessors(root: string): Pick<FetchedPlugin, "read" | "list"> {
+  return {
+    read: (relPath: string) => readFileSync(join(root, relPath)),
+    list: (relDir: string) => walkFiles(root, join(root, relDir)),
+  };
+}
+
 /** Load and validate the plugin manifest in `dir`, exposing its files for adapters. */
 export function loadPluginDir(dir: string): ParseResult<FetchedPlugin> {
   const manifestPath = MANIFEST_NAMES.map((n) => join(dir, n)).find((p) => existsSync(p));
@@ -52,13 +60,7 @@ export function loadPluginDir(dir: string): ParseResult<FetchedPlugin> {
 
   return {
     ok: true,
-    value: {
-      plugin: parsed.value,
-      root: dir,
-      manifestPath,
-      read: (relPath: string) => readFileSync(join(dir, relPath)),
-      list: (relDir: string) => walkFiles(dir, join(dir, relDir)),
-    },
+    value: { plugin: parsed.value, root: dir, manifestPath, ...fileAccessors(dir) },
   };
 }
 

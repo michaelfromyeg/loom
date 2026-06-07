@@ -49,9 +49,13 @@ describe("lint", () => {
 });
 
 describe("build", () => {
-  it("emits the claude marketplace + plugin + component files", () => {
+  it("emits the claude marketplace + plugin + component files", async () => {
     const out = join(tmp, "out");
-    const { result, written } = build({ pluginDir: FIXTURE, outDir: out, registry: registry() });
+    const { result, written } = await build({
+      pluginDir: FIXTURE,
+      outDir: out,
+      registry: registry(),
+    });
     expect(result.diagnostics.hasErrors).toBe(false);
 
     const base = join(out, "claude");
@@ -61,16 +65,16 @@ describe("build", () => {
     expect(written.length).toBe(4);
   });
 
-  it("is deterministic: identical hashes across two builds", () => {
-    const a = build({ pluginDir: FIXTURE, outDir: join(tmp, "a"), registry: registry() });
-    const b = build({ pluginDir: FIXTURE, outDir: join(tmp, "b"), registry: registry() });
+  it("is deterministic: identical hashes across two builds", async () => {
+    const a = await build({ pluginDir: FIXTURE, outDir: join(tmp, "a"), registry: registry() });
+    const b = await build({ pluginDir: FIXTURE, outDir: join(tmp, "b"), registry: registry() });
     const norm = (w: typeof a.written) => w.map((x) => `${x.relPath}:${x.hash}`).sort();
     expect(norm(a.written)).toEqual(norm(b.written));
   });
 
   it.skipIf(!CLAUDE_AVAILABLE)("passes `claude plugin validate --strict`", async () => {
     const out = join(tmp, "validated");
-    build({ pluginDir: FIXTURE, outDir: out, registry: registry() });
+    await build({ pluginDir: FIXTURE, outDir: out, registry: registry() });
     const res = await execa("claude", ["plugin", "validate", join(out, "claude"), "--strict"], {
       reject: false,
     });
@@ -160,9 +164,9 @@ describe("piecemeal install (spec §9.2)", () => {
 });
 
 describe("marketplace build (spec §6.2)", () => {
-  it("compiles many plugins into one catalog", () => {
+  it("compiles many plugins into one catalog", async () => {
     const out = join(tmp, "mp");
-    const { marketplace, plugins, written } = buildMarketplace({
+    const { marketplace, plugins, written } = await buildMarketplace({
       marketplaceDir: MARKETPLACE,
       outDir: out,
       registry: registry(),
@@ -185,9 +189,9 @@ describe("marketplace build (spec §6.2)", () => {
     expect(written.length).toBeGreaterThanOrEqual(5);
   });
 
-  it("propagates an entry version override into the compiled plugin.json", () => {
+  it("propagates an entry version override into the compiled plugin.json", async () => {
     const out = join(tmp, "mp-ver");
-    buildMarketplace({ marketplaceDir: MARKETPLACE, outDir: out, registry: registry() });
+    await buildMarketplace({ marketplaceDir: MARKETPLACE, outDir: out, registry: registry() });
     const manifest = JSON.parse(
       readFileSync(join(out, "claude/plugins/weather-tools/.claude-plugin/plugin.json"), "utf8"),
     );
@@ -199,7 +203,7 @@ describe("marketplace build (spec §6.2)", () => {
     "produces a marketplace that passes `claude plugin validate --strict`",
     async () => {
       const out = join(tmp, "mp-validate");
-      buildMarketplace({ marketplaceDir: MARKETPLACE, outDir: out, registry: registry() });
+      await buildMarketplace({ marketplaceDir: MARKETPLACE, outDir: out, registry: registry() });
       const res = await execa("claude", ["plugin", "validate", join(out, "claude"), "--strict"], {
         reject: false,
       });
