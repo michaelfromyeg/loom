@@ -36,19 +36,26 @@ Acceptance (all met, exercised by `pnpm test`):
 > **marketplace** packages many plugins. There is no separate "bundle" concept. See
 > [concepts.md](concepts.md).
 
-## Phase 1 -- Breadth + drivers + deterministic evals
+## Phase 1 -- Breadth + drivers + deterministic evals -- MOSTLY DONE
 
 Packages: the four remaining `@loom/adapter-*` (codex, cursor, copilot, opencode),
 `@loom/eval` (runner + five `HarnessDriver`s via `execa`).
 
-- [ ] A multi-component plugin installs to every harness present on the machine (others
-      skipped + reported).
-- [ ] `loom eval` runs trace + output assertions via the real headless drivers and reports
-      per-harness coverage honestly (incl. UNTESTED).
-- [ ] Full resolver (remote deps, piecemeal, drift-aware), namespacing/alias, secrets,
-      trust summary.
-- [ ] A community adapter can be authored against `@loom/adapter-kit` without importing
-      core internals.
+- [x] All five adapters implemented; `loom build` emits native manifests for every harness.
+- [x] A plugin installs to every harness **present on the machine** (`loom install` detects
+      via the drivers and skips/reports the rest; `--all` overrides).
+- [x] `loom eval` runs trace + output assertions via the real headless drivers (Claude /
+      Codex / Cursor / OpenCode NDJSON/JSONL parsing; **Copilot has no trace, so `trace`
+      degrades to `output`**) and reports per-harness coverage honestly, incl. **UNTESTED**.
+- [x] Piecemeal install (`--only`) and namespacing/alias.
+- [x] A community adapter can be authored against `@loom/adapter-kit` without importing core
+      internals (verified: every adapter imports only adapter-kit + schema).
+- [ ] Remaining: full **remote** resolver (git clone of `github:`/git deps, drift-aware) and
+      **secrets** (`ConfigVar` declare-not-store resolution to gitignored harness config).
+
+> Many adapter facts beyond Claude are marked `// TODO(verify):` in-code where upstream docs
+> are thin (e.g. Codex `plugin.json` shape, Copilot marketplace shape, Cursor remote MCP
+> header serialization). They are isolated behind each adapter's `targetSchema` per spec §2.
 
 Key verified facts for the drivers (see [harness-research.md](harness-research.md)):
 Claude needs `--output-format stream-json --verbose` for a trace (plain `json` is a single

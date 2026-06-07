@@ -8,12 +8,27 @@ import {
   LOOM_VERSION,
   lint,
 } from "@loom/core";
-import type { Scope } from "@loom/schema";
+import { discoverEvals, runEval } from "@loom/eval";
+import type { Scope, Target } from "@loom/schema";
 import { defineCommand, runMain } from "citty";
 import { renderCliReference } from "./cli-docs";
-import { buildRegistry, parseList, parseTargets } from "./registry";
-import { printDiagnostics, printTrustSummary } from "./report";
+import { allDrivers, buildRegistry, parseList, parseTargets } from "./registry";
+import { printDiagnostics, printEvalReport, printTrustSummary } from "./report";
 import { scaffoldPlugin } from "./scaffold";
+
+/** Filter requested targets to harnesses actually present on this machine. */
+async function detectPresent(
+  requested: Target[],
+): Promise<{ present: Target[]; missing: Target[] }> {
+  const drivers = allDrivers();
+  const present: Target[] = [];
+  const missing: Target[] = [];
+  for (const t of requested) {
+    if (await drivers[t]?.available()) present.push(t);
+    else missing.push(t);
+  }
+  return { present, missing };
+}
 
 function countByTarget(written: { target: string }[]): Map<string, number> {
   const counts = new Map<string, number>();
@@ -136,18 +151,36 @@ const installCmd = defineCommand({
       type: "string",
       description: "Comma-separated component names to install piecemeal (e.g. one skill)",
     },
+    all: {
+      type: "boolean",
+      description: "Install to requested targets even if the harness is not detected",
+    },
     cwd: { type: "string", description: "Project root for project-scope placement (default: cwd)" },
   },
   async run({ args }) {
     try {
       const registry = buildRegistry();
       const scope = (args.scope === "user" ? "user" : "project") as Scope;
+      const requested = parseTargets(args.target) ?? registry.targets;
+
+      // Skip targets whose harness isn't on this machine, and say so (spec §9.2).
+      let targets = requested;
+      if (!args.all) {
+        const { present, missing } = await detectPresent(requested);
+        for (const t of missing) console.log(`  skipped ${t}: harness not detected`);
+        if (present.length === 0) {
+          console.error("No requested harness is installed. Use --all to place anyway.");
+          process.exit(1);
+        }
+        targets = present;
+      }
+
       const result = await install({
         pluginDir: args.dir,
         scope,
         cwd: args.cwd ?? process.cwd(),
         registry,
-        targets: parseTargets(args.target),
+        targets,
         only: parseList(args.only),
       });
       printTrustSummary(result.result);
@@ -156,6 +189,53 @@ const installCmd = defineCommand({
       );
       console.log(`  ${result.lockfile.artifacts.length} artifacts placed`);
       console.log(`  lockfile: ${result.lockPath}`);
+    } catch (err) {
+      fail(err);
+    }
+  },
+});
+
+const evalCmd = defineCommand({
+  meta: {
+    name: "eval",
+    description: "Run a component's evals against the real harnesses (reports UNTESTED honestly)",
+  },
+  args: {
+    dir: { type: "positional", required: false, default: ".", description: "Plugin directory" },
+    component: { type: "string", description: "Only eval this component leaf name" },
+    harness: { type: "string", description: "Restrict to these harnesses (comma-separated)" },
+  },
+  async run({ args }) {
+    try {
+      const registry = buildRegistry();
+      const drivers = allDrivers();
+      const discovered = discoverEvals(args.dir).filter(
+        (d) => !args.component || d.componentLeaf === args.component,
+      );
+      if (discovered.length === 0) {
+        console.log("No evals found (a component adds them with an `evals:` file).");
+        return;
+      }
+      const onlyHarness = parseTargets(args.harness);
+      let anyFail = false;
+      for (const d of discovered) {
+        const evalFile = onlyHarness
+          ? {
+              ...d.evalFile,
+              harnesses: d.evalFile.harnesses.filter((h) => onlyHarness.includes(h)),
+            }
+          : d.evalFile;
+        const report = await runEval({
+          evalFile,
+          pluginDir: args.dir,
+          componentLeaf: d.componentLeaf,
+          registry,
+          drivers,
+        });
+        printEvalReport(report);
+        if (report.harnesses.some((h) => h.status === "tested" && !h.pass)) anyFail = true;
+      }
+      if (anyFail) process.exit(1);
     } catch (err) {
       fail(err);
     }
@@ -195,6 +275,7 @@ const main = defineCommand({
     validate: validateCmd,
     build: buildCmd,
     install: installCmd,
+    eval: evalCmd,
     docs: docsCmd,
   },
 });

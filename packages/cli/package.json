@@ -15,8 +15,13 @@
   },
   "dependencies": {
     "@loom/adapter-claude": "workspace:*",
+    "@loom/adapter-codex": "workspace:*",
+    "@loom/adapter-copilot": "workspace:*",
+    "@loom/adapter-cursor": "workspace:*",
     "@loom/adapter-kit": "workspace:*",
+    "@loom/adapter-opencode": "workspace:*",
     "@loom/core": "workspace:*",
+    "@loom/eval": "workspace:*",
     "@loom/schema": "workspace:*",
     "citty": "^0.1.6"
   }

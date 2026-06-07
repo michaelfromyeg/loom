@@ -18,6 +18,16 @@ export default defineConfig({
         "packages/adapter-kit/src/adapter.ts",
         "packages/adapter-kit/src/catalog.ts",
         "packages/adapter-kit/src/driver.ts",
+        // Subprocess glue: spawns real harness CLIs, only exercisable as an
+        // integration test against an installed harness (the pure parsers in
+        // drivers/parse.ts ARE unit-tested). The CLI entrypoint is similar.
+        "packages/eval/src/drivers/util.ts",
+        "packages/eval/src/drivers/claude.ts",
+        "packages/eval/src/drivers/codex.ts",
+        "packages/eval/src/drivers/cursor.ts",
+        "packages/eval/src/drivers/copilot.ts",
+        "packages/eval/src/drivers/opencode.ts",
+        "packages/cli/src/index.ts",
       ],
       thresholds: {
         statements: 80,

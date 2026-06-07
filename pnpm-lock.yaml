@@ -48,6 +48,33 @@ importers:
         specifier: workspace:*
         version: link:../schema
 
+  packages/adapter-codex:
+    dependencies:
+      '@loom/adapter-kit':
+        specifier: workspace:*
+        version: link:../adapter-kit
+      '@loom/schema':
+        specifier: workspace:*
+        version: link:../schema
+
+  packages/adapter-copilot:
+    dependencies:
+      '@loom/adapter-kit':
+        specifier: workspace:*
+        version: link:../adapter-kit
+      '@loom/schema':
+        specifier: workspace:*
+        version: link:../schema
+
+  packages/adapter-cursor:
+    dependencies:
+      '@loom/adapter-kit':
+        specifier: workspace:*
+        version: link:../adapter-kit
+      '@loom/schema':
+        specifier: workspace:*
+        version: link:../schema
+
   packages/adapter-kit:
     dependencies:
       '@loom/schema':
@@ -57,17 +84,41 @@ importers:
         specifier: ^2.6.1
         version: 2.9.0
 
+  packages/adapter-opencode:
+    dependencies:
+      '@loom/adapter-kit':
+        specifier: workspace:*
+        version: link:../adapter-kit
+      '@loom/schema':
+        specifier: workspace:*
+        version: link:../schema
+
   packages/cli:
     dependencies:
       '@loom/adapter-claude':
         specifier: workspace:*
         version: link:../adapter-claude
+      '@loom/adapter-codex':
+        specifier: workspace:*
+        version: link:../adapter-codex
+      '@loom/adapter-copilot':
+        specifier: workspace:*
+        version: link:../adapter-copilot
+      '@loom/adapter-cursor':
+        specifier: workspace:*
+        version: link:../adapter-cursor
       '@loom/adapter-kit':
         specifier: workspace:*
         version: link:../adapter-kit
+      '@loom/adapter-opencode':
+        specifier: workspace:*
+        version: link:../adapter-opencode
       '@loom/core':
         specifier: workspace:*
         version: link:../core
+      '@loom/eval':
+        specifier: workspace:*
+        version: link:../eval
       '@loom/schema':
         specifier: workspace:*
         version: link:../schema
@@ -93,6 +144,21 @@ importers:
       '@types/semver':
         specifier: ^7.5.8
         version: 7.7.1
+
+  packages/eval:
+    dependencies:
+      '@loom/adapter-kit':
+        specifier: workspace:*
+        version: link:../adapter-kit
+      '@loom/core':
+        specifier: workspace:*
+        version: link:../core
+      '@loom/schema':
+        specifier: workspace:*
+        version: link:../schema
+      execa:
+        specifier: ^9.5.2
+        version: 9.6.1
 
   packages/schema:
     dependencies:

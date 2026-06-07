@@ -1,14 +1,30 @@
 import claudeAdapter from "@loom/adapter-claude";
+import codexAdapter from "@loom/adapter-codex";
+import copilotAdapter from "@loom/adapter-copilot";
+import cursorAdapter from "@loom/adapter-cursor";
+import type { HarnessDriver } from "@loom/adapter-kit";
+import opencodeAdapter from "@loom/adapter-opencode";
 import { AdapterRegistry } from "@loom/core";
+import { drivers } from "@loom/eval";
 import type { Target } from "@loom/schema";
 
 /**
- * Wire concrete adapters into a registry. The CLI sits at the top of the
- * dependency graph, so it -- not core -- knows the full adapter set. As more
- * adapters land they register here; community adapters can be added the same way.
+ * Wire every concrete adapter into a registry. The CLI sits at the top of the
+ * dependency graph, so it -- not core -- knows the full adapter set. Community
+ * adapters are added the same way.
  */
 export function buildRegistry(): AdapterRegistry {
-  return new AdapterRegistry().register(claudeAdapter);
+  return new AdapterRegistry()
+    .register(claudeAdapter)
+    .register(codexAdapter)
+    .register(cursorAdapter)
+    .register(copilotAdapter)
+    .register(opencodeAdapter);
+}
+
+/** The headless eval drivers, keyed by Target (from @loom/eval). */
+export function allDrivers(): Record<Target, HarnessDriver> {
+  return drivers;
 }
 
 /** Parse a comma-separated CLI value into a trimmed list, or undefined when empty. */

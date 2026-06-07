@@ -1,4 +1,5 @@
 import type { CompileResult, Diagnostic } from "@loom/core";
+import type { EvalReport } from "@loom/eval";
 
 export function formatDiagnostic(d: Diagnostic): string {
   const tag = d.severity === "error" ? "error" : d.severity === "warning" ? "warn" : "info";
@@ -44,4 +45,22 @@ export function printTrustSummary(result: CompileResult): void {
 
   console.log(`  mcp servers that will run: ${counts.get("mcp") ?? 0}`);
   console.log("  badges: valid (computed) | signed/verified/scanned: not yet\n");
+}
+
+/** Render an eval report: per-harness PASS/FAIL/UNTESTED with per-assertion status. */
+export function printEvalReport(report: EvalReport): void {
+  console.log(`\nEval: ${report.component}`);
+  for (const h of report.harnesses) {
+    if (h.status === "untested") {
+      console.log(`  ${h.harness}: UNTESTED (${h.reason})`);
+      continue;
+    }
+    console.log(`  ${h.harness}: ${h.pass ? "PASS" : "FAIL"}`);
+    for (const c of h.cases) {
+      console.log(`    - ${c.name}: ${c.pass ? "pass" : "fail"}`);
+      for (const a of c.assertions) {
+        console.log(`        ${a.kind}: ${a.status} (${a.detail})`);
+      }
+    }
+  }
 }
