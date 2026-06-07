@@ -1,0 +1,30 @@
+{
+  "name": "@loom/core",
+  "version": "0.1.0",
+  "description": "Loom compile pipeline: resolver, namespacing, placement, lockfile, adapter registry.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup"
+  },
+  "dependencies": {
+    "@loom/adapter-kit": "workspace:*",
+    "@loom/schema": "workspace:*",
+    "execa": "^9.5.2",
+    "semver": "^7.6.3"
+  },
+  "devDependencies": {
+    "@types/semver": "^7.5.8"
+  }
+}

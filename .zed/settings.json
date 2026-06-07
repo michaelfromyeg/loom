@@ -1,0 +1,68 @@
+{
+  "format_on_save": "on",
+  "formatter": "language_server",
+  "code_actions_on_format": {
+    "source.organizeImports.biome": true,
+    "source.fixAll.biome": true
+  },
+  "languages": {
+    "TypeScript": {
+      "language_servers": ["vtsls", "biome", "!typescript-language-server", "!eslint"],
+      "formatter": { "language_server": { "name": "biome" } },
+      "tab_size": 2
+    },
+    "TSX": {
+      "language_servers": ["vtsls", "biome", "!typescript-language-server", "!eslint"],
+      "formatter": { "language_server": { "name": "biome" } },
+      "tab_size": 2
+    },
+    "JavaScript": {
+      "language_servers": ["vtsls", "biome", "!typescript-language-server", "!eslint"],
+      "formatter": { "language_server": { "name": "biome" } },
+      "tab_size": 2
+    },
+    "JSON": {
+      "formatter": { "language_server": { "name": "biome" } },
+      "tab_size": 2
+    },
+    "JSONC": {
+      "formatter": { "language_server": { "name": "biome" } },
+      "tab_size": 2
+    }
+  },
+  "lsp": {
+    "vtsls": {
+      "settings": {
+        "typescript": {
+          "tsserver": { "maxTsServerMemory": 4096 },
+          "preferences": { "importModuleSpecifier": "non-relative" },
+          "updateImportsOnFileMove": { "enabled": "always" },
+          "inlayHints": {
+            "parameterNames": { "enabled": "literals" },
+            "variableTypes": { "enabled": false }
+          }
+        }
+      }
+    },
+    "biome": {
+      "settings": {
+        "require_config_file": true
+      }
+    }
+  },
+  "file_types": {
+    "JSONC": ["*.json5", "tsconfig.json", "biome.json", ".zed/settings.json"]
+  },
+  "file_scan_exclusions": [
+    "**/node_modules",
+    "**/dist",
+    "**/.git",
+    "**/*.tsbuildinfo",
+    "**/coverage"
+  ],
+  "terminal": {
+    "env": {
+      "PATH": "/home/mdema/.bun/bin:$PATH"
+    }
+  }
+}

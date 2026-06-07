@@ -1,0 +1,47 @@
+import type { CompileResult, Diagnostic } from "@loom/core";
+
+export function formatDiagnostic(d: Diagnostic): string {
+  const tag = d.severity === "error" ? "error" : d.severity === "warning" ? "warn" : "info";
+  const where = d.where ? `${d.where}: ` : "";
+  return `  ${tag.padEnd(5)} ${where}${d.message}`;
+}
+
+export function printDiagnostics(items: Diagnostic[]): void {
+  for (const d of items) {
+    const line = formatDiagnostic(d);
+    if (d.severity === "error") console.error(line);
+    else console.warn(line);
+  }
+}
+
+/**
+ * The trust summary required before first install (spec §11): what runs and on
+ * whose authority. Lists components by kind, every executable artifact, every MCP
+ * server, and the publisher-verification state.
+ */
+export function printTrustSummary(result: CompileResult): void {
+  const { plugin } = result.fb;
+  // Count from the components actually installed (accurate for piecemeal installs).
+  const components = result.components;
+  console.log(`\nTrust summary for ${result.id}@${plugin.version}`);
+  console.log(`  publisher: ${plugin.owner.name} <${plugin.owner.namespace}> (unverified)`);
+
+  const counts = new Map<string, number>();
+  for (const c of components) counts.set(c.kind, (counts.get(c.kind) ?? 0) + 1);
+  const summary = [...counts.entries()].map(([k, n]) => `${n} ${k}`).join(", ");
+  console.log(`  components: ${summary || "none"}`);
+
+  const executables = result.targets.flatMap((t) =>
+    t.artifacts
+      .filter((p) => p.artifact.executable)
+      .map((p) => `${t.target}:${p.artifact.relPath}`),
+  );
+  console.log(
+    executables.length > 0
+      ? `  executables (placed DISABLED): ${executables.join(", ")}`
+      : "  executables: none",
+  );
+
+  console.log(`  mcp servers that will run: ${counts.get("mcp") ?? 0}`);
+  console.log("  badges: valid (computed) | signed/verified/scanned: not yet\n");
+}

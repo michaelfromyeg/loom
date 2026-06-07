@@ -1,0 +1,36 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["ES2023"],
+    "types": ["node"],
+    "strict": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "exactOptionalPropertyTypes": false,
+    "noUncheckedIndexedAccess": false,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "forceConsistentCasingInFileNames": true,
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+    "baseUrl": ".",
+    "paths": {
+      "@loom/schema": ["./packages/schema/src/index.ts"],
+      "@loom/core": ["./packages/core/src/index.ts"],
+      "@loom/adapter-kit": ["./packages/adapter-kit/src/index.ts"],
+      "@loom/adapter-claude": ["./packages/adapter-claude/src/index.ts"],
+      "@loom/adapter-codex": ["./packages/adapter-codex/src/index.ts"],
+      "@loom/adapter-cursor": ["./packages/adapter-cursor/src/index.ts"],
+      "@loom/adapter-copilot": ["./packages/adapter-copilot/src/index.ts"],
+      "@loom/adapter-opencode": ["./packages/adapter-opencode/src/index.ts"],
+      "@loom/eval": ["./packages/eval/src/index.ts"],
+      "@loom/index": ["./packages/index/src/index.ts"]
+    }
+  }
+}

@@ -1,0 +1,137 @@
+# Authoring plugins
+
+A plugin is a directory with a `loom.yaml` (or `loom.json5`) and the component files it
+references. Manifests are parsed in **YAML 1.2 core** mode (so `no`/`yes`/`on`/`off` stay
+strings) or as JSON5, then validated by Zod. A JSON Schema for each manifest is published
+for editor autocomplete (`pnpm --filter @loom/schema emit-schemas`).
+
+## `loom.yaml`
+
+The single file an author writes.
+
+```yaml
+name: sample-plugin            # kebab-case
+version: 0.1.0                 # semver -- QUOTE versions like "1.10" (unquoted is a float)
+owner:
+  name: Acme Tools
+  namespace: com.acme          # reverse-DNS; the component id prefix
+  email: tools@acme.example    # optional
+description: A sample plugin.   # recommended -- harnesses route on it
+license: MIT                    # optional
+loom_min_version: 0.1.0         # optional -- minimum Loom version
+components:
+  - skill: skills/code-review
+    evals: evals/code-review.cases.yaml   # optional
+  - mcp: mcp/weather
+depends: []                     # optional -- other plugins (see below)
+trust:                          # optional
+  sign: false
+  scan: [schema]
+```
+
+A component's **fully-qualified id** is `{owner.namespace}/{plugin.name}:{leaf}` --
+e.g. `com.acme/sample-plugin:code-review`. The `leaf` is the basename of the component
+path. When a leaf is unique it is also usable bare (e.g. `/code-review`).
+
+### Component kinds
+
+Each component is one object discriminated by which key is present:
+
+| key            | points at                          | stored verbatim |
+|----------------|------------------------------------|-----------------|
+| `skill`        | a directory containing `SKILL.md`  | yes             |
+| `mcp`          | a directory containing `server.json` | yes           |
+| `agent`        | an agent markdown file or directory | yes            |
+| `command`      | a command markdown file            | yes             |
+| `hook`         | a hook file                        | yes             |
+| `passthrough`  | a verbatim executable, single target | yes (DISABLED) |
+
+Shared optional fields on every kind except `passthrough`:
+
+- `targets: [claude, codex, cursor, copilot, opencode]` -- which harnesses to emit for
+  (default: all). Only targets with a registered adapter are emitted.
+- `evals: path/to/cases.yaml`.
+
+`passthrough` is for an artifact you want copied verbatim to one harness:
+
+```yaml
+- passthrough: hooks/guard.sh
+  target: claude
+  kind: hook            # hook | plugin | script
+  default_enabled: false
+```
+
+Passthrough/executable artifacts are always placed **disabled**.
+
+### MCP components
+
+The `server.json` is the MCP-standard ServerJSON (the same shape the official MCP Registry
+serves). The adapter derives the harness's runnable config from `packages[]` /`remotes[]`
+/ a bare `command`. For example an npm package becomes `npx -y <identifier>@<version>`.
+
+### Dependencies
+
+```yaml
+depends:
+  - plugin: github:acme/platform-tools   # github:owner/repo | <git-url> | npm:<pkg> | ./path
+    version: ^1.4.0                       # semver range
+    components: [code-review]             # optional: pull only these leaves
+```
+
+Phase 0 resolves local `./path` dependencies; remote resolution arrives in Phase 1.
+
+## `marketplace.yaml`
+
+A curated catalog compiled to each harness's native catalog from one file.
+
+```yaml
+name: acme-tools
+owner:
+  name: Acme
+  namespace: com.acme
+description: Acme's internal tools.
+plugins:
+  - plugin: github:acme/platform-tools
+    version: ^1.4.0
+    category: review
+    tags: [code, quality]
+allow_dependencies_on: [com.acme, com.partner]   # permitted external namespaces
+```
+
+## `cases.yaml` (evals)
+
+Evals run against the real harnesses headlessly and assert over what the agent did.
+
+```yaml
+component: com.acme/sample-plugin:code-review
+harnesses: [claude]            # others are reported UNTESTED, never faked
+cases:
+  - name: reads-before-reviewing
+    prompt: "Review the change in CHANGES.md and list any bugs."
+    setup: "printf '...' > CHANGES.md"   # shell, runs before
+    verify: "test -f report.md"          # shell, exit 0 = pass (post-state)
+    cleanup: "rm -f CHANGES.md"          # shell, runs after
+    samples: 1
+    assert:
+      - kind: trace                       # inspect the tool-call trace
+        toolCalled: Read
+        minPassRate: 1.0
+      - kind: output                      # match the final text
+        matches: "(?i)bug"
+      - kind: judge                       # LLM judge (advisory unless gate:true)
+        rubric: "Did the review find the real bug?"
+        mode: pairwise
+      - kind: differential                # no-regression vs last release
+        noWorseThan: 0.0
+```
+
+Assertion kinds and their gating defaults are documented in the spec (§12). `trace`
+assertions degrade to `output` assertions on harnesses that expose no structured trace
+(e.g. GitHub Copilot today).
+
+## `loom.lock`
+
+Generated by `install` and committed. Records the resolved plugin ref/SHA, every placed
+artifact with its content hash and scope, the adapter + target-schema versions, and the
+alias table. It drives `update` (hash diff), `uninstall` (recorded paths), and the
+**signed** badge.

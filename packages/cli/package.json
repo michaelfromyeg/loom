@@ -1,0 +1,23 @@
+{
+  "name": "@loom/cli",
+  "version": "0.1.0",
+  "description": "The `loom` CLI: a thin shell over @loom/core and the harness adapters.",
+  "type": "module",
+  "bin": {
+    "loom": "./dist/index.js"
+  },
+  "main": "./dist/index.js",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup"
+  },
+  "dependencies": {
+    "@loom/adapter-claude": "workspace:*",
+    "@loom/adapter-kit": "workspace:*",
+    "@loom/core": "workspace:*",
+    "@loom/schema": "workspace:*",
+    "citty": "^0.1.6"
+  }
+}

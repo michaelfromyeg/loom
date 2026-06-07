@@ -1,0 +1,12 @@
+name: acme-tools
+owner:
+  name: Acme Tools
+  namespace: com.acme
+  email: tools@acme.example
+description: Acme's internal marketplace -- code and weather tooling for every harness.
+plugins:
+  - plugin: ./plugins/code-tools
+    category: review
+    tags: [code, quality]
+  - plugin: ./plugins/weather-tools
+    version: 0.2.0

@@ -1,0 +1,13 @@
+component: com.acme/sample-plugin:code-review
+harnesses: [claude]
+cases:
+  - name: reads-before-reviewing
+    prompt: "Review the change described in CHANGES.md and list any correctness bugs."
+    setup: "printf 'def add(a,b):\\n    return a - b\\n' > CHANGES.md"
+    cleanup: "rm -f CHANGES.md"
+    assert:
+      - kind: trace
+        toolCalled: Read
+        minPassRate: 1.0
+      - kind: output
+        matches: "(?i)(bug|subtract|minus|wrong|incorrect)"

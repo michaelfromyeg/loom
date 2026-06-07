@@ -1,0 +1,8 @@
+name: code-tools
+version: 1.0.0
+owner:
+  name: Acme Tools
+  namespace: com.acme
+description: Linting and review helpers.
+components:
+  - skill: skills/lint

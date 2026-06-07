@@ -1,0 +1,8 @@
+name: weather-tools
+version: 0.1.0
+owner:
+  name: Acme Tools
+  namespace: com.acme
+description: Weather lookup tooling.
+components:
+  - mcp: mcp/weather
