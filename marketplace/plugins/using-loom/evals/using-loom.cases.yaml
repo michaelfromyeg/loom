@@ -1,0 +1,17 @@
+component: io.github.michaelfromyeg/using-loom:using-loom
+harnesses: [claude]
+cases:
+  - name: install-to-specific-harnesses
+    prompt: "Using Loom, what is the exact command to install the plugin in the current directory to only Claude Code and Codex? Reply with just the command."
+    assert:
+      - kind: output
+        matches: "(?i)loom install"
+      - kind: output
+        matches: "(?i)--target"
+      - kind: output
+        matches: "(?i)codex"
+  - name: build-without-installing
+    prompt: "With Loom, which single command compiles a plugin to every harness WITHOUT installing it into any harness? Name the command."
+    assert:
+      - kind: output
+        matches: "(?i)loom build"

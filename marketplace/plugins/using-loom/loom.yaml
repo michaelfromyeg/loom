@@ -7,3 +7,4 @@ description: How to author a capability once and compile it to every coding-agen
 license: MIT
 components:
   - skill: skills/using-loom
+    evals: evals/using-loom.cases.yaml

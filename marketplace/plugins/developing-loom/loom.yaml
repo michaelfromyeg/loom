@@ -7,3 +7,4 @@ description: How to work on Loom itself, the monorepo layout, the adapter seam, 
 license: MIT
 components:
   - skill: skills/developing-loom
+    evals: evals/developing-loom.cases.yaml

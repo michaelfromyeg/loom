@@ -2,7 +2,10 @@ import type { HarnessDriver, Transcript } from "@michaelfromyeg/loom-adapter-kit
 import { parseClaudeStream } from "./parse";
 import { cliAvailable, runCli } from "./util";
 
-const ALLOWED_TOOLS = "Read,Edit,Write,Bash,Grep,Glob,WebFetch";
+// Include "Skill" so an installed plugin's skill can actually activate during an
+// eval; without it, headless claude answers from general knowledge and a skill is
+// never exercised (the whole point of the eval).
+const ALLOWED_TOOLS = "Read,Edit,Write,Bash,Grep,Glob,WebFetch,Skill";
 
 export const claudeDriver: HarnessDriver = {
   target: "claude",
