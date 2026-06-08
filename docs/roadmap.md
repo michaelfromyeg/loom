@@ -103,28 +103,68 @@ Beyond the original spec, two lifecycle commands round out the loop:
 
 - [x] `loom import` reverse-compiles an existing native plugin or marketplace into the Loom
       model, so you can cross-compile assets you already maintain (federate, don't wall off).
-      Claude is implemented; a Loom -> Claude -> Loom -> Claude round-trip passes
-      `claude plugin validate --strict`.
+      All five harnesses are supported through each adapter's `importNative`, so import is
+      any-to-any (`loom import --from <harness>`); a Loom -> Claude -> Loom -> Claude
+      round-trip passes `claude plugin validate --strict`.
 - [x] `loom uninstall` removes everything `install` placed, using the paths recorded in
       `loom.lock`, then deletes the lockfile.
 
 ## Beyond v1 (planned)
 
-Not built yet; tracked so the boundary is honest:
+Not built yet; tracked so the boundary is honest. Grouped by theme, roughly in priority order
+within each group. Nothing here blocks using Loom today; most items swap a production backend
+in behind an interface that already exists.
 
-- `importNative` for the other four harnesses (codex/cursor/copilot/opencode), so import is
-  any-to-any rather than Claude-only.
+### Trust & supply chain
+
+The one real gap in the trust story is ownership. Everything else here is a backend swap.
+
 - The `verified` badge: prove `owner.namespace` ownership via a GitHub / DNS / HTTP challenge,
-  reusing the MCP Registry's scheme rather than reinventing it.
-- Resolver depth: `npm:` source resolution, the `git-subdir` form, and transitive (multi-level)
-  dependency resolution (today `depends` resolves one level).
+  reusing the MCP Registry's scheme rather than reinventing it. Today any metadata can claim
+  any namespace.
+- sigstore / cosign keyless signing as the production `signed` backend (today: local ed25519),
+  tied to npm provenance / SLSA attestation (releases already publish with provenance on).
+- garak / AI-Infra-Guard scanner integration for the `scanned` badge (today: a heuristic scan).
+
+### Authoring experience
+
+- `loom dev` (watch mode): recompile on file change for a tight authoring loop.
+- `loom diff`: a dry run that shows exactly which artifacts an install/update would add,
+  rewrite, or remove before touching disk (the content-hash plan already exists internally).
+- Publish the JSON Schemas to a CDN for `$schema`-driven editor autocomplete, then an LSP /
+  VS Code extension that validates `loom.yaml` and previews compiled output live.
+- More scaffolds: `loom init --template <mcp-wrapper|skill-pack|...>`.
+
+### More harnesses
+
+The adapter-kit seam is designed for this; each is a new package, no core change.
+
+- Adapters for Windsurf, Cline, Aider, Zed's agent, and Continue.dev.
+- An adapter conformance suite (golden fixtures) so a community adapter self-certifies against
+  the `HarnessAdapter` contract.
 - Richer OpenCode driver via `@opencode-ai/sdk` / `opencode serve` SSE (full pending->running->
   completed tool states) and the ACP transport.
-- sigstore / cosign keyless signing as the production `signed` backend (today: local ed25519).
-- garak / AI-Infra-Guard scanner integration for the `scanned` badge (today: a heuristic scan).
-- Hosted CI eval tier, opt-in auto-update with channels, a public index UI, and a real
-  telemetry transport (the data model and the deterministic gate already exist).
-- Publishing the JSON Schemas to a CDN for `$schema`-driven editor autocomplete.
+
+### Resolver depth
+
+- `npm:` source resolution and the `git-subdir` form.
+- Transitive (multi-level) `depends` and semver ranges on dependencies (today: one level,
+  exact SHA pins).
+
+### Discovery & operations
+
+- A public index UI plus a hosted registry backend, and `loom search` over the federated index.
+- A hosted CI eval tier (BYO-keys local stays the default) and an eval compatibility-matrix
+  badge across harnesses.
+- `loom doctor`: report installed harnesses and versions, and any drift between `loom.lock`
+  and on-disk state.
+- Opt-in auto-update with channels, and a real telemetry transport (the data model and the
+  deterministic gate already exist).
+
+### Distribution
+
+- Standalone single-file binaries (`bun build --compile`) per platform, attached to GitHub
+  releases, so `loom` installs without a Node toolchain.
 
 ## Invariants held throughout
 
