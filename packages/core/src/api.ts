@@ -26,7 +26,7 @@ import {
   type WrittenArtifact,
 } from "./place";
 import type { AdapterRegistry } from "./registry";
-import { gitInfo, resolvePluginRefFull } from "./resolve";
+import { gitInfo, type ResolvedPlugin, resolvePluginRefFull } from "./resolve";
 
 /** Load a plugin and resolve its `depends` into a merged tree (spec §9.1 step 2). */
 function loadResolved(
@@ -199,14 +199,26 @@ export interface InstallResult {
   secrets: SecretsResult;
 }
 
-/** Compile a plugin, place it into the scope's dirs, resolve config, write `loom.lock`. */
-export async function install(opts: InstallOptions): Promise<InstallResult> {
-  const { fb, dependencies } = await loadResolved(opts.pluginDir);
-  const result = compile(fb, {
-    registry: opts.registry,
-    targets: opts.targets,
-    only: opts.only,
-  });
+/** Compile an already-resolved plugin, place it into the scope, and write its lock. */
+function installResolved(
+  fb: FetchedPlugin,
+  dependencies: DependencyRecord[],
+  opts: {
+    scope: Scope;
+    cwd: string;
+    registry: AdapterRegistry;
+    targets?: Target[];
+    only?: string[];
+    managed?: ManagedPolicy;
+    badges?: Badge[];
+    ref: string;
+    sha: string;
+    /** Where to write `loom.lock` (default: the plugin's resolved root). */
+    lockDir?: string;
+    now?: string;
+  },
+): InstallResult {
+  const result = compile(fb, { registry: opts.registry, targets: opts.targets, only: opts.only });
   if (result.diagnostics.hasErrors) {
     throw new CompileError("compile failed", result.diagnostics.errors);
   }
@@ -222,17 +234,100 @@ export async function install(opts: InstallOptions): Promise<InstallResult> {
   }
   const artifacts = installToScope(result, opts.scope, opts.cwd);
   const secrets = resolveConfig(result.fb.plugin, opts.cwd);
-  const { ref, sha } = await gitInfo(opts.pluginDir);
   const lockfile = buildLockfile({
     result,
     artifacts,
     dependencies,
-    ref,
-    sha,
+    ref: opts.ref,
+    sha: opts.sha,
     generatedAt: opts.now ?? new Date().toISOString(),
   });
-  const lockPath = writeLock(opts.lockDir ?? opts.pluginDir, lockfile);
+  const lockPath = writeLock(opts.lockDir ?? fb.root, lockfile);
   return { result, lockfile, lockPath, secrets };
+}
+
+/** Compile a plugin, place it into the scope's dirs, resolve config, write `loom.lock`. */
+export async function install(opts: InstallOptions): Promise<InstallResult> {
+  const { fb, dependencies } = await loadResolved(opts.pluginDir);
+  const { ref, sha } = await gitInfo(opts.pluginDir);
+  return installResolved(fb, dependencies, {
+    scope: opts.scope,
+    cwd: opts.cwd,
+    registry: opts.registry,
+    ref,
+    sha,
+    lockDir: opts.lockDir ?? opts.pluginDir,
+    ...(opts.targets ? { targets: opts.targets } : {}),
+    ...(opts.only ? { only: opts.only } : {}),
+    ...(opts.managed ? { managed: opts.managed } : {}),
+    ...(opts.badges ? { badges: opts.badges } : {}),
+    ...(opts.now ? { now: opts.now } : {}),
+  });
+}
+
+export interface InstallMarketplaceOptions {
+  marketplaceDir: string;
+  scope: Scope;
+  cwd: string;
+  registry: AdapterRegistry;
+  targets?: Target[];
+  managed?: ManagedPolicy;
+  now?: string;
+}
+
+export interface InstallMarketplaceResult {
+  marketplace: Marketplace;
+  /** One install result per marketplace plugin, in catalog order. */
+  installs: InstallResult[];
+}
+
+/**
+ * Install every plugin in a marketplace into the scope in one pass (the
+ * company-marketplace install). Each plugin is resolved (local or remote),
+ * compiled, placed, and gets its own `loom.lock` in its resolved root, mirroring
+ * a single-plugin install at marketplace scale (spec invariant: same primitives).
+ */
+export async function installMarketplace(
+  opts: InstallMarketplaceOptions,
+): Promise<InstallMarketplaceResult> {
+  const loaded = loadMarketplaceDir(opts.marketplaceDir);
+  if (!loaded.ok) {
+    throw new CompileError(
+      `failed to load marketplace in ${opts.marketplaceDir}`,
+      issuesToDiagnostics(loaded.issues),
+    );
+  }
+  const { marketplace, root } = loaded.value;
+
+  const installs: InstallResult[] = [];
+  for (const entry of marketplace.plugins) {
+    let resolved: ResolvedPlugin;
+    try {
+      resolved = await resolvePluginRefFull(entry.plugin, root);
+    } catch (err) {
+      throw new CompileError(`marketplace entry "${entry.plugin}" failed`, [
+        { severity: "error", where: "plugins", message: (err as Error).message },
+      ]);
+    }
+    // An entry version override flows into the installed plugin (catalog wins).
+    let fb = resolved.fb;
+    if (entry.version) fb = { ...fb, plugin: { ...fb.plugin, version: entry.version } };
+    const { fb: merged, dependencies } = await resolveDependencies(fb);
+    installs.push(
+      installResolved(merged, dependencies, {
+        scope: opts.scope,
+        cwd: opts.cwd,
+        registry: opts.registry,
+        ref: resolved.ref,
+        sha: resolved.sha,
+        lockDir: fb.root,
+        ...(opts.targets ? { targets: opts.targets } : {}),
+        ...(opts.managed ? { managed: opts.managed } : {}),
+        ...(opts.now ? { now: opts.now } : {}),
+      }),
+    );
+  }
+  return { marketplace, installs };
 }
 
 export interface UninstallOptions {

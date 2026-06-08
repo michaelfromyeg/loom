@@ -44,6 +44,9 @@ for an absent harness with `--all`. Install a single component with `--only my-s
 writes a content-addressed `loom.lock`; `loom update` re-places only artifacts whose hash
 changed, and `loom uninstall` removes everything it placed.
 
+Point `loom install` at a `marketplace.yaml` instead of a plugin and it installs every plugin
+in the marketplace across the targets in one command. The same primitive at a larger scale.
+
 ## Evaluating and importing
 
 - `loom eval my-plugin` runs a component's evals against the real headless harnesses and

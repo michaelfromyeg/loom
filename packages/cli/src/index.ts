@@ -9,6 +9,7 @@ import {
   hasMarketplaceManifest,
   importNativePlugin,
   install,
+  installMarketplace,
   LOOM_VERSION,
   lint,
   readLock,
@@ -166,10 +167,15 @@ const buildCmd = defineCommand({
 const installCmd = defineCommand({
   meta: {
     name: "install",
-    description: "Compile + place a plugin into a harness scope, write loom.lock",
+    description: "Compile + place a plugin (or a whole marketplace) into harness scopes",
   },
   args: {
-    dir: { type: "positional", required: false, default: ".", description: "Plugin directory" },
+    dir: {
+      type: "positional",
+      required: false,
+      default: ".",
+      description: "Plugin or marketplace directory",
+    },
     scope: { type: "string", default: "project", description: "user | project" },
     target: { type: "string", description: "Comma-separated targets (default: all registered)" },
     only: {
@@ -203,6 +209,32 @@ const installCmd = defineCommand({
           process.exit(1);
         }
         targets = present;
+      }
+
+      // A marketplace.yaml installs all of its plugins across the targets at once.
+      if (hasMarketplaceManifest(args.dir)) {
+        const mp = await installMarketplace({
+          marketplaceDir: args.dir,
+          scope,
+          cwd: args.cwd ?? process.cwd(),
+          registry,
+          targets,
+          ...(allow ? { managed: { allowNamespaces: allow } } : {}),
+        });
+        log.data({
+          marketplace: mp.marketplace.name,
+          plugins: mp.installs.map((i) => i.lockfile.plugin.id),
+          scope,
+        });
+        log.info(
+          `Installed marketplace ${mp.marketplace.name} (${mp.installs.length} plugins, ${scope})`,
+        );
+        for (const i of mp.installs) {
+          log.info(
+            `  ${i.lockfile.plugin.id}@${i.lockfile.plugin.version}: ${i.lockfile.artifacts.length} artifacts`,
+          );
+        }
+        return;
       }
 
       const result = await install({

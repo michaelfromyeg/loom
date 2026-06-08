@@ -22,3 +22,7 @@ fixtures/**/loom.lock
 fixtures/**/.loom/
 fixtures/**/loom.sig
 fixtures/**/loom.pub
+
+# marketplace install artifacts (written when installing the repo's own marketplace)
+marketplace/**/loom.lock
+marketplace/**/.loom/

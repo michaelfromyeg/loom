@@ -1,4 +1,4 @@
-import { cpSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -10,6 +10,7 @@ import {
   gitInfo,
   hasMarketplaceManifest,
   install,
+  installMarketplace,
   lint,
   loadMarketplaceDir,
   parseSource,
@@ -140,6 +141,34 @@ describe("marketplace loader", () => {
     const empty = mkdtempSync(join(tmpdir(), "loom-units-mp-"));
     expect(loadMarketplaceDir(empty).ok).toBe(false);
     rmSync(empty, { recursive: true, force: true });
+  });
+});
+
+describe("installMarketplace", () => {
+  it("installs every plugin in a marketplace into the scope, honoring version overrides", async () => {
+    // Copy the fixture so the per-plugin locks land in temp, not in fixtures/.
+    const mpDir = join(tmp, "mp-install");
+    cpSync(MARKETPLACE, mpDir, { recursive: true });
+    const cwd = join(tmp, "mp-scope");
+
+    const { marketplace, installs } = await installMarketplace({
+      marketplaceDir: mpDir,
+      scope: "project",
+      cwd,
+      registry: registry(),
+      now: "2026-01-01T00:00:00.000Z",
+    });
+
+    expect(marketplace.name).toBe("acme-tools");
+    expect(installs).toHaveLength(2);
+    // Every plugin actually placed artifacts on disk.
+    for (const i of installs) {
+      expect(i.lockfile.artifacts.length).toBeGreaterThan(0);
+      expect(existsSync(i.lockfile.artifacts[0].path)).toBe(true);
+    }
+    // The marketplace.yaml pins weather-tools to 0.2.0; the override must flow through.
+    const weather = installs.find((i) => i.lockfile.plugin.id.includes("weather"));
+    expect(weather?.lockfile.plugin.version).toBe("0.2.0");
   });
 });
 

@@ -3,6 +3,8 @@ export type {
   BuildMarketplaceResult,
   BuildOptions,
   BuildResult,
+  InstallMarketplaceOptions,
+  InstallMarketplaceResult,
   InstallOptions,
   InstallResult,
   LintResult,
@@ -10,7 +12,15 @@ export type {
   UninstallResult,
   UpdateResult,
 } from "./api";
-export { build, buildMarketplace, install, lint, uninstall, update } from "./api";
+export {
+  build,
+  buildMarketplace,
+  install,
+  installMarketplace,
+  lint,
+  uninstall,
+  update,
+} from "./api";
 export type {
   CompileOptions,
   CompileResult,
