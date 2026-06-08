@@ -12,6 +12,7 @@ import {
   installMarketplace,
   LOOM_VERSION,
   lint,
+  lockDirForScope,
   readLock,
   signLock,
   uninstall,
@@ -223,17 +224,19 @@ const installCmd = defineCommand({
         });
         log.data({
           marketplace: mp.marketplace.name,
-          plugins: mp.installs.map((i) => i.lockfile.plugin.id),
+          plugins: mp.installs.map((i) => i.result.id),
           scope,
+          lockfile: mp.lockPath,
         });
         log.info(
           `Installed marketplace ${mp.marketplace.name} (${mp.installs.length} plugins, ${scope})`,
         );
         for (const i of mp.installs) {
           log.info(
-            `  ${i.lockfile.plugin.id}@${i.lockfile.plugin.version}: ${i.lockfile.artifacts.length} artifacts`,
+            `  ${i.result.id}@${i.result.fb.plugin.version}: ${i.entry.artifacts.length} artifacts`,
           );
         }
+        log.info(`  lockfile: ${mp.lockPath}`);
         return;
       }
 
@@ -248,16 +251,14 @@ const installCmd = defineCommand({
       });
       printTrustSummary(result.result);
       log.data({
-        id: result.lockfile.plugin.id,
-        version: result.lockfile.plugin.version,
+        id: result.result.id,
+        version: result.result.fb.plugin.version,
         scope,
-        artifacts: result.lockfile.artifacts.length,
+        artifacts: result.entry.artifacts.length,
         lockfile: result.lockPath,
       });
-      log.info(
-        `Installed ${result.lockfile.plugin.id}@${result.lockfile.plugin.version} (${scope})`,
-      );
-      log.info(`  ${result.lockfile.artifacts.length} artifacts placed`);
+      log.info(`Installed ${result.result.id}@${result.result.fb.plugin.version} (${scope})`);
+      log.info(`  ${result.entry.artifacts.length} artifacts placed`);
       if (result.secrets.resolved.length > 0) {
         const missing = result.secrets.resolved.filter((r) => r.source === "missing");
         log.info(
@@ -287,23 +288,22 @@ const updateCmd = defineCommand({
   async run({ args }) {
     try {
       const scope = (args.scope === "user" ? "user" : "project") as Scope;
-      // Default to the targets already in the lockfile, so update matches what
-      // install placed (not every registered adapter).
-      const lock = readLock(args.dir);
+      const cwd = args.cwd ?? process.cwd();
+      // Default to the targets already in the target lockfile, so update matches
+      // what install placed (not every registered adapter).
+      const lock = readLock(lockDirForScope(scope, cwd));
       const lockedTargets = lock
         ? ([...new Set(lock.artifacts.map((a) => a.target))] as Target[])
         : undefined;
       const result = await update({
         pluginDir: args.dir,
         scope,
-        cwd: args.cwd ?? process.cwd(),
+        cwd,
         registry: buildRegistry(),
         targets: parseTargets(args.target) ?? lockedTargets,
       });
-      log.data({ id: result.lockfile.plugin.id, changed: result.changed });
-      log.info(
-        `Updated ${result.lockfile.plugin.id}: ${result.changed.length} artifact(s) changed`,
-      );
+      log.data({ id: result.id, changed: result.changed });
+      log.info(`Updated ${result.id}: ${result.changed.length} artifact(s) changed`);
       for (const p of result.changed) log.info(`  ~ ${p}`);
     } catch (err) {
       fail(err);
@@ -572,21 +572,25 @@ const importCmd = defineCommand({
 const uninstallCmd = defineCommand({
   meta: {
     name: "uninstall",
-    description: "Remove everything install placed (from loom.lock) and delete the lockfile",
+    description: "Remove what install placed into this project (read from its loom.lock)",
   },
   args: {
     dir: {
       type: "positional",
       required: false,
       default: ".",
-      description: "Plugin dir with loom.lock",
+      description: "Install target dir holding loom.lock (the project you installed into)",
+    },
+    plugin: {
+      type: "string",
+      description: "Remove only this plugin (id or bare name); default removes all",
     },
   },
   run({ args }) {
     try {
-      const res = uninstall({ pluginDir: args.dir });
-      log.data({ removed: res.removed });
-      log.info(`Uninstalled ${res.removed.length} artifact(s)`);
+      const res = uninstall({ dir: args.dir, ...(args.plugin ? { plugin: args.plugin } : {}) });
+      log.data({ removed: res.removed, plugins: res.plugins });
+      log.info(`Uninstalled ${res.plugins.length} plugin(s), ${res.removed.length} artifact(s)`);
     } catch (err) {
       fail(err);
     }

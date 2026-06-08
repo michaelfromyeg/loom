@@ -16,6 +16,7 @@ import {
   parseSource,
   readLock,
   resolvePluginRef,
+  uninstall,
   writeLock,
 } from "../src/index";
 
@@ -113,11 +114,10 @@ describe("lockfile round-trip", () => {
       now: "2026-01-01T00:00:00.000Z",
     });
 
-    const dir = join(tmp, "lock-roundtrip");
-    cpSync(pluginDir, dir, { recursive: true });
-    rmSync(join(dir, "loom.lock")); // drop the install-written lock; write our own.
+    const dir = mkdtempSync(join(tmpdir(), "loom-units-rt-"));
     writeLock(dir, lockfile);
     expect(readLock(dir)).toEqual(lockfile);
+    rmSync(dir, { recursive: true, force: true });
 
     const empty = mkdtempSync(join(tmpdir(), "loom-units-empty-"));
     expect(readLock(empty)).toBeNull();
@@ -151,7 +151,7 @@ describe("installMarketplace", () => {
     cpSync(MARKETPLACE, mpDir, { recursive: true });
     const cwd = join(tmp, "mp-scope");
 
-    const { marketplace, installs } = await installMarketplace({
+    const { marketplace, lockfile, lockPath, installs } = await installMarketplace({
       marketplaceDir: mpDir,
       scope: "project",
       cwd,
@@ -161,14 +161,54 @@ describe("installMarketplace", () => {
 
     expect(marketplace.name).toBe("acme-tools");
     expect(installs).toHaveLength(2);
+    // One combined lock at the install target records both plugins.
+    expect(lockPath).toBe(join(cwd, "loom.lock"));
+    expect(lockfile.plugins).toHaveLength(2);
     // Every plugin actually placed artifacts on disk.
     for (const i of installs) {
-      expect(i.lockfile.artifacts.length).toBeGreaterThan(0);
-      expect(existsSync(i.lockfile.artifacts[0].path)).toBe(true);
+      expect(i.entry.artifacts.length).toBeGreaterThan(0);
+      expect(existsSync(i.entry.artifacts[0].path)).toBe(true);
     }
     // The marketplace.yaml pins weather-tools to 0.2.0; the override must flow through.
-    const weather = installs.find((i) => i.lockfile.plugin.id.includes("weather"));
-    expect(weather?.lockfile.plugin.version).toBe("0.2.0");
+    const weather = lockfile.plugins.find((p) => p.id.includes("weather"));
+    expect(weather?.version).toBe("0.2.0");
+  });
+});
+
+describe("target lock: merge and per-plugin uninstall", () => {
+  it("accumulates separate installs into one project lock, then uninstalls per plugin", async () => {
+    const cwd = join(tmp, "ledger");
+    const codeDir = join(tmp, "ledger-code");
+    const weatherDir = join(tmp, "ledger-weather");
+    cpSync(join(MARKETPLACE, "plugins/code-tools"), codeDir, { recursive: true });
+    cpSync(join(MARKETPLACE, "plugins/weather-tools"), weatherDir, { recursive: true });
+    const base = {
+      scope: "project" as const,
+      cwd,
+      registry: registry(),
+      now: "2026-01-01T00:00:00.000Z",
+    };
+
+    await install({ pluginDir: codeDir, ...base });
+    const second = await install({ pluginDir: weatherDir, ...base });
+
+    // Both installs live in one project lock; the second didn't clobber the first.
+    expect(second.lockfile.plugins).toHaveLength(2);
+    expect(readLock(cwd)?.plugins).toHaveLength(2);
+    expect(existsSync(join(cwd, ".claude/plugins/code-tools"))).toBe(true);
+    expect(existsSync(join(cwd, ".claude/plugins/weather-tools"))).toBe(true);
+
+    // Uninstall one by bare name: its files go, the other plugin stays in the lock.
+    const one = uninstall({ dir: cwd, plugin: "code-tools" });
+    expect(one.plugins).toHaveLength(1);
+    expect(existsSync(join(cwd, ".claude/plugins/code-tools"))).toBe(false);
+    expect(existsSync(join(cwd, ".claude/plugins/weather-tools"))).toBe(true);
+    expect(readLock(cwd)?.plugins.map((p) => p.id)).toEqual(["com.acme/weather-tools"]);
+
+    // Uninstall the rest: the lock file is removed entirely.
+    uninstall({ dir: cwd });
+    expect(readLock(cwd)).toBeNull();
+    expect(existsSync(join(cwd, ".claude/plugins/weather-tools"))).toBe(false);
   });
 });
 

@@ -15,7 +15,14 @@ import { resolveConfig, type SecretsResult } from "./config";
 import { type DependencyRecord, resolveDependencies } from "./deps";
 import { CompileError, type Diagnostic, type Diagnostics } from "./diagnostics";
 import { type FetchedPlugin, loadMarketplaceDir, loadPluginDir } from "./loader";
-import { buildLockfile, readLock, writeLock } from "./lockfile";
+import {
+  buildLockEntry,
+  type LockEntry,
+  lockDirForScope,
+  mergeLock,
+  readLock,
+  writeLock,
+} from "./lockfile";
 import { checkManagedPolicy, type ManagedPolicy } from "./managed";
 import {
   buildToDir,
@@ -191,15 +198,21 @@ export interface InstallOptions {
   now?: string;
 }
 
-export interface InstallResult {
+/** One plugin's install output: its compiled result, lock entry, and config summary. */
+export interface PluginInstall {
   result: CompileResult;
-  lockfile: Lockfile;
-  lockPath: string;
+  entry: LockEntry;
   /** Declared config resolution summary (never the values) -- spec §11. */
   secrets: SecretsResult;
 }
 
-/** Compile an already-resolved plugin, place it into the scope, and write its lock. */
+export interface InstallResult extends PluginInstall {
+  /** The merged target lockfile (every plugin installed into this target). */
+  lockfile: Lockfile;
+  lockPath: string;
+}
+
+/** Compile an already-resolved plugin and place it into the scope (no lock write). */
 function installResolved(
   fb: FetchedPlugin,
   dependencies: DependencyRecord[],
@@ -213,11 +226,8 @@ function installResolved(
     badges?: Badge[];
     ref: string;
     sha: string;
-    /** Where to write `loom.lock` (default: the plugin's resolved root). */
-    lockDir?: string;
-    now?: string;
   },
-): InstallResult {
+): PluginInstall {
   const result = compile(fb, { registry: opts.registry, targets: opts.targets, only: opts.only });
   if (result.diagnostics.hasErrors) {
     throw new CompileError("compile failed", result.diagnostics.errors);
@@ -234,35 +244,47 @@ function installResolved(
   }
   const artifacts = installToScope(result, opts.scope, opts.cwd);
   const secrets = resolveConfig(result.fb.plugin, opts.cwd);
-  const lockfile = buildLockfile({
-    result,
-    artifacts,
-    dependencies,
-    ref: opts.ref,
-    sha: opts.sha,
-    generatedAt: opts.now ?? new Date().toISOString(),
-  });
-  const lockPath = writeLock(opts.lockDir ?? fb.root, lockfile);
-  return { result, lockfile, lockPath, secrets };
+  const entry = buildLockEntry({ result, artifacts, dependencies, ref: opts.ref, sha: opts.sha });
+  return { result, entry, secrets };
 }
 
-/** Compile a plugin, place it into the scope's dirs, resolve config, write `loom.lock`. */
+/** Merge install entries into the target's `loom.lock` and write it once. */
+function commitLock(
+  scope: Scope,
+  cwd: string,
+  entries: LockEntry[],
+  now: string | undefined,
+  lockDirOverride: string | undefined,
+): { lockfile: Lockfile; lockPath: string } {
+  const dir = lockDirOverride ?? lockDirForScope(scope, cwd);
+  mkdirSync(dir, { recursive: true });
+  const lockfile = mergeLock(readLock(dir), entries, now ?? new Date().toISOString());
+  return { lockfile, lockPath: writeLock(dir, lockfile) };
+}
+
+/** Compile a plugin, place it into the scope, resolve config, write the target `loom.lock`. */
 export async function install(opts: InstallOptions): Promise<InstallResult> {
   const { fb, dependencies } = await loadResolved(opts.pluginDir);
   const { ref, sha } = await gitInfo(opts.pluginDir);
-  return installResolved(fb, dependencies, {
+  const pi = installResolved(fb, dependencies, {
     scope: opts.scope,
     cwd: opts.cwd,
     registry: opts.registry,
     ref,
     sha,
-    lockDir: opts.lockDir ?? opts.pluginDir,
     ...(opts.targets ? { targets: opts.targets } : {}),
     ...(opts.only ? { only: opts.only } : {}),
     ...(opts.managed ? { managed: opts.managed } : {}),
     ...(opts.badges ? { badges: opts.badges } : {}),
-    ...(opts.now ? { now: opts.now } : {}),
   });
+  const { lockfile, lockPath } = commitLock(
+    opts.scope,
+    opts.cwd,
+    [pi.entry],
+    opts.now,
+    opts.lockDir,
+  );
+  return { ...pi, lockfile, lockPath };
 }
 
 export interface InstallMarketplaceOptions {
@@ -272,20 +294,24 @@ export interface InstallMarketplaceOptions {
   registry: AdapterRegistry;
   targets?: Target[];
   managed?: ManagedPolicy;
+  lockDir?: string;
   now?: string;
 }
 
 export interface InstallMarketplaceResult {
   marketplace: Marketplace;
-  /** One install result per marketplace plugin, in catalog order. */
-  installs: InstallResult[];
+  /** The merged target lockfile recording every installed plugin. */
+  lockfile: Lockfile;
+  lockPath: string;
+  /** One install per marketplace plugin, in catalog order. */
+  installs: PluginInstall[];
 }
 
 /**
  * Install every plugin in a marketplace into the scope in one pass (the
  * company-marketplace install). Each plugin is resolved (local or remote),
- * compiled, placed, and gets its own `loom.lock` in its resolved root, mirroring
- * a single-plugin install at marketplace scale (spec invariant: same primitives).
+ * compiled, and placed; all of them land in a single target `loom.lock`,
+ * mirroring a single-plugin install at marketplace scale (same primitives).
  */
 export async function installMarketplace(
   opts: InstallMarketplaceOptions,
@@ -299,7 +325,7 @@ export async function installMarketplace(
   }
   const { marketplace, root } = loaded.value;
 
-  const installs: InstallResult[] = [];
+  const installs: PluginInstall[] = [];
   for (const entry of marketplace.plugins) {
     let resolved: ResolvedPlugin;
     try {
@@ -320,24 +346,32 @@ export async function installMarketplace(
         registry: opts.registry,
         ref: resolved.ref,
         sha: resolved.sha,
-        lockDir: fb.root,
         ...(opts.targets ? { targets: opts.targets } : {}),
         ...(opts.managed ? { managed: opts.managed } : {}),
-        ...(opts.now ? { now: opts.now } : {}),
       }),
     );
   }
-  return { marketplace, installs };
+  const { lockfile, lockPath } = commitLock(
+    opts.scope,
+    opts.cwd,
+    installs.map((i) => i.entry),
+    opts.now,
+    opts.lockDir,
+  );
+  return { marketplace, lockfile, lockPath, installs };
 }
 
 export interface UninstallOptions {
-  /** Where loom.lock lives (also the default place uninstall reads from). */
-  pluginDir: string;
-  lockDir?: string;
+  /** The install target that holds loom.lock (project root for project scope). */
+  dir: string;
+  /** Optionally remove just one plugin (by id or bare name); default removes all. */
+  plugin?: string;
 }
 
 export interface UninstallResult {
   removed: string[];
+  /** Plugin ids removed from the lock. */
+  plugins: string[];
 }
 
 /** Prune now-empty directories upward from each removed file (best-effort). */
@@ -358,31 +392,57 @@ function pruneEmptyDirs(paths: string[]): void {
 }
 
 /**
- * Remove everything `install` placed, using the paths recorded in `loom.lock`,
- * then delete the lockfile (spec §6.3). Errors are defined out of existence:
- * a missing artifact is simply skipped.
+ * Remove what `install` placed into a target, using the paths recorded in the
+ * target's `loom.lock` (spec §6.3). Removes one plugin (by id or bare name) or
+ * all of them; deletes the lock when nothing is left, else rewrites the rest.
+ * Errors are defined out of existence: a missing artifact is simply skipped.
  */
 export function uninstall(opts: UninstallOptions): UninstallResult {
-  const dir = opts.lockDir ?? opts.pluginDir;
-  const lock = readLock(dir);
+  const lock = readLock(opts.dir);
   if (!lock) {
     throw new CompileError("nothing to uninstall", [
-      { severity: "error", where: "loom.lock", message: `no loom.lock found in ${dir}` },
+      { severity: "error", where: "loom.lock", message: `no loom.lock found in ${opts.dir}` },
     ]);
   }
+  const match = opts.plugin;
+  const ids = new Set(
+    (match
+      ? lock.plugins.filter((p) => p.id === match || p.id.endsWith(`/${match}`))
+      : lock.plugins
+    ).map((p) => p.id),
+  );
+  if (match && ids.size === 0) {
+    throw new CompileError(`plugin "${match}" is not installed here`, [
+      { severity: "error", where: "loom.lock", message: `no plugin matching "${match}"` },
+    ]);
+  }
+
   const removed: string[] = [];
   for (const a of lock.artifacts) {
+    if (!ids.has(a.plugin)) continue;
     if (existsSync(a.path)) {
       rmSync(a.path, { force: true });
       removed.push(a.path);
     }
   }
   pruneEmptyDirs(removed);
-  rmSync(join(dir, "loom.lock"), { force: true });
-  return { removed };
+
+  const remaining = lock.plugins.filter((p) => !ids.has(p.id));
+  if (remaining.length === 0) {
+    rmSync(join(opts.dir, "loom.lock"), { force: true });
+  } else {
+    writeLock(opts.dir, {
+      ...lock,
+      plugins: remaining,
+      artifacts: lock.artifacts.filter((a) => !ids.has(a.plugin)),
+    });
+  }
+  return { removed, plugins: [...ids] };
 }
 
 export interface UpdateResult {
+  /** The recompiled plugin's id. */
+  id: string;
   lockfile: Lockfile;
   lockPath: string;
   /** Artifacts whose content hash changed (or are new) since the prior lockfile. */
@@ -390,13 +450,14 @@ export interface UpdateResult {
 }
 
 /**
- * Re-resolve refs, recompile, diff artifact content hashes against `loom.lock`,
- * and re-place ONLY changed artifacts (spec §5, §9.3). Content addressing makes
- * "is there really a new version?" exact: an unchanged artifact is never rewritten.
+ * Re-resolve refs, recompile a plugin source, diff its artifact content hashes
+ * against the target `loom.lock`, and re-place ONLY changed artifacts (spec §5,
+ * §9.3); its entry is then merged back into the target lock. Content addressing
+ * makes "is there really a new version?" exact: unchanged artifacts are not rewritten.
  */
 export async function update(opts: InstallOptions): Promise<UpdateResult> {
-  const prev = readLock(opts.pluginDir);
-  const prevHash = new Map((prev?.artifacts ?? []).map((a) => [a.path, a.hash]));
+  const lockDir = opts.lockDir ?? lockDirForScope(opts.scope, opts.cwd);
+  const prev = readLock(lockDir);
 
   const { fb, dependencies } = await loadResolved(opts.pluginDir);
   const result = compile(fb, { registry: opts.registry, targets: opts.targets, only: opts.only });
@@ -404,6 +465,10 @@ export async function update(opts: InstallOptions): Promise<UpdateResult> {
     throw new CompileError("compile failed", result.diagnostics.errors);
   }
 
+  // Diff against this plugin's prior artifacts only; other plugins in the lock are untouched.
+  const prevHash = new Map(
+    (prev?.artifacts ?? []).filter((a) => a.plugin === result.id).map((a) => [a.path, a.hash]),
+  );
   const planned = planScopeArtifacts(result, opts.scope, opts.cwd);
   const changed: string[] = [];
   for (const { record, contents } of planned) {
@@ -414,14 +479,15 @@ export async function update(opts: InstallOptions): Promise<UpdateResult> {
   }
 
   const { ref, sha } = await gitInfo(opts.pluginDir);
-  const lockfile = buildLockfile({
+  const entry = buildLockEntry({
     result,
     artifacts: planned.map((p) => p.record),
     dependencies,
     ref,
     sha,
-    generatedAt: opts.now ?? new Date().toISOString(),
   });
-  const lockPath = writeLock(opts.pluginDir, lockfile);
-  return { lockfile, lockPath, changed };
+  mkdirSync(lockDir, { recursive: true });
+  const lockfile = mergeLock(prev, [entry], opts.now ?? new Date().toISOString());
+  const lockPath = writeLock(lockDir, lockfile);
+  return { id: result.id, lockfile, lockPath, changed };
 }

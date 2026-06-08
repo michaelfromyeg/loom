@@ -5,7 +5,7 @@ _Generated from the CLI definition by `loom docs` -- do not edit by hand._
 ## `loom`
 
 ```
-Author once, compile to every coding-agent harness. (loom v0.1.0)
+Author once, compile to every coding-agent harness. (loom v0.2.0)
 
 USAGE `loom init|validate|build|install|uninstall|update|import|eval|publish|sign|verify|index|docs`
 
@@ -14,8 +14,8 @@ COMMANDS
        `init`    Scaffold a new plugin (loom.yaml + a sample skill)                               
    `validate`    Statically validate a plugin (the valid badge)                                   
       `build`    Compile a plugin (or a marketplace of plugins) to harness manifests              
-    `install`    Compile + place a plugin into a harness scope, write loom.lock                   
-  `uninstall`    Remove everything install placed (from loom.lock) and delete the lockfile        
+    `install`    Compile + place a plugin (or a whole marketplace) into harness scopes            
+  `uninstall`    Remove what install placed into this project (read from its loom.lock)           
      `update`    Re-resolve refs, recompile, and re-place only artifacts whose hash changed       
      `import`    Reverse-compile an existing native plugin/marketplace into a Loom plugin         
        `eval`    Run a component's evals against the real harnesses (reports UNTESTED honestly)   
@@ -33,7 +33,7 @@ Use `loom <command> --help` for more information about a command.
 Compile a plugin (or a marketplace of plugins) to harness manifests
 
 ```
-Compile a plugin (or a marketplace of plugins) to harness manifests (loom build v0.1.0)
+Compile a plugin (or a marketplace of plugins) to harness manifests (loom build v0.2.0)
 
 USAGE `loom build [OPTIONS] [DIR]`
 
@@ -52,7 +52,7 @@ OPTIONS
 Print the full CLI reference (a CLI map), generated from the command tree
 
 ```
-Print the full CLI reference (a CLI map), generated from the command tree (loom docs v0.1.0)
+Print the full CLI reference (a CLI map), generated from the command tree (loom docs v0.2.0)
 
 USAGE `loom docs [OPTIONS] `
 
@@ -66,7 +66,7 @@ OPTIONS
 Run a component's evals against the real harnesses (reports UNTESTED honestly)
 
 ```
-Run a component's evals against the real harnesses (reports UNTESTED honestly) (loom eval v0.1.0)
+Run a component's evals against the real harnesses (reports UNTESTED honestly) (loom eval v0.2.0)
 
 USAGE `loom eval [OPTIONS] [DIR]`
 
@@ -85,7 +85,7 @@ OPTIONS
 Reverse-compile an existing native plugin/marketplace into a Loom plugin
 
 ```
-Reverse-compile an existing native plugin/marketplace into a Loom plugin (loom import v0.1.0)
+Reverse-compile an existing native plugin/marketplace into a Loom plugin (loom import v0.2.0)
 
 USAGE `loom import [OPTIONS] [DIR]`
 
@@ -105,7 +105,7 @@ OPTIONS
 Build a metadata index from plugin dirs (optionally federating the MCP Registry)
 
 ```
-Build a metadata index from plugin dirs (optionally federating the MCP Registry) (loom index v0.1.0)
+Build a metadata index from plugin dirs (optionally federating the MCP Registry) (loom index v0.2.0)
 
 USAGE `loom index [OPTIONS] [DIR]`
 
@@ -124,7 +124,7 @@ OPTIONS
 Scaffold a new plugin (loom.yaml + a sample skill)
 
 ```
-Scaffold a new plugin (loom.yaml + a sample skill) (loom init v0.1.0)
+Scaffold a new plugin (loom.yaml + a sample skill) (loom init v0.2.0)
 
 USAGE `loom init [OPTIONS] [DIR]`
 
@@ -140,16 +140,16 @@ OPTIONS
 
 ## `loom install`
 
-Compile + place a plugin into a harness scope, write loom.lock
+Compile + place a plugin (or a whole marketplace) into harness scopes
 
 ```
-Compile + place a plugin into a harness scope, write loom.lock (loom install v0.1.0)
+Compile + place a plugin (or a whole marketplace) into harness scopes (loom install v0.2.0)
 
 USAGE `loom install [OPTIONS] [DIR]`
 
 ARGUMENTS
 
-  `DIR="."`    Plugin directory    
+  `DIR="."`    Plugin or marketplace directory    
 
 OPTIONS
 
@@ -166,7 +166,7 @@ OPTIONS
 Run the deterministic publish gate (static valid + trace/output evals)
 
 ```
-Run the deterministic publish gate (static valid + trace/output evals) (loom publish v0.1.0)
+Run the deterministic publish gate (static valid + trace/output evals) (loom publish v0.2.0)
 
 USAGE `loom publish [OPTIONS] [DIR]`
 
@@ -184,7 +184,7 @@ OPTIONS
 Sign loom.lock's artifact set (ed25519) -> loom.sig + loom.pub (the signed badge)
 
 ```
-Sign loom.lock's artifact set (ed25519) -> loom.sig + loom.pub (the signed badge) (loom sign v0.1.0)
+Sign loom.lock's artifact set (ed25519) -> loom.sig + loom.pub (the signed badge) (loom sign v0.2.0)
 
 USAGE `loom sign [OPTIONS] [DIR]`
 
@@ -195,16 +195,20 @@ ARGUMENTS
 
 ## `loom uninstall`
 
-Remove everything install placed (from loom.lock) and delete the lockfile
+Remove what install placed into this project (read from its loom.lock)
 
 ```
-Remove everything install placed (from loom.lock) and delete the lockfile (loom uninstall v0.1.0)
+Remove what install placed into this project (read from its loom.lock) (loom uninstall v0.2.0)
 
 USAGE `loom uninstall [OPTIONS] [DIR]`
 
 ARGUMENTS
 
-  `DIR="."`    Plugin dir with loom.lock
+  `DIR="."`    Install target dir holding loom.lock (the project you installed into)    
+
+OPTIONS
+
+  `--plugin`    Remove only this plugin (id or bare name); default removes all
 ```
 
 ## `loom update`
@@ -212,7 +216,7 @@ ARGUMENTS
 Re-resolve refs, recompile, and re-place only artifacts whose hash changed
 
 ```
-Re-resolve refs, recompile, and re-place only artifacts whose hash changed (loom update v0.1.0)
+Re-resolve refs, recompile, and re-place only artifacts whose hash changed (loom update v0.2.0)
 
 USAGE `loom update [OPTIONS] [DIR]`
 
@@ -232,7 +236,7 @@ OPTIONS
 Statically validate a plugin (the valid badge)
 
 ```
-Statically validate a plugin (the valid badge) (loom validate v0.1.0)
+Statically validate a plugin (the valid badge) (loom validate v0.2.0)
 
 USAGE `loom validate [OPTIONS] [DIR]`
 
@@ -246,7 +250,7 @@ ARGUMENTS
 Verify loom.sig against loom.lock and the on-disk artifacts
 
 ```
-Verify loom.sig against loom.lock and the on-disk artifacts (loom verify v0.1.0)
+Verify loom.sig against loom.lock and the on-disk artifacts (loom verify v0.2.0)
 
 USAGE `loom verify [OPTIONS] [DIR]`
 

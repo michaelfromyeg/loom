@@ -97,13 +97,14 @@ describe("loom uninstall", () => {
     expect(
       existsSync(join(sandbox, ".claude/plugins/sample-plugin/.claude-plugin/plugin.json")),
     ).toBe(true);
-    const res = uninstall({ pluginDir });
+    // The lock lives at the install target (sandbox), not the source plugin dir.
+    const res = uninstall({ dir: sandbox });
     expect(res.removed.length).toBe(3);
     expect(existsSync(join(sandbox, ".claude/plugins/sample-plugin"))).toBe(false);
-    expect(existsSync(join(pluginDir, "loom.lock"))).toBe(false);
+    expect(existsSync(join(sandbox, "loom.lock"))).toBe(false);
   });
 
   it("errors when there is no lockfile", () => {
-    expect(() => uninstall({ pluginDir: join(tmp, "no-lock") })).toThrow(/nothing to uninstall/);
+    expect(() => uninstall({ dir: join(tmp, "no-lock") })).toThrow(/nothing to uninstall/);
   });
 });

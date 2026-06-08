@@ -96,15 +96,18 @@ describe("install", () => {
       now: "2026-01-01T00:00:00.000Z",
     });
 
-    expect(existsSync(join(pluginDir, "loom.lock"))).toBe(true);
+    // The lock lives at the install target (sandbox), not the source plugin dir.
+    expect(existsSync(join(pluginDir, "loom.lock"))).toBe(false);
+    expect(existsSync(join(sandbox, "loom.lock"))).toBe(true);
     expect(r.lockfile.artifacts).toHaveLength(3);
+    expect(r.lockfile.plugins).toHaveLength(1);
     expect(r.lockfile.adapters.claude?.targetSchema).toBe("claude-code-plugin/2.1");
     expect(
       existsSync(join(sandbox, ".claude/plugins/sample-plugin/.claude-plugin/plugin.json")),
     ).toBe(true);
 
     // The on-disk lockfile round-trips through the schema.
-    const lock = JSON.parse(readFileSync(join(pluginDir, "loom.lock"), "utf8"));
+    const lock = JSON.parse(readFileSync(join(sandbox, "loom.lock"), "utf8"));
     expect(lock.generatedAt).toBe("2026-01-01T00:00:00.000Z");
     expect(lock.artifacts.every((a: { enabled: boolean }) => a.enabled === true)).toBe(true);
   });

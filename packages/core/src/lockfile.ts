@@ -1,38 +1,80 @@
 import { readFileSync, writeFileSync } from "node:fs";
+import { homedir } from "node:os";
 import { join } from "node:path";
-import { type ArtifactRecord, Lockfile, validate } from "@michaelfromyeg/loom-schema";
+import {
+  type ArtifactRecord,
+  Lockfile,
+  type PluginLock,
+  type Scope,
+  validate,
+} from "@michaelfromyeg/loom-schema";
 import type { CompileResult } from "./compile";
 import { LOOM_VERSION } from "./version";
 
-export interface LockInput {
+/** One plugin's contribution to a lockfile: its record, placed artifacts, and adapters used. */
+export interface LockEntry {
+  pluginLock: PluginLock;
+  artifacts: ArtifactRecord[];
+  adapters: Lockfile["adapters"];
+}
+
+export interface LockEntryInput {
   result: CompileResult;
   artifacts: ArtifactRecord[];
   ref: string;
   sha: string;
-  generatedAt: string;
-  dependencies?: Lockfile["dependencies"];
+  dependencies?: PluginLock["dependencies"];
 }
 
-/** Assemble the `loom.lock` object (spec §6.3) from an install. */
-export function buildLockfile(input: LockInput): Lockfile {
+/** Build one plugin's lock entry from its compiled result and placement (spec §6.3). */
+export function buildLockEntry(input: LockEntryInput): LockEntry {
   const adapters: Lockfile["adapters"] = {};
   for (const t of input.result.targets) {
     adapters[t.target] = { version: t.adapter.version, targetSchema: t.adapter.targetSchema };
   }
   return {
-    loomVersion: LOOM_VERSION,
-    generatedAt: input.generatedAt,
-    plugin: {
+    pluginLock: {
       id: input.result.id,
       version: input.result.fb.plugin.version,
       ref: input.ref,
       sha: input.sha,
+      dependencies: input.dependencies ?? [],
+      aliases: input.result.aliases,
     },
-    dependencies: input.dependencies ?? [],
     artifacts: input.artifacts,
     adapters,
-    aliases: input.result.aliases,
   };
+}
+
+/**
+ * Merge install entries into an existing target lockfile (or a fresh one),
+ * upserting by plugin id: a re-installed plugin replaces its prior record and
+ * artifacts, leaving every other installed plugin in the ledger untouched.
+ */
+export function mergeLock(
+  existing: Lockfile | null,
+  entries: LockEntry[],
+  generatedAt: string,
+): Lockfile {
+  const replacing = new Set(entries.map((e) => e.pluginLock.id));
+  const plugins = (existing?.plugins ?? []).filter((p) => !replacing.has(p.id));
+  const artifacts = (existing?.artifacts ?? []).filter((a) => !replacing.has(a.plugin));
+  const adapters: Lockfile["adapters"] = { ...(existing?.adapters ?? {}) };
+  for (const e of entries) {
+    plugins.push(e.pluginLock);
+    artifacts.push(...e.artifacts);
+    Object.assign(adapters, e.adapters);
+  }
+  return { loomVersion: LOOM_VERSION, generatedAt, plugins, artifacts, adapters };
+}
+
+/**
+ * Where a target's `loom.lock` lives: the project root for project scope, a
+ * per-user dir for user scope. The lock travels with the install target, not the
+ * (possibly remote, read-only) source.
+ */
+export function lockDirForScope(scope: Scope, cwd: string): string {
+  return scope === "user" ? join(homedir(), ".loom") : cwd;
 }
 
 export function serializeLock(lock: Lockfile): string {

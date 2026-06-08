@@ -5,6 +5,8 @@ export const Scope = z.enum(["user", "project"]);
 export type Scope = z.infer<typeof Scope>;
 
 export const ArtifactRecord = z.object({
+  /** Fully-qualified id of the plugin this artifact belongs to. */
+  plugin: z.string(),
   /** Fully-qualified component id. */
   component: z.string(),
   target: Target,
@@ -24,16 +26,12 @@ export const AdapterRecord = z.object({
   targetSchema: z.string(),
 });
 
-/** `loom.lock` — generated and committed; drives update/uninstall/verify. */
-export const Lockfile = z.object({
-  loomVersion: z.string(),
-  generatedAt: z.string(),
-  plugin: z.object({
-    id: z.string(),
-    version: z.string(),
-    ref: z.string(),
-    sha: z.string(),
-  }),
+/** One installed plugin's record within a lockfile. */
+export const PluginLock = z.object({
+  id: z.string(),
+  version: z.string(),
+  ref: z.string(),
+  sha: z.string(),
   dependencies: z.array(
     z.object({
       id: z.string(),
@@ -41,6 +39,21 @@ export const Lockfile = z.object({
       resolvedSha: z.string(),
     }),
   ),
+  /** Bare leaf name -> fully-qualified id (§9.4). */
+  aliases: z.record(z.string(), z.string()),
+});
+export type PluginLock = z.infer<typeof PluginLock>;
+
+/**
+ * `loom.lock` — the ledger of everything installed into one target (a project for
+ * project scope, the user dir for user scope). Drives update/uninstall/verify.
+ * Holds many plugins so a marketplace install is a single lockfile.
+ */
+export const Lockfile = z.object({
+  loomVersion: z.string(),
+  generatedAt: z.string(),
+  plugins: z.array(PluginLock),
+  /** Every placed artifact across all plugins; each tagged with its `plugin` id. */
   artifacts: z.array(ArtifactRecord),
   adapters: z
     .object({
@@ -51,7 +64,5 @@ export const Lockfile = z.object({
       opencode: AdapterRecord.optional(),
     })
     .partial(),
-  /** Bare leaf name -> fully-qualified id (§9.4). */
-  aliases: z.record(z.string(), z.string()),
 });
 export type Lockfile = z.infer<typeof Lockfile>;

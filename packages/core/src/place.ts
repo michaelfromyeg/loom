@@ -102,6 +102,7 @@ export function planScopeArtifacts(
       planned.push({
         contents,
         record: {
+          plugin: result.id,
           component: componentId,
           target: t.target,
           scope,

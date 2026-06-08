@@ -13,7 +13,7 @@ export { Assertion, Case, EvalFile } from "./evals";
 export { Badge, IndexEntry, IndexFile, IndexVersion } from "./indexfile";
 export type { SchemaName } from "./jsonschema";
 export { allJsonSchemas, jsonSchemaFor, SCHEMAS } from "./jsonschema";
-export { AdapterRecord, ArtifactRecord, Lockfile, Scope } from "./lockfile";
+export { AdapterRecord, ArtifactRecord, Lockfile, PluginLock, Scope } from "./lockfile";
 export { Marketplace, MarketplaceEntry } from "./marketplace";
 export type { DocFormat, ParseIssue, ParseResult } from "./parse";
 export {

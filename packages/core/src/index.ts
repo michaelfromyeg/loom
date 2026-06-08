@@ -41,8 +41,15 @@ export type { ImportOutput, ImportPluginOptions } from "./import";
 export { importNativePlugin } from "./import";
 export type { FetchedMarketplace, FetchedPlugin } from "./loader";
 export { fileAccessors, hasMarketplaceManifest, loadMarketplaceDir, loadPluginDir } from "./loader";
-export type { LockInput } from "./lockfile";
-export { buildLockfile, readLock, serializeLock, writeLock } from "./lockfile";
+export type { LockEntry, LockEntryInput } from "./lockfile";
+export {
+  buildLockEntry,
+  lockDirForScope,
+  mergeLock,
+  readLock,
+  serializeLock,
+  writeLock,
+} from "./lockfile";
 export type { ManagedPolicy, PolicyContext } from "./managed";
 export { checkManagedPolicy } from "./managed";
 export type { AliasInput, AliasResult } from "./namespace";
