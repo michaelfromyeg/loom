@@ -1,0 +1,30 @@
+name: Release
+
+# Publishes every @michaelfromyeg/loom-* package to npm. Trigger manually after
+# bumping versions. Requires an NPM_TOKEN repo secret (an npm automation /
+# granular token with "bypass 2FA" enabled). Idempotent: pnpm skips versions
+# already on the registry.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write # npm provenance
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          registry-url: https://registry.npmjs.org
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - run: pnpm -r --filter "./packages/*" publish --access public --no-git-checks
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: "true"
