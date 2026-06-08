@@ -1,6 +1,6 @@
 {
   "name": "@michaelfromyeg/loom-adapter-claude",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Loom adapter for Claude Code: plugin.json + marketplace.json + component placement.",
   "type": "module",
   "main": "./dist/index.js",

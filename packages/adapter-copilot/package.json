@@ -1,6 +1,6 @@
 {
   "name": "@michaelfromyeg/loom-adapter-copilot",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Loom adapter for GitHub Copilot CLI: plugin.json + mcp-config + component placement.",
   "type": "module",
   "main": "./dist/index.js",

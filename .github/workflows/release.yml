@@ -1,18 +1,22 @@
 name: Release
 
-# Publishes every @michaelfromyeg/loom-* package to npm. Trigger manually after
-# bumping versions. Requires an NPM_TOKEN repo secret (an npm automation /
-# granular token with "bypass 2FA" enabled). Idempotent: pnpm skips versions
-# already on the registry.
+# Publishes every @michaelfromyeg/loom-* package to npm and cuts a GitHub Release.
+# Trigger by pushing a version tag (git tag v0.2.0 && git push origin v0.2.0), or
+# run manually for a re-publish. Requires an NPM_TOKEN repo secret (an npm
+# automation / granular token with "bypass 2FA" enabled). Idempotent: pnpm skips
+# versions already on the registry, and the release step skips an existing tag.
 on:
+  push:
+    tags:
+      - "v*"
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write # create the GitHub Release
   id-token: write # npm provenance
 
 jobs:
-  publish:
+  release:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -28,3 +32,13 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_CONFIG_PROVENANCE: "true"
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "${GITHUB_REF_NAME}" >/dev/null 2>&1; then
+            echo "Release ${GITHUB_REF_NAME} already exists; skipping."
+          else
+            gh release create "${GITHUB_REF_NAME}" --title "${GITHUB_REF_NAME}" --generate-notes
+          fi

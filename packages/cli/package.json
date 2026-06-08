@@ -1,6 +1,6 @@
 {
   "name": "@michaelfromyeg/loom-cli",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "The `loom` CLI: a thin shell over @michaelfromyeg/loom-core and the harness adapters.",
   "type": "module",
   "bin": {

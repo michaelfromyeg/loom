@@ -1,6 +1,6 @@
 {
   "name": "@michaelfromyeg/loom-adapter-codex",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Loom adapter for OpenAI Codex: config.toml MCP servers + skill sidecars + component placement.",
   "type": "module",
   "main": "./dist/index.js",
