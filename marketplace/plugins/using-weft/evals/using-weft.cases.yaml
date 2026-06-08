@@ -11,7 +11,7 @@ cases:
       - kind: output
         matches: "(?i)codex"
   - name: build-without-installing
-    prompt: "With Weft, which single command compiles a plugin to every harness WITHOUT installing it into any harness? Name the command."
+    prompt: "Using Weft, what is the exact command that compiles a plugin to every harness WITHOUT installing it into any harness? Reply with just the command."
     assert:
       - kind: output
         matches: "(?i)weft build"

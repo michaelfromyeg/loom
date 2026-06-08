@@ -32,17 +32,19 @@ A `marketplace.yaml` packages many plugins (the company-marketplace case).
 ## The workflow
 
 ```sh
-weft init my-plugin --namespace com.example   # scaffold weft.yaml + a sample skill
-weft validate my-plugin                        # static checks (schema, namespacing)
-weft build my-plugin --out out                 # compile to every registered harness (no install)
-weft install my-plugin                          # compile + place into installed harnesses
+weft init my-plugin --namespace com.example       # scaffold weft.yaml + a sample skill
+weft validate my-plugin                            # static checks (schema, namespacing)
+weft build my-plugin --out out                     # compile to every registered harness (no install)
+weft install my-plugin                              # place into every installed harness
+weft install my-plugin --target claude,codex        # install to only Claude Code and Codex
 ```
 
 `weft install` detects which harnesses are present and installs to all of them, skipping the
-rest and reporting what it skipped. Pin the set with `--target claude,codex`; force placement
-for an absent harness with `--all`. Install a single component with `--only my-skill`. It
-writes a content-addressed `weft.lock`; `weft update` re-places only artifacts whose hash
-changed, and `weft uninstall` removes everything it placed.
+rest and reporting what it skipped. To install to only a specific set, pass that set to
+`--target`: the exact command for Claude Code and Codex is `weft install my-plugin --target
+claude,codex`. Force placement for an absent harness with `--all`, and install a single
+component with `--only my-skill`. It writes a content-addressed `weft.lock`; `weft update`
+re-places only artifacts whose hash changed, and `weft uninstall` removes everything it placed.
 
 Point `weft install` at a `marketplace.yaml` instead of a plugin and it installs every plugin
 in the marketplace across the targets in one command. The same primitive at a larger scale.

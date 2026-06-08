@@ -132,9 +132,11 @@ assertions degrade to `output` assertions on harnesses that expose no structured
 Evals work for every component kind, in one of two ways:
 
 - Prompt-driven (skill, mcp, agent, command): a prompt makes the harness activate the
-  component, and `trace`/`output` assertions check what it did. The Claude driver runs in
-  `bypassPermissions` mode so an installed skill, MCP server (`mcp__*`), sub-agent (`Task`),
-  or slash command can all actually fire.
+  component, and `trace`/`output` assertions check what it did. The Claude driver allows the
+  `Skill` and `Task` tools (so an installed skill and a sub-agent activate) under
+  `acceptEdits`, which keeps the model answering the prompt rather than executing it. MCP and
+  command activation depend on harness-specific tool names the static driver can't enumerate,
+  so those are honestly reported UNTESTED where the harness can't confirm them.
 - Event-driven (hook, passthrough): these are not triggered by a prompt and are placed
   disabled, so their eval is a post-state shell check, `setup` to arrange state and `verify`
   (exit 0 = pass) to assert it. Use an empty `assert: []` with `verify`.
