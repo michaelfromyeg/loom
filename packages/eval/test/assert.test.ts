@@ -55,6 +55,11 @@ describe("output assertions", () => {
   it("checks exact equality (trimmed)", async () => {
     expect(await status(output({ equals: "ok" }), [tx([], "  ok  ")])).toBe("pass");
   });
+  it("honors minPassRate across samples (majority tolerates LLM variance)", async () => {
+    const samples = [tx([], "no"), tx([], "bug here"), tx([], "bug again")]; // 2/3 match
+    expect(await status(output({ matches: "bug", minPassRate: 1.0 }), samples)).toBe("fail");
+    expect(await status(output({ matches: "bug", minPassRate: 0.5 }), samples)).toBe("pass");
+  });
 });
 
 describe("judge assertions", () => {

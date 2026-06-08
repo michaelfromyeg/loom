@@ -19,6 +19,8 @@ const OutputAssert = z.object({
   matches: z.string().optional(),
   jsonSchema: z.string().optional(),
   tolerance: z.number().optional(),
+  /** Fraction of `samples` that must match; <1 tolerates LLM variance. */
+  minPassRate: z.number().min(0).max(1).default(1.0),
 });
 export type OutputAssert = z.infer<typeof OutputAssert>;
 

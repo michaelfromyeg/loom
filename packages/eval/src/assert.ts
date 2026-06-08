@@ -99,10 +99,11 @@ function outputSamplePasses(a: OutputAssert, t: Transcript): boolean {
 function evaluateOutput(a: OutputAssert, transcripts: Transcript[]): AssertResult {
   if (transcripts.length === 0) return { kind: "output", status: "fail", detail: "no samples" };
   const passes = transcripts.filter((t) => outputSamplePasses(a, t)).length;
+  const rate = passes / transcripts.length;
   return {
     kind: "output",
-    status: passes === transcripts.length ? "pass" : "fail",
-    detail: `${passes}/${transcripts.length} samples matched`,
+    status: rate >= a.minPassRate ? "pass" : "fail",
+    detail: `${passes}/${transcripts.length} samples matched (minPassRate ${a.minPassRate})`,
   };
 }
 

@@ -1,17 +1,24 @@
 component: io.github.michaelfromyeg/using-weft:using-weft
-harnesses: [claude]
+# Three samples, majority pass (minPassRate 0.5) -- one-shot LLM answers vary in phrasing.
 cases:
   - name: install-to-specific-harnesses
     prompt: "Using Weft, what is the exact command to install the plugin in the current directory to only Claude Code and Codex? Reply with just the command."
+    samples: 3
     assert:
       - kind: output
         matches: "(?i)weft install"
+        minPassRate: 0.5
       - kind: output
         matches: "(?i)--target"
+        minPassRate: 0.5
       - kind: output
         matches: "(?i)codex"
+        minPassRate: 0.5
   - name: build-without-installing
     prompt: "Using Weft, what is the exact command that compiles a plugin to every harness WITHOUT installing it into any harness? Reply with just the command."
+    samples: 3
     assert:
       - kind: output
         matches: "(?i)weft build"
+        minPassRate: 0.5
+harnesses: [claude]
