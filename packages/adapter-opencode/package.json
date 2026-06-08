@@ -1,6 +1,6 @@
 {
   "name": "@michaelfromyeg/loom-adapter-opencode",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Loom adapter for OpenCode: directory-convention placement + opencode.json mcp block.",
   "type": "module",
   "main": "./dist/index.js",

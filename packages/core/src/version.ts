@@ -1,7 +1,7 @@
 import semver from "semver";
 
 /** The Loom/CLI version (versioning axis 2, spec §5). */
-export const LOOM_VERSION = "0.2.0";
+export const LOOM_VERSION = "0.3.0";
 
 /**
  * Check a plugin's `loom_min_version` against the running Loom. Returns an error
