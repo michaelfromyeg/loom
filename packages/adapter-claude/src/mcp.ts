@@ -56,7 +56,10 @@ export function mcpRunConfig(server: ServerJson): McpServerConfig {
 
   const remote = server.remotes?.[0];
   if (remote?.url) {
-    const config: McpServerConfig = { type: remote.type ?? "http", url: remote.url };
+    // Claude accepts only stdio|sse|http. The MCP standard's "streamable-http"
+    // is Claude's "http" (claude mcp add normalizes it the same way).
+    const type = remote.type === "sse" ? "sse" : "http";
+    const config: McpServerConfig = { type, url: remote.url };
     if (remote.headers?.length) {
       config.headers = Object.fromEntries(remote.headers.map((h) => [h.name, h.value]));
     }

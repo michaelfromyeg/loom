@@ -50,6 +50,20 @@ describe("mcpRunConfig", () => {
     });
   });
 
+  it("maps the MCP standard streamable-http transport to Claude's http", () => {
+    expect(mcpRunConfig({ remotes: [{ type: "streamable-http", url: "https://x/mcp" }] })).toEqual({
+      type: "http",
+      url: "https://x/mcp",
+    });
+  });
+
+  it("defaults a remote with no declared type to http", () => {
+    expect(mcpRunConfig({ remotes: [{ url: "https://x/mcp" }] })).toEqual({
+      type: "http",
+      url: "https://x/mcp",
+    });
+  });
+
   it("maps remote headers into a record", () => {
     expect(
       mcpRunConfig({
