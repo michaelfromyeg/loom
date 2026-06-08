@@ -1,7 +1,7 @@
 import type { Transcript } from "@loom/adapter-kit";
 import { Assertion } from "@loom/schema";
 import { describe, expect, it } from "vitest";
-import { evaluateAssertion } from "../src/assert";
+import { type AssertContext, evaluateAssertion } from "../src/assert";
 
 function tx(toolNames: string[], finalText = "", traceUnavailable = false): Transcript {
   return {
@@ -15,70 +15,83 @@ function tx(toolNames: string[], finalText = "", traceUnavailable = false): Tran
 
 const trace = (o: Record<string, unknown>) => Assertion.parse({ kind: "trace", ...o });
 const output = (o: Record<string, unknown>) => Assertion.parse({ kind: "output", ...o });
+const status = async (a: Assertion, t: Transcript[], ctx?: AssertContext) =>
+  (await evaluateAssertion(a, t, ctx)).status;
 
 describe("trace assertions", () => {
-  it("passes when the required tool was called", () => {
-    const r = evaluateAssertion(trace({ toolCalled: "Read" }), [tx(["Read", "Edit"])]);
-    expect(r.status).toBe("pass");
+  it("passes when the required tool was called", async () => {
+    expect(await status(trace({ toolCalled: "Read" }), [tx(["Read", "Edit"])])).toBe("pass");
   });
-
-  it("fails when the required tool was not called", () => {
-    const r = evaluateAssertion(trace({ toolCalled: "Read" }), [tx(["Edit"])]);
-    expect(r.status).toBe("fail");
+  it("fails when the required tool was not called", async () => {
+    expect(await status(trace({ toolCalled: "Read" }), [tx(["Edit"])])).toBe("fail");
   });
-
-  it("fails when a forbidden tool was called", () => {
-    const r = evaluateAssertion(trace({ toolNotCalled: "Bash" }), [tx(["Read", "Bash"])]);
-    expect(r.status).toBe("fail");
+  it("fails when a forbidden tool was called", async () => {
+    expect(await status(trace({ toolNotCalled: "Bash" }), [tx(["Read", "Bash"])])).toBe("fail");
   });
-
-  it("enforces maxCalls and sequence order", () => {
-    expect(evaluateAssertion(trace({ maxCalls: 1 }), [tx(["Read", "Edit"])]).status).toBe("fail");
+  it("enforces maxCalls and sequence order", async () => {
+    expect(await status(trace({ maxCalls: 1 }), [tx(["Read", "Edit"])])).toBe("fail");
     expect(
-      evaluateAssertion(trace({ sequence: ["Read", "Edit"] }), [tx(["Read", "Grep", "Edit"])])
-        .status,
+      await status(trace({ sequence: ["Read", "Edit"] }), [tx(["Read", "Grep", "Edit"])]),
     ).toBe("pass");
-    expect(
-      evaluateAssertion(trace({ sequence: ["Edit", "Read"] }), [tx(["Read", "Edit"])]).status,
-    ).toBe("fail");
-  });
-
-  it("honors minPassRate across samples", () => {
-    const samples = [tx(["Read"]), tx(["Edit"])]; // 1 of 2 call Read
-    expect(evaluateAssertion(trace({ toolCalled: "Read", minPassRate: 1.0 }), samples).status).toBe(
+    expect(await status(trace({ sequence: ["Edit", "Read"] }), [tx(["Read", "Edit"])])).toBe(
       "fail",
     );
-    expect(evaluateAssertion(trace({ toolCalled: "Read", minPassRate: 0.5 }), samples).status).toBe(
-      "pass",
-    );
   });
-
-  it("degrades (does not fake) when the harness has no trace", () => {
-    const r = evaluateAssertion(trace({ toolCalled: "Read" }), [tx([], "text", true)]);
-    expect(r.status).toBe("degraded");
+  it("honors minPassRate across samples", async () => {
+    const samples = [tx(["Read"]), tx(["Edit"])];
+    expect(await status(trace({ toolCalled: "Read", minPassRate: 1.0 }), samples)).toBe("fail");
+    expect(await status(trace({ toolCalled: "Read", minPassRate: 0.5 }), samples)).toBe("pass");
+  });
+  it("degrades (does not fake) when the harness has no trace", async () => {
+    expect(await status(trace({ toolCalled: "Read" }), [tx([], "text", true)])).toBe("degraded");
   });
 });
 
 describe("output assertions", () => {
-  it("matches a regex on the final text across all samples", () => {
-    expect(evaluateAssertion(output({ matches: "(?i)bug" }), [tx([], "Found a BUG")]).status).toBe(
-      "pass",
-    );
-    expect(
-      evaluateAssertion(output({ matches: "bug" }), [tx([], "clean"), tx([], "bug")]).status,
-    ).toBe("fail");
+  it("matches a case-insensitive regex with a leading (?i) inline flag", async () => {
+    expect(await status(output({ matches: "(?i)bug" }), [tx([], "Found a BUG")])).toBe("pass");
+    expect(await status(output({ matches: "bug" }), [tx([], "clean"), tx([], "bug")])).toBe("fail");
   });
-
-  it("checks exact equality (trimmed)", () => {
-    expect(evaluateAssertion(output({ equals: "ok" }), [tx([], "  ok  ")]).status).toBe("pass");
+  it("checks exact equality (trimmed)", async () => {
+    expect(await status(output({ equals: "ok" }), [tx([], "  ok  ")])).toBe("pass");
   });
 });
 
-describe("advisory assertions", () => {
-  it("reports judge and differential as skipped (Phase 3)", () => {
-    expect(evaluateAssertion(Assertion.parse({ kind: "judge", rubric: "r" }), []).status).toBe(
-      "skipped",
+describe("judge assertions", () => {
+  const judgeAssert = (o: Record<string, unknown>) =>
+    Assertion.parse({ kind: "judge", rubric: "good?", ...o });
+
+  it("is skipped (advisory) when no judge model is configured", async () => {
+    expect(await status(judgeAssert({}), [tx([], "x")])).toBe("skipped");
+  });
+  it("passes when the injected judge approves (majority)", async () => {
+    const judge = async () => ({ pass: true });
+    expect(await status(judgeAssert({ gate: true }), [tx([], "x")], { judge })).toBe("pass");
+  });
+  it("gates a failure only when gate:true; otherwise advisory", async () => {
+    const judge = async () => ({ pass: false });
+    expect(await status(judgeAssert({ gate: true }), [tx([], "x")], { judge })).toBe("fail");
+    expect(await status(judgeAssert({ gate: false }), [tx([], "x")], { judge })).toBe("skipped");
+  });
+});
+
+describe("differential assertions (no-regression gate)", () => {
+  const diff = (o: Record<string, unknown> = {}) => Assertion.parse({ kind: "differential", ...o });
+
+  it("is skipped without a baseline", async () => {
+    expect(await status(diff(), [], { caseScore: 1 })).toBe("skipped");
+  });
+  it("passes when the score does not regress past the threshold", async () => {
+    expect(await status(diff({ noWorseThan: 0 }), [], { caseScore: 1.0, baselineScore: 1.0 })).toBe(
+      "pass",
     );
-    expect(evaluateAssertion(Assertion.parse({ kind: "differential" }), []).status).toBe("skipped");
+    expect(
+      await status(diff({ noWorseThan: 0.2 }), [], { caseScore: 0.85, baselineScore: 1.0 }),
+    ).toBe("pass");
+  });
+  it("FAILS (blocks) on a regression below the threshold", async () => {
+    expect(await status(diff({ noWorseThan: 0 }), [], { caseScore: 0.5, baselineScore: 1.0 })).toBe(
+      "fail",
+    );
   });
 });

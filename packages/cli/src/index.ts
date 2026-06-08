@@ -1,13 +1,19 @@
-import { writeFileSync } from "node:fs";
+import { createPrivateKey, createPublicKey } from "node:crypto";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
 import {
   build,
   buildMarketplace,
   CompileError,
+  generateSigningKeys,
   hasMarketplaceManifest,
   install,
   LOOM_VERSION,
   lint,
+  readLock,
+  signLock,
   update,
+  verifyArtifacts,
 } from "@loom/core";
 import { discoverEvals, runEval } from "@loom/eval";
 import {
@@ -163,6 +169,10 @@ const installCmd = defineCommand({
       type: "boolean",
       description: "Install to requested targets even if the harness is not detected",
     },
+    managed: {
+      type: "string",
+      description: "Managed mode: only allow these namespaces (comma-separated allowlist)",
+    },
     cwd: { type: "string", description: "Project root for project-scope placement (default: cwd)" },
   },
   async run({ args }) {
@@ -170,6 +180,7 @@ const installCmd = defineCommand({
       const registry = buildRegistry();
       const scope = (args.scope === "user" ? "user" : "project") as Scope;
       const requested = parseTargets(args.target) ?? registry.targets;
+      const allow = parseList(args.managed);
 
       // Skip targets whose harness isn't on this machine, and say so (spec §9.2).
       let targets = requested;
@@ -190,6 +201,7 @@ const installCmd = defineCommand({
         registry,
         targets,
         only: parseList(args.only),
+        ...(allow ? { managed: { allowNamespaces: allow } } : {}),
       });
       printTrustSummary(result.result);
       console.log(
@@ -225,12 +237,18 @@ const updateCmd = defineCommand({
   async run({ args }) {
     try {
       const scope = (args.scope === "user" ? "user" : "project") as Scope;
+      // Default to the targets already in the lockfile, so update matches what
+      // install placed (not every registered adapter).
+      const lock = readLock(args.dir);
+      const lockedTargets = lock
+        ? ([...new Set(lock.artifacts.map((a) => a.target))] as Target[])
+        : undefined;
       const result = await update({
         pluginDir: args.dir,
         scope,
         cwd: args.cwd ?? process.cwd(),
         registry: buildRegistry(),
-        targets: parseTargets(args.target),
+        targets: parseTargets(args.target) ?? lockedTargets,
       });
       console.log(
         `Updated ${result.lockfile.plugin.id}: ${result.changed.length} artifact(s) changed`,
@@ -296,16 +314,22 @@ const publishCmd = defineCommand({
   },
   args: {
     dir: { type: "positional", required: false, default: ".", description: "Plugin directory" },
+    snapshot: {
+      type: "boolean",
+      description: "Snapshot eval scores into evals/.baselines/ for the next release",
+    },
   },
   async run({ args }) {
     try {
       const res = await publishCheck(args.dir, {
         registry: buildRegistry(),
         drivers: allDrivers(),
+        snapshot: Boolean(args.snapshot),
       });
       console.log(`Publish check: ${res.id}@${res.version}`);
       if (res.diagnostics.length > 0) printDiagnostics(res.diagnostics);
       console.log(`  valid: ${res.validPassed ? "yes" : "NO"}`);
+      console.log(`  scan: ${res.scan.clean ? "clean" : `${res.scan.findings.length} finding(s)`}`);
       console.log(`  badges: ${res.badges.join(", ") || "none"}`);
       console.log(`  harness coverage: ${res.harnessCoverage.join(", ") || "none"}`);
       for (const r of res.evalReports) printEvalReport(r);
@@ -314,6 +338,88 @@ const publishCmd = defineCommand({
         process.exit(1);
       }
       console.log("\nPublish gate passed.");
+    } catch (err) {
+      fail(err);
+    }
+  },
+});
+
+const signCmd = defineCommand({
+  meta: {
+    name: "sign",
+    description:
+      "Sign loom.lock's artifact set (ed25519) -> loom.sig + loom.pub (the signed badge)",
+  },
+  args: {
+    dir: {
+      type: "positional",
+      required: false,
+      default: ".",
+      description: "Plugin dir with loom.lock",
+    },
+  },
+  run({ args }) {
+    try {
+      const lock = readLock(args.dir);
+      if (!lock) {
+        console.error("no loom.lock found (run `loom install` first)");
+        process.exit(1);
+      }
+      const loomDir = join(args.dir, ".loom");
+      mkdirSync(loomDir, { recursive: true });
+      writeFileSync(join(loomDir, ".gitignore"), "*\n");
+      const keyPath = join(loomDir, "signing.key");
+
+      let privateKey: ReturnType<typeof createPrivateKey>;
+      if (existsSync(keyPath)) {
+        privateKey = createPrivateKey(readFileSync(keyPath));
+      } else {
+        const keys = generateSigningKeys();
+        privateKey = keys.privateKey;
+        writeFileSync(keyPath, keys.privateKey.export({ type: "pkcs8", format: "pem" }));
+        writeFileSync(
+          join(args.dir, "loom.pub"),
+          keys.publicKey.export({ type: "spki", format: "pem" }),
+        );
+      }
+      writeFileSync(join(args.dir, "loom.sig"), `${signLock(lock, privateKey)}\n`);
+      console.log(
+        `Signed ${lock.artifacts.length} artifacts -> loom.sig (key kept in .loom/, public key in loom.pub)`,
+      );
+    } catch (err) {
+      fail(err);
+    }
+  },
+});
+
+const verifyCmd = defineCommand({
+  meta: {
+    name: "verify",
+    description: "Verify loom.sig against loom.lock and the on-disk artifacts",
+  },
+  args: {
+    dir: {
+      type: "positional",
+      required: false,
+      default: ".",
+      description: "Plugin dir with loom.lock",
+    },
+  },
+  run({ args }) {
+    try {
+      const lock = readLock(args.dir);
+      if (!lock) {
+        console.error("no loom.lock found");
+        process.exit(1);
+      }
+      const sig = readFileSync(join(args.dir, "loom.sig"), "utf8").trim();
+      const publicKey = createPublicKey(readFileSync(join(args.dir, "loom.pub")));
+      const res = verifyArtifacts(lock, publicKey, sig);
+      console.log(`signature: ${res.signatureValid ? "valid" : "INVALID"}`);
+      console.log(`tampered artifacts: ${res.tampered.length}`);
+      for (const p of res.tampered) console.log(`  ! ${p}`);
+      if (!res.signatureValid || res.tampered.length > 0) process.exit(1);
+      console.log("signed badge verified.");
     } catch (err) {
       fail(err);
     }
@@ -385,6 +491,8 @@ const main = defineCommand({
     update: updateCmd,
     eval: evalCmd,
     publish: publishCmd,
+    sign: signCmd,
+    verify: verifyCmd,
     index: indexCmd,
     docs: docsCmd,
   },

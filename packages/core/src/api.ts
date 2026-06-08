@@ -1,13 +1,14 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import type { CatalogEntry, ResolvedMarketplace } from "@loom/adapter-kit";
-import type { Lockfile, Marketplace, ParseIssue, Plugin, Scope, Target } from "@loom/schema";
+import type { Badge, Lockfile, Marketplace, ParseIssue, Plugin, Scope, Target } from "@loom/schema";
 import { type CompileResult, compile, staticPass } from "./compile";
 import { resolveConfig, type SecretsResult } from "./config";
 import { type DependencyRecord, resolveDependencies } from "./deps";
 import { CompileError, type Diagnostic, type Diagnostics } from "./diagnostics";
 import { type FetchedPlugin, loadMarketplaceDir, loadPluginDir } from "./loader";
 import { buildLockfile, readLock, writeLock } from "./lockfile";
+import { checkManagedPolicy, type ManagedPolicy } from "./managed";
 import {
   buildToDir,
   installToScope,
@@ -172,6 +173,12 @@ export interface InstallOptions {
   targets?: Target[];
   /** Piecemeal: install only these component leaf names (spec §9.2). */
   only?: string[];
+  /** Managed-mode policy: namespace allowlist / required badges (spec §11). */
+  managed?: ManagedPolicy;
+  /** Badges known for this plugin (for managed `requireBadges`). */
+  badges?: Badge[];
+  /** Where to write `loom.lock` (default: the plugin dir). Eval points this at a scratch dir. */
+  lockDir?: string;
   /** Inject the lockfile timestamp for deterministic tests. */
   now?: string;
 }
@@ -195,6 +202,16 @@ export async function install(opts: InstallOptions): Promise<InstallResult> {
   if (result.diagnostics.hasErrors) {
     throw new CompileError("compile failed", result.diagnostics.errors);
   }
+  // Managed mode gates the install by namespace / required badges (spec §11).
+  const blocked = checkManagedPolicy(opts.managed, {
+    namespace: result.fb.plugin.owner.namespace,
+    badges: opts.badges,
+  });
+  if (blocked) {
+    throw new CompileError("install blocked by managed policy", [
+      { severity: "error", where: "managed", message: blocked },
+    ]);
+  }
   const artifacts = installToScope(result, opts.scope, opts.cwd);
   const secrets = resolveConfig(result.fb.plugin, opts.cwd);
   const { ref, sha } = await gitInfo(opts.pluginDir);
@@ -206,7 +223,7 @@ export async function install(opts: InstallOptions): Promise<InstallResult> {
     sha,
     generatedAt: opts.now ?? new Date().toISOString(),
   });
-  const lockPath = writeLock(opts.pluginDir, lockfile);
+  const lockPath = writeLock(opts.lockDir ?? opts.pluginDir, lockfile);
   return { result, lockfile, lockPath, secrets };
 }
 

@@ -6,6 +6,12 @@ export interface BadgeInputs {
   validPassed: boolean;
   /** Reports from running the deterministic eval tier (trace + output). */
   evalReports?: EvalReport[];
+  /** Security scan found nothing (the scanned badge). */
+  scanClean?: boolean;
+  /** A valid signature over the lockfile-hashed artifacts (the signed badge). */
+  signatureValid?: boolean;
+  /** Publisher namespace ownership proven (the verified badge). */
+  ownershipVerified?: boolean;
 }
 
 export interface BadgeResult {
@@ -39,6 +45,9 @@ export function computeBadges(input: BadgeInputs): BadgeResult {
     }
   }
   if (anyCases && anyTestedPass) badges.push("tested");
+  if (input.ownershipVerified) badges.push("verified");
+  if (input.scanClean) badges.push("scanned");
+  if (input.signatureValid) badges.push("signed");
 
   return { badges, harnessCoverage: [...coverage] };
 }

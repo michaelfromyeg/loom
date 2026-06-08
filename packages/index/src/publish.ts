@@ -3,6 +3,7 @@ import { type AdapterRegistry, type Diagnostic, lint } from "@loom/core";
 import { discoverEvals, type EvalReport, runEval } from "@loom/eval";
 import type { Badge, Target } from "@loom/schema";
 import { computeBadges } from "./badges";
+import { type ScanResult, scanPlugin } from "./scan";
 
 export interface PublishResult {
   id: string;
@@ -15,6 +16,7 @@ export interface PublishResult {
   harnessCoverage: Target[];
   diagnostics: Diagnostic[];
   evalReports: EvalReport[];
+  scan: ScanResult;
 }
 
 /**
@@ -25,7 +27,12 @@ export interface PublishResult {
  */
 export async function publishCheck(
   pluginDir: string,
-  opts: { registry: AdapterRegistry; drivers: Record<Target, HarnessDriver> },
+  opts: {
+    registry: AdapterRegistry;
+    drivers: Record<Target, HarnessDriver>;
+    /** Snapshot each harness's score into evals/.baselines/ for the next release. */
+    snapshot?: boolean;
+  },
 ): Promise<PublishResult> {
   const linted = lint(pluginDir);
   const validPassed = !linted.diagnostics.hasErrors;
@@ -40,6 +47,7 @@ export async function publishCheck(
           componentLeaf: d.componentLeaf,
           registry: opts.registry,
           drivers: opts.drivers,
+          snapshotBaselines: opts.snapshot,
         }),
       );
     }
@@ -48,7 +56,12 @@ export async function publishCheck(
   const evalFailed = evalReports.some((r) =>
     r.harnesses.some((h) => h.status === "tested" && !h.pass),
   );
-  const { badges, harnessCoverage } = computeBadges({ validPassed, evalReports });
+  const scan = validPassed ? scanPlugin(pluginDir) : { clean: false, findings: [] };
+  const { badges, harnessCoverage } = computeBadges({
+    validPassed,
+    evalReports,
+    scanClean: scan.clean,
+  });
 
   return {
     id: linted.id,
@@ -60,5 +73,6 @@ export async function publishCheck(
     harnessCoverage,
     diagnostics: linted.diagnostics.items,
     evalReports,
+    scan,
   };
 }

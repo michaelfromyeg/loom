@@ -16,3 +16,9 @@ coverage/
 
 # generated JSON schemas (regenerated on build)
 packages/schema/schemas/
+
+# fixture install artifacts (never commit; machine-specific paths)
+fixtures/**/loom.lock
+fixtures/**/.loom/
+fixtures/**/loom.sig
+fixtures/**/loom.pub

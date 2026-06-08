@@ -1,5 +1,11 @@
 import type { Transcript } from "@loom/adapter-kit";
-import type { Assertion, OutputAssert, TraceAssert } from "@loom/schema";
+import type {
+  Assertion,
+  DifferentialAssert,
+  JudgeAssert,
+  OutputAssert,
+  TraceAssert,
+} from "@loom/schema";
 
 export type AssertStatus = "pass" | "fail" | "degraded" | "skipped";
 
@@ -7,6 +13,28 @@ export interface AssertResult {
   kind: Assertion["kind"];
   status: AssertStatus;
   detail: string;
+}
+
+export interface JudgeInput {
+  candidate: string;
+  reference?: string;
+  rubric: string;
+  mode: "absolute" | "pairwise";
+  samples: number;
+}
+export interface JudgeVerdict {
+  pass: boolean;
+  detail?: string;
+}
+/** A judge model. Injected so evals run offline/deterministically in tests. */
+export type JudgeFn = (input: JudgeInput) => Promise<JudgeVerdict>;
+
+export interface AssertContext {
+  judge?: JudgeFn;
+  /** Deterministic score of the case (fraction of trace/output passing) -- differential. */
+  caseScore?: number;
+  /** Baseline score for (component, harness) from evals/.baselines/ -- differential. */
+  baselineScore?: number;
 }
 
 /** True iff `seq` appears as an ordered subsequence of `arr`. */
@@ -29,7 +57,6 @@ function traceSamplePasses(a: TraceAssert, t: Transcript): boolean {
 }
 
 function evaluateTrace(a: TraceAssert, transcripts: Transcript[]): AssertResult {
-  // Degrade honestly: a harness with no structured trace cannot be trace-evaluated.
   if (transcripts.length > 0 && transcripts.every((t) => t.traceUnavailable)) {
     return {
       kind: "trace",
@@ -46,11 +73,6 @@ function evaluateTrace(a: TraceAssert, transcripts: Transcript[]): AssertResult 
   };
 }
 
-/**
- * Compile a `matches` pattern, translating a leading inline flag group like
- * `(?i)` into real RegExp flags (JS does not support inline flags and throws on
- * them). An otherwise-invalid pattern never matches rather than throwing.
- */
 function compileRegex(pattern: string): RegExp | null {
   const m = /^\(\?([a-z]+)\)/.exec(pattern);
   try {
@@ -84,24 +106,71 @@ function evaluateOutput(a: OutputAssert, transcripts: Transcript[]): AssertResul
   };
 }
 
+async function evaluateJudge(
+  a: JudgeAssert,
+  transcripts: Transcript[],
+  ctx: AssertContext,
+): Promise<AssertResult> {
+  if (!ctx.judge) {
+    return { kind: "judge", status: "skipped", detail: "no judge model configured (advisory)" };
+  }
+  let passes = 0;
+  for (const t of transcripts) {
+    const v = await ctx.judge({
+      candidate: t.finalText,
+      reference: a.reference,
+      rubric: a.rubric,
+      mode: a.mode,
+      samples: a.samples,
+    });
+    if (v.pass) passes++;
+  }
+  const ok = passes * 2 > transcripts.length; // majority
+  // Advisory unless `gate:true` -- a non-gating judge never fails the case.
+  const status: AssertStatus = a.gate ? (ok ? "pass" : "fail") : ok ? "pass" : "skipped";
+  return {
+    kind: "judge",
+    status,
+    detail: `${passes}/${transcripts.length} judge verdicts pass${a.gate ? "" : " (advisory)"}`,
+  };
+}
+
+function evaluateDifferential(a: DifferentialAssert, ctx: AssertContext): AssertResult {
+  if (ctx.baselineScore === undefined) {
+    return {
+      kind: "differential",
+      status: "skipped",
+      detail: "no baseline (run loom publish to snapshot one)",
+    };
+  }
+  const score = ctx.caseScore ?? 0;
+  const ok = score - ctx.baselineScore >= -a.noWorseThan;
+  return {
+    kind: "differential",
+    status: ok ? "pass" : "fail",
+    detail: `score ${score.toFixed(2)} vs baseline ${ctx.baselineScore.toFixed(2)} (noWorseThan ${a.noWorseThan})`,
+  };
+}
+
 /**
- * Evaluate one assertion against a case's sample transcripts. Trace and output
- * are evaluated deterministically here; judge and differential are advisory and
- * land in Phase 3 (reported as `skipped`).
+ * Evaluate one assertion against a case's sample transcripts (spec §9.5). Trace
+ * and output are deterministic; judge is advisory unless `gate:true` and needs an
+ * injected judge model; differential compares the case score to a committed
+ * baseline (the "vibes" no-regression gate).
  */
-export function evaluateAssertion(a: Assertion, transcripts: Transcript[]): AssertResult {
+export async function evaluateAssertion(
+  a: Assertion,
+  transcripts: Transcript[],
+  ctx: AssertContext = {},
+): Promise<AssertResult> {
   switch (a.kind) {
     case "trace":
       return evaluateTrace(a, transcripts);
     case "output":
       return evaluateOutput(a, transcripts);
     case "judge":
-      return { kind: "judge", status: "skipped", detail: "judge evals land in Phase 3" };
+      return evaluateJudge(a, transcripts, ctx);
     case "differential":
-      return {
-        kind: "differential",
-        status: "skipped",
-        detail: "differential evals land in Phase 3",
-      };
+      return evaluateDifferential(a, ctx);
   }
 }

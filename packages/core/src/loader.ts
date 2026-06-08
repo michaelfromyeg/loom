@@ -22,7 +22,7 @@ export interface FetchedMarketplace {
 
 /** Recursively collect file paths under `dir`, relative to `root`. Deterministic order. */
 function walkFiles(root: string, dir: string): string[] {
-  if (!existsSync(dir)) return [];
+  if (!existsSync(dir) || !statSync(dir).isDirectory()) return [];
   const out: string[] = [];
   for (const entry of readdirSync(dir).sort()) {
     const abs = join(dir, entry);

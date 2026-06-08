@@ -7,19 +7,21 @@ _Generated from the CLI definition by `loom docs` -- do not edit by hand._
 ```
 Author once, compile to every coding-agent harness. (loom v0.1.0)
 
-USAGE `loom init|validate|build|install|update|eval|publish|index|docs`
+USAGE `loom init|validate|build|install|update|eval|publish|sign|verify|index|docs`
 
 COMMANDS
 
-      `init`    Scaffold a new plugin (loom.yaml + a sample skill)                              
-  `validate`    Statically validate a plugin (the valid badge)                                  
-     `build`    Compile a plugin (or a marketplace of plugins) to harness manifests             
-   `install`    Compile + place a plugin into a harness scope, write loom.lock                  
-    `update`    Re-resolve refs, recompile, and re-place only artifacts whose hash changed      
-      `eval`    Run a component's evals against the real harnesses (reports UNTESTED honestly)  
-   `publish`    Run the deterministic publish gate (static valid + trace/output evals)          
-     `index`    Build a metadata index from plugin dirs (optionally federating the MCP Registry)
-      `docs`    Print the full CLI reference (a CLI map), generated from the command tree       
+      `init`    Scaffold a new plugin (loom.yaml + a sample skill)                               
+  `validate`    Statically validate a plugin (the valid badge)                                   
+     `build`    Compile a plugin (or a marketplace of plugins) to harness manifests              
+   `install`    Compile + place a plugin into a harness scope, write loom.lock                   
+    `update`    Re-resolve refs, recompile, and re-place only artifacts whose hash changed       
+      `eval`    Run a component's evals against the real harnesses (reports UNTESTED honestly)   
+   `publish`    Run the deterministic publish gate (static valid + trace/output evals)           
+      `sign`    Sign loom.lock's artifact set (ed25519) -> loom.sig + loom.pub (the signed badge)
+    `verify`    Verify loom.sig against loom.lock and the on-disk artifacts                      
+     `index`    Build a metadata index from plugin dirs (optionally federating the MCP Registry) 
+      `docs`    Print the full CLI reference (a CLI map), generated from the command tree        
 
 Use `loom <command> --help` for more information about a command.
 ```
@@ -133,6 +135,7 @@ OPTIONS
            `--target`    Comma-separated targets (default: all registered)                    
              `--only`    Comma-separated component names to install piecemeal (e.g. one skill)
               `--all`    Install to requested targets even if the harness is not detected     
+          `--managed`    Managed mode: only allow these namespaces (comma-separated allowlist)
               `--cwd`    Project root for project-scope placement (default: cwd)
 ```
 
@@ -147,7 +150,25 @@ USAGE `loom publish [OPTIONS] [DIR]`
 
 ARGUMENTS
 
-  `DIR="."`    Plugin directory
+  `DIR="."`    Plugin directory    
+
+OPTIONS
+
+  `--snapshot`    Snapshot eval scores into evals/.baselines/ for the next release
+```
+
+## `loom sign`
+
+Sign loom.lock's artifact set (ed25519) -> loom.sig + loom.pub (the signed badge)
+
+```
+Sign loom.lock's artifact set (ed25519) -> loom.sig + loom.pub (the signed badge) (loom sign v0.1.0)
+
+USAGE `loom sign [OPTIONS] [DIR]`
+
+ARGUMENTS
+
+  `DIR="."`    Plugin dir with loom.lock
 ```
 
 ## `loom update`
@@ -182,5 +203,19 @@ USAGE `loom validate [OPTIONS] [DIR]`
 ARGUMENTS
 
   `DIR="."`    Plugin directory
+```
+
+## `loom verify`
+
+Verify loom.sig against loom.lock and the on-disk artifacts
+
+```
+Verify loom.sig against loom.lock and the on-disk artifacts (loom verify v0.1.0)
+
+USAGE `loom verify [OPTIONS] [DIR]`
+
+ARGUMENTS
+
+  `DIR="."`    Plugin dir with loom.lock
 ```
 

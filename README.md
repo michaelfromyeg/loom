@@ -41,15 +41,25 @@ bun packages/cli/src/index.ts validate fixtures/sample-plugin
 
 ## Status
 
-Phase 0 (Claude Code) is implemented and tested end-to-end: a plugin compiles to a valid
-`.claude-plugin/marketplace.json` + `plugin.json` + placed components with **zero
-hand-written JSON**, passes `claude plugin validate --strict`, installs with a
-content-addressed `loom.lock`, and rebuilds to identical hashes. See
-[docs/roadmap.md](docs/roadmap.md) for the full phase plan and what is implemented.
+**All four phases are implemented and tested** (212 tests, ~92% coverage). A plugin
+compiles to every harness's native manifests with **zero hand-written JSON**, passes
+`claude plugin validate --strict`, installs with a content-addressed `loom.lock`, and is
+proven end-to-end against a **real headless Claude** (see the [demo](docs/demo.md)).
+
+- **Phase 0** -- the compile loop (Claude Code).
+- **Phase 1** -- all five adapters + `@loom/eval` (real headless drivers, honest UNTESTED,
+  Copilot trace->output degradation) + remote resolver, dependencies, secrets, `loom update`.
+- **Phase 2** -- `@loom/index` (build + MCP-Registry federation), `valid`/`tested` badges,
+  the `loom publish` deterministic gate + a CI action.
+- **Phase 3** -- judge + differential evals + baselines, security scan, ed25519 signing
+  (`signed` badge), and managed-mode install gating.
+
+See [docs/roadmap.md](docs/roadmap.md) for the per-criterion acceptance status.
 
 ## Documentation
 
 - [Concepts](docs/concepts.md) -- **start here**: plugin vs marketplace.
+- [Demo](docs/demo.md) -- real-world use cases, end to end (`bash examples/demo.sh`).
 - [Getting started](docs/getting-started.md) -- a full CLI walkthrough.
 - [CLI reference](docs/cli.md) -- a generated map of every command (`loom docs`).
 - [Architecture](docs/architecture.md) -- the compile pipeline, packages, and the adapter seam.
@@ -63,12 +73,18 @@ content-addressed `loom.lock`, and rebuilds to identical hashes. See
 ```
 packages/
   schema/          @loom/schema       Zod schemas + types + JSON-Schema export
-  core/            @loom/core         compile pipeline, resolver, lockfile, namespacing
+  core/            @loom/core         compile pipeline, resolver, deps, secrets, lockfile,
+                                      signing, managed-mode, namespacing
   adapter-kit/     @loom/adapter-kit  public HarnessAdapter/Driver interfaces + helpers
-  adapter-claude/  @loom/adapter-claude
-  cli/             @loom/cli          the `loom` binary (thin shell over core)
+  adapter-claude/  @loom/adapter-claude   (+ codex, cursor, copilot, opencode)
+  eval/            @loom/eval         headless drivers + runner + judge/differential + baselines
+  index/           @loom/index        metadata index, MCP-Registry federation, badges, publish gate
+  cli/             @loom/cli          the `loom` binary (thin shell over the above)
 fixtures/
   sample-plugin/                      end-to-end test plugin (1 skill + 1 mcp + evals)
+  sample-marketplace/                 a 2-plugin marketplace
+examples/
+  demo.sh                             runnable end-to-end demo
 ```
 
 ## Toolchain

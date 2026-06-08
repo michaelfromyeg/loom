@@ -110,7 +110,12 @@ describe("remote resolution (git clone)", () => {
     cpSync(FIXTURE, repo, { recursive: true });
     await execa("git", ["init", "-q"], { cwd: repo });
     await execa("git", ["add", "-A"], { cwd: repo });
-    await execa("git", ["commit", "-q", "-m", "init"], { cwd: repo });
+    // Inline identity so the test does not depend on a global git config (CI has none).
+    await execa(
+      "git",
+      ["-c", "user.email=ci@loom.test", "-c", "user.name=loom", "commit", "-q", "-m", "init"],
+      { cwd: repo },
+    );
 
     const resolved = await resolvePluginRefFull(`file://${repo}`, tmp);
     expect(resolved.fb.plugin.name).toBe("sample-plugin");

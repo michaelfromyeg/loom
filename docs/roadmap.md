@@ -80,11 +80,22 @@ Package: `@loom/index` (build + client + MCP-Registry federation + badges + publ
 - [x] `loom publish` runs the deterministic gate (static valid + trace/output evals) and exits 1
       on failure; `.github/actions/loom-publish` + `publish.yml` block a failing publish in CI.
 
-## Phase 3 -- Trust & subjective evals
+## Phase 3 -- Trust & subjective evals -- DONE
 
-- [ ] Judge + differential evals + `evals/.baselines/`.
-- [ ] Security-scan integration; signing (sigstore/cosign) + `signed` badge.
-- [ ] Managed-mode install gating; hosted CI eval tier.
+- [x] **Judge** evals (injectable model, advisory unless `gate:true`) + **differential** evals
+      that compare a case's deterministic score to a committed baseline -- a regression below
+      the threshold blocks. `evals/.baselines/` snapshotting via `loom publish --snapshot`.
+- [x] **Security scan** (`scanned` badge): a built-in heuristic scanner over executable/hook/
+      passthrough artifacts (garak / AI-Infra-Guard would plug in for production).
+- [x] **Signing** (`signed` badge): ed25519 over the lockfile's artifact-hash digest;
+      `loom sign` / `loom verify` detect both a bad signature and tampered on-disk artifacts.
+      (sigstore/cosign keyless signing is the intended production backend.)
+- [x] **Managed-mode install gating**: `loom install --managed <namespaces>` blocks a
+      non-allowlisted namespace (and supports required-badge policies).
+
+> Out of scope for v1 (noted in the spec): a hosted CI eval tier (BYO-keys local is the
+> default) and an index UI. The deterministic gate already runs the same driver invocations
+> a hosted runner would.
 
 ## Invariants held throughout
 
