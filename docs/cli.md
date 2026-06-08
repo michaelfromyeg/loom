@@ -43,8 +43,9 @@ ARGUMENTS
 
 OPTIONS
 
-  `--out=".weft-out"`    Output directory                                 
-           `--target`    Comma-separated targets (default: all registered)
+  `--out=".weft-out"`    Output directory                                                                                                                                      
+           `--target`    Comma-separated targets (default: all registered)                                                                                                     
+             `--bare`    Write straight to --out without the <target>/ subdir (one --target only); e.g. `--target claude --out . --bare` makes a repo root a Claude marketplace
 ```
 
 ## `weft docs`
