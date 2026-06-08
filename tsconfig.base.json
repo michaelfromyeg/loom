@@ -21,16 +21,16 @@
     "isolatedModules": true,
     "baseUrl": ".",
     "paths": {
-      "@loom/schema": ["./packages/schema/src/index.ts"],
-      "@loom/core": ["./packages/core/src/index.ts"],
-      "@loom/adapter-kit": ["./packages/adapter-kit/src/index.ts"],
-      "@loom/adapter-claude": ["./packages/adapter-claude/src/index.ts"],
-      "@loom/adapter-codex": ["./packages/adapter-codex/src/index.ts"],
-      "@loom/adapter-cursor": ["./packages/adapter-cursor/src/index.ts"],
-      "@loom/adapter-copilot": ["./packages/adapter-copilot/src/index.ts"],
-      "@loom/adapter-opencode": ["./packages/adapter-opencode/src/index.ts"],
-      "@loom/eval": ["./packages/eval/src/index.ts"],
-      "@loom/index": ["./packages/index/src/index.ts"]
+      "@michaelfromyeg/loom-schema": ["./packages/schema/src/index.ts"],
+      "@michaelfromyeg/loom-core": ["./packages/core/src/index.ts"],
+      "@michaelfromyeg/loom-adapter-kit": ["./packages/adapter-kit/src/index.ts"],
+      "@michaelfromyeg/loom-adapter-claude": ["./packages/adapter-claude/src/index.ts"],
+      "@michaelfromyeg/loom-adapter-codex": ["./packages/adapter-codex/src/index.ts"],
+      "@michaelfromyeg/loom-adapter-cursor": ["./packages/adapter-cursor/src/index.ts"],
+      "@michaelfromyeg/loom-adapter-copilot": ["./packages/adapter-copilot/src/index.ts"],
+      "@michaelfromyeg/loom-adapter-opencode": ["./packages/adapter-opencode/src/index.ts"],
+      "@michaelfromyeg/loom-eval": ["./packages/eval/src/index.ts"],
+      "@michaelfromyeg/loom-index": ["./packages/index/src/index.ts"]
     }
   }
 }

@@ -16,16 +16,16 @@ import {
   uninstall,
   update,
   verifyArtifacts,
-} from "@loom/core";
-import { discoverEvals, runEval } from "@loom/eval";
+} from "@michaelfromyeg/loom-core";
+import { discoverEvals, runEval } from "@michaelfromyeg/loom-eval";
 import {
   federate,
   fetchMcpRegistry,
   indexFromPluginDirs,
   publishCheck,
   serializeIndex,
-} from "@loom/index";
-import type { Scope, Target } from "@loom/schema";
+} from "@michaelfromyeg/loom-index";
+import type { Scope, Target } from "@michaelfromyeg/loom-schema";
 import { defineCommand, runMain } from "citty";
 import { renderCliReference } from "./cli-docs";
 import { allDrivers, buildRegistry, parseList, parseTargets } from "./registry";

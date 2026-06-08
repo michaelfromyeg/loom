@@ -47,9 +47,9 @@ compiles to every harness's native manifests with zero hand-written JSON, passes
 proven end-to-end against a real headless Claude (see the [demo](docs/demo.md)).
 
 - Phase 0: the compile loop (Claude Code).
-- Phase 1: all five adapters plus `@loom/eval` (real headless drivers, honest UNTESTED,
+- Phase 1: all five adapters plus `@michaelfromyeg/loom-eval` (real headless drivers, honest UNTESTED,
   Copilot trace->output degradation), plus remote resolver, dependencies, secrets, `loom update`.
-- Phase 2: `@loom/index` (build + MCP-Registry federation), `valid`/`tested` badges,
+- Phase 2: `@michaelfromyeg/loom-index` (build + MCP-Registry federation), `valid`/`tested` badges,
   the `loom publish` deterministic gate plus a CI action.
 - Phase 3: judge + differential evals + baselines, security scan, ed25519 signing
   (`signed` badge), and managed-mode install gating.
@@ -72,14 +72,14 @@ See [docs/roadmap.md](docs/roadmap.md) for the per-criterion acceptance status.
 
 ```
 packages/
-  schema/          @loom/schema       Zod schemas + types + JSON-Schema export
-  core/            @loom/core         compile pipeline, resolver, deps, secrets, lockfile,
+  schema/          @michaelfromyeg/loom-schema       Zod schemas + types + JSON-Schema export
+  core/            @michaelfromyeg/loom-core         compile pipeline, resolver, deps, secrets, lockfile,
                                       signing, managed-mode, namespacing
-  adapter-kit/     @loom/adapter-kit  public HarnessAdapter/Driver interfaces + helpers
-  adapter-claude/  @loom/adapter-claude   (+ codex, cursor, copilot, opencode)
-  eval/            @loom/eval         headless drivers + runner + judge/differential + baselines
-  index/           @loom/index        metadata index, MCP-Registry federation, badges, publish gate
-  cli/             @loom/cli          the `loom` binary (thin shell over the above)
+  adapter-kit/     @michaelfromyeg/loom-adapter-kit  public HarnessAdapter/Driver interfaces + helpers
+  adapter-claude/  @michaelfromyeg/loom-adapter-claude   (+ codex, cursor, copilot, opencode)
+  eval/            @michaelfromyeg/loom-eval         headless drivers + runner + judge/differential + baselines
+  index/           @michaelfromyeg/loom-index        metadata index, MCP-Registry federation, badges, publish gate
+  cli/             @michaelfromyeg/loom-cli          the `loom` binary (thin shell over the above)
 fixtures/
   sample-plugin/                      end-to-end test plugin (1 skill + 1 mcp + evals)
   sample-marketplace/                 a 2-plugin marketplace

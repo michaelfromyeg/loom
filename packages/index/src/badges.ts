@@ -1,5 +1,5 @@
-import type { EvalReport } from "@loom/eval";
-import type { Badge, Target } from "@loom/schema";
+import type { EvalReport } from "@michaelfromyeg/loom-eval";
+import type { Badge, Target } from "@michaelfromyeg/loom-schema";
 
 export interface BadgeInputs {
   /** Static validation (the valid badge) passed. */

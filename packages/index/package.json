@@ -1,5 +1,5 @@
 {
-  "name": "@loom/index",
+  "name": "@michaelfromyeg/loom-index",
   "version": "0.1.0",
   "description": "Loom metadata index: builder, client, MCP-Registry federation, badges, publish gate.",
   "type": "module",
@@ -19,9 +19,37 @@
     "build": "tsup"
   },
   "dependencies": {
-    "@loom/adapter-kit": "workspace:*",
-    "@loom/core": "workspace:*",
-    "@loom/eval": "workspace:*",
-    "@loom/schema": "workspace:*"
+    "@michaelfromyeg/loom-adapter-kit": "workspace:*",
+    "@michaelfromyeg/loom-core": "workspace:*",
+    "@michaelfromyeg/loom-eval": "workspace:*",
+    "@michaelfromyeg/loom-schema": "workspace:*"
+  },
+  "license": "MIT",
+  "author": "Michael DeMarco",
+  "homepage": "https://github.com/michaelfromyeg/loom#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/michaelfromyeg/loom.git",
+    "directory": "packages/index"
+  },
+  "bugs": {
+    "url": "https://github.com/michaelfromyeg/loom/issues"
+  },
+  "keywords": [
+    "loom",
+    "coding-agent",
+    "ai-agent",
+    "claude-code",
+    "codex",
+    "cursor",
+    "copilot",
+    "opencode",
+    "mcp",
+    "plugin",
+    "skill",
+    "compiler"
+  ],
+  "publishConfig": {
+    "access": "public"
   }
 }

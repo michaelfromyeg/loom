@@ -1,7 +1,11 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
-import type { ArtifactKind, HarnessAdapter, ResolvedMarketplace } from "@loom/adapter-kit";
-import type { ArtifactRecord, Scope, Target } from "@loom/schema";
+import type {
+  ArtifactKind,
+  HarnessAdapter,
+  ResolvedMarketplace,
+} from "@michaelfromyeg/loom-adapter-kit";
+import type { ArtifactRecord, Scope, Target } from "@michaelfromyeg/loom-schema";
 import { type CompileResult, synthMarketplace, type TargetOutput } from "./compile";
 import { sha256 } from "./hash";
 

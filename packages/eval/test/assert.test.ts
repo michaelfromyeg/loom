@@ -1,5 +1,5 @@
-import type { Transcript } from "@loom/adapter-kit";
-import { Assertion } from "@loom/schema";
+import type { Transcript } from "@michaelfromyeg/loom-adapter-kit";
+import { Assertion } from "@michaelfromyeg/loom-schema";
 import { describe, expect, it } from "vitest";
 import { type AssertContext, evaluateAssertion } from "../src/assert";
 

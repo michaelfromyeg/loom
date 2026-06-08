@@ -1,4 +1,9 @@
-import { type Badge, type IndexEntry, IndexFile, type IndexVersion } from "@loom/schema";
+import {
+  type Badge,
+  type IndexEntry,
+  IndexFile,
+  type IndexVersion,
+} from "@michaelfromyeg/loom-schema";
 
 /** Parse + validate a serialized index. */
 export function loadIndex(text: string): IndexFile {

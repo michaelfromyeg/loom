@@ -1,4 +1,4 @@
-import type { IndexFile } from "@loom/schema";
+import type { IndexFile } from "@michaelfromyeg/loom-schema";
 
 /**
  * Opt-in, aggregate-only install record (spec §2, §10): increments an entry's

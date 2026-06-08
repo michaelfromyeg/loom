@@ -2,7 +2,7 @@ import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { AdapterRegistry, build, importNativePlugin, lint } from "@loom/core";
+import { AdapterRegistry, build, importNativePlugin, lint } from "@michaelfromyeg/loom-core";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { importOpencode } from "../src/import";
 import opencodeAdapter from "../src/index";

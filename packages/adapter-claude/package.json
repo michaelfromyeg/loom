@@ -1,5 +1,5 @@
 {
-  "name": "@loom/adapter-claude",
+  "name": "@michaelfromyeg/loom-adapter-claude",
   "version": "0.1.0",
   "description": "Loom adapter for Claude Code: plugin.json + marketplace.json + component placement.",
   "type": "module",
@@ -19,7 +19,35 @@
     "build": "tsup"
   },
   "dependencies": {
-    "@loom/adapter-kit": "workspace:*",
-    "@loom/schema": "workspace:*"
+    "@michaelfromyeg/loom-adapter-kit": "workspace:*",
+    "@michaelfromyeg/loom-schema": "workspace:*"
+  },
+  "license": "MIT",
+  "author": "Michael DeMarco",
+  "homepage": "https://github.com/michaelfromyeg/loom#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/michaelfromyeg/loom.git",
+    "directory": "packages/adapter-claude"
+  },
+  "bugs": {
+    "url": "https://github.com/michaelfromyeg/loom/issues"
+  },
+  "keywords": [
+    "loom",
+    "coding-agent",
+    "ai-agent",
+    "claude-code",
+    "codex",
+    "cursor",
+    "copilot",
+    "opencode",
+    "mcp",
+    "plugin",
+    "skill",
+    "compiler"
+  ],
+  "publishConfig": {
+    "access": "public"
   }
 }

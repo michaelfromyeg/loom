@@ -41,55 +41,55 @@ importers:
 
   packages/adapter-claude:
     dependencies:
-      '@loom/adapter-kit':
+      '@michaelfromyeg/loom-adapter-kit':
         specifier: workspace:*
         version: link:../adapter-kit
-      '@loom/schema':
+      '@michaelfromyeg/loom-schema':
         specifier: workspace:*
         version: link:../schema
 
   packages/adapter-codex:
     dependencies:
-      '@loom/adapter-kit':
+      '@michaelfromyeg/loom-adapter-kit':
         specifier: workspace:*
         version: link:../adapter-kit
-      '@loom/schema':
+      '@michaelfromyeg/loom-schema':
         specifier: workspace:*
         version: link:../schema
     devDependencies:
-      '@loom/core':
+      '@michaelfromyeg/loom-core':
         specifier: workspace:*
         version: link:../core
 
   packages/adapter-copilot:
     dependencies:
-      '@loom/adapter-kit':
+      '@michaelfromyeg/loom-adapter-kit':
         specifier: workspace:*
         version: link:../adapter-kit
-      '@loom/schema':
+      '@michaelfromyeg/loom-schema':
         specifier: workspace:*
         version: link:../schema
     devDependencies:
-      '@loom/core':
+      '@michaelfromyeg/loom-core':
         specifier: workspace:*
         version: link:../core
 
   packages/adapter-cursor:
     dependencies:
-      '@loom/adapter-kit':
+      '@michaelfromyeg/loom-adapter-kit':
         specifier: workspace:*
         version: link:../adapter-kit
-      '@loom/schema':
+      '@michaelfromyeg/loom-schema':
         specifier: workspace:*
         version: link:../schema
     devDependencies:
-      '@loom/core':
+      '@michaelfromyeg/loom-core':
         specifier: workspace:*
         version: link:../core
 
   packages/adapter-kit:
     dependencies:
-      '@loom/schema':
+      '@michaelfromyeg/loom-schema':
         specifier: workspace:*
         version: link:../schema
       yaml:
@@ -98,47 +98,47 @@ importers:
 
   packages/adapter-opencode:
     dependencies:
-      '@loom/adapter-kit':
+      '@michaelfromyeg/loom-adapter-kit':
         specifier: workspace:*
         version: link:../adapter-kit
-      '@loom/schema':
+      '@michaelfromyeg/loom-schema':
         specifier: workspace:*
         version: link:../schema
     devDependencies:
-      '@loom/core':
+      '@michaelfromyeg/loom-core':
         specifier: workspace:*
         version: link:../core
 
   packages/cli:
     dependencies:
-      '@loom/adapter-claude':
+      '@michaelfromyeg/loom-adapter-claude':
         specifier: workspace:*
         version: link:../adapter-claude
-      '@loom/adapter-codex':
+      '@michaelfromyeg/loom-adapter-codex':
         specifier: workspace:*
         version: link:../adapter-codex
-      '@loom/adapter-copilot':
+      '@michaelfromyeg/loom-adapter-copilot':
         specifier: workspace:*
         version: link:../adapter-copilot
-      '@loom/adapter-cursor':
+      '@michaelfromyeg/loom-adapter-cursor':
         specifier: workspace:*
         version: link:../adapter-cursor
-      '@loom/adapter-kit':
+      '@michaelfromyeg/loom-adapter-kit':
         specifier: workspace:*
         version: link:../adapter-kit
-      '@loom/adapter-opencode':
+      '@michaelfromyeg/loom-adapter-opencode':
         specifier: workspace:*
         version: link:../adapter-opencode
-      '@loom/core':
+      '@michaelfromyeg/loom-core':
         specifier: workspace:*
         version: link:../core
-      '@loom/eval':
+      '@michaelfromyeg/loom-eval':
         specifier: workspace:*
         version: link:../eval
-      '@loom/index':
+      '@michaelfromyeg/loom-index':
         specifier: workspace:*
         version: link:../index
-      '@loom/schema':
+      '@michaelfromyeg/loom-schema':
         specifier: workspace:*
         version: link:../schema
       citty:
@@ -147,10 +147,10 @@ importers:
 
   packages/core:
     dependencies:
-      '@loom/adapter-kit':
+      '@michaelfromyeg/loom-adapter-kit':
         specifier: workspace:*
         version: link:../adapter-kit
-      '@loom/schema':
+      '@michaelfromyeg/loom-schema':
         specifier: workspace:*
         version: link:../schema
       execa:
@@ -166,13 +166,13 @@ importers:
 
   packages/eval:
     dependencies:
-      '@loom/adapter-kit':
+      '@michaelfromyeg/loom-adapter-kit':
         specifier: workspace:*
         version: link:../adapter-kit
-      '@loom/core':
+      '@michaelfromyeg/loom-core':
         specifier: workspace:*
         version: link:../core
-      '@loom/schema':
+      '@michaelfromyeg/loom-schema':
         specifier: workspace:*
         version: link:../schema
       execa:
@@ -181,16 +181,16 @@ importers:
 
   packages/index:
     dependencies:
-      '@loom/adapter-kit':
+      '@michaelfromyeg/loom-adapter-kit':
         specifier: workspace:*
         version: link:../adapter-kit
-      '@loom/core':
+      '@michaelfromyeg/loom-core':
         specifier: workspace:*
         version: link:../core
-      '@loom/eval':
+      '@michaelfromyeg/loom-eval':
         specifier: workspace:*
         version: link:../eval
-      '@loom/schema':
+      '@michaelfromyeg/loom-schema':
         specifier: workspace:*
         version: link:../schema
 

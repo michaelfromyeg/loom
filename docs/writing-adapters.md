@@ -2,16 +2,16 @@
 
 A harness adapter is the "compiler backend" that turns canonical components into one
 harness's native plugin format. It is a plain object implementing `HarnessAdapter` from
-`@loom/adapter-kit`, and it depends only on `@loom/adapter-kit` and `@loom/schema`, never
+`@michaelfromyeg/loom-adapter-kit`, and it depends only on `@michaelfromyeg/loom-adapter-kit` and `@michaelfromyeg/loom-schema`, never
 on core internals. The consumer (the CLI, or an embedding app) registers it.
 
 ## The contract
 
 ```ts
-import type { HarnessAdapter } from "@loom/adapter-kit";
+import type { HarnessAdapter } from "@michaelfromyeg/loom-adapter-kit";
 
 export const myAdapter: HarnessAdapter = {
-  target: "myharness",            // must be a known Target (extend @loom/schema's enum)
+  target: "myharness",            // must be a known Target (extend @michaelfromyeg/loom-schema's enum)
   version: "0.1.0",               // this adapter package's version (lockfile axis 3)
   targetSchema: "myharness/1.0",  // the harness manifest schema version you emit
 
@@ -91,8 +91,8 @@ reports the harness honestly rather than faking a pass.
 ## Registering it
 
 ```ts
-import { AdapterRegistry } from "@loom/core";
-import { myAdapter } from "@loom/adapter-myharness";
+import { AdapterRegistry } from "@michaelfromyeg/loom-core";
+import { myAdapter } from "@michaelfromyeg/loom-adapter-myharness";
 
 const registry = new AdapterRegistry().register(myAdapter);
 ```

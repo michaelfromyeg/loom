@@ -1,6 +1,6 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
-import type { Target } from "@loom/schema";
+import type { Target } from "@michaelfromyeg/loom-schema";
 
 export interface Baseline {
   version: string;

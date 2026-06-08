@@ -15,7 +15,7 @@ pnpm install
 ## Running the CLI
 
 During development the CLI runs straight off TypeScript source via Bun (it resolves
-`@loom/*` through the workspace tsconfig `paths`):
+`@michaelfromyeg/loom-*` through the workspace tsconfig `paths`):
 
 ```sh
 bun packages/cli/src/index.ts <command>

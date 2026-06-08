@@ -1,7 +1,13 @@
 import { cpSync, mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { type Component, type ComponentKind, kindOf, leafNameOf, refOf } from "@loom/schema";
+import {
+  type Component,
+  type ComponentKind,
+  kindOf,
+  leafNameOf,
+  refOf,
+} from "@michaelfromyeg/loom-schema";
 import { type FetchedPlugin, fileAccessors } from "./loader";
 import { resolveDependency } from "./resolve";
 

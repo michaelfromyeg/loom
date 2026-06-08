@@ -1,4 +1,4 @@
-import type { Badge, IndexEntry, IndexFile, Target } from "@loom/schema";
+import type { Badge, IndexEntry, IndexFile, Target } from "@michaelfromyeg/loom-schema";
 
 export interface IndexPluginInput {
   id: string;

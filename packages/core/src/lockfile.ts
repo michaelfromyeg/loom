@@ -1,6 +1,6 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { type ArtifactRecord, Lockfile, validate } from "@loom/schema";
+import { type ArtifactRecord, Lockfile, validate } from "@michaelfromyeg/loom-schema";
 import type { CompileResult } from "./compile";
 import { LOOM_VERSION } from "./version";
 

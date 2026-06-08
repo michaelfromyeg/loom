@@ -1,5 +1,5 @@
-import { gitInfo, lint } from "@loom/core";
-import type { IndexFile } from "@loom/schema";
+import { gitInfo, lint } from "@michaelfromyeg/loom-core";
+import type { IndexFile } from "@michaelfromyeg/loom-schema";
 import { buildIndex, type IndexPluginInput } from "./build";
 
 /**

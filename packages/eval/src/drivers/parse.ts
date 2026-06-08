@@ -1,4 +1,4 @@
-import type { ToolCall } from "@loom/adapter-kit";
+import type { ToolCall } from "@michaelfromyeg/loom-adapter-kit";
 
 /** Split NDJSON/JSONL into parsed objects, skipping blank/garbage lines. */
 export function parseLines(raw: string): Record<string, unknown>[] {

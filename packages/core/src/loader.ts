@@ -1,6 +1,12 @@
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
-import { loadManifest, loadPlugin, Marketplace, type ParseResult, type Plugin } from "@loom/schema";
+import {
+  loadManifest,
+  loadPlugin,
+  Marketplace,
+  type ParseResult,
+  type Plugin,
+} from "@michaelfromyeg/loom-schema";
 
 /** A plugin whose files are available on disk under `root`. */
 export interface FetchedPlugin {

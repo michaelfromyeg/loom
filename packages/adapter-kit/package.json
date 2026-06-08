@@ -1,5 +1,5 @@
 {
-  "name": "@loom/adapter-kit",
+  "name": "@michaelfromyeg/loom-adapter-kit",
   "version": "0.1.0",
   "description": "Public HarnessAdapter / HarnessDriver interfaces and helpers. The contract a community adapter implements.",
   "type": "module",
@@ -19,7 +19,35 @@
     "build": "tsup"
   },
   "dependencies": {
-    "@loom/schema": "workspace:*",
+    "@michaelfromyeg/loom-schema": "workspace:*",
     "yaml": "^2.6.1"
+  },
+  "license": "MIT",
+  "author": "Michael DeMarco",
+  "homepage": "https://github.com/michaelfromyeg/loom#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/michaelfromyeg/loom.git",
+    "directory": "packages/adapter-kit"
+  },
+  "bugs": {
+    "url": "https://github.com/michaelfromyeg/loom/issues"
+  },
+  "keywords": [
+    "loom",
+    "coding-agent",
+    "ai-agent",
+    "claude-code",
+    "codex",
+    "cursor",
+    "copilot",
+    "opencode",
+    "mcp",
+    "plugin",
+    "skill",
+    "compiler"
+  ],
+  "publishConfig": {
+    "access": "public"
   }
 }

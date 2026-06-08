@@ -1,5 +1,5 @@
-import type { CompileResult, Diagnostic } from "@loom/core";
-import type { EvalReport } from "@loom/eval";
+import type { CompileResult, Diagnostic } from "@michaelfromyeg/loom-core";
+import type { EvalReport } from "@michaelfromyeg/loom-eval";
 
 export function formatDiagnostic(d: Diagnostic): string {
   const tag = d.severity === "error" ? "error" : d.severity === "warning" ? "warn" : "info";

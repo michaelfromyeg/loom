@@ -1,5 +1,5 @@
 {
-  "name": "@loom/schema",
+  "name": "@michaelfromyeg/loom-schema",
   "version": "0.1.0",
   "description": "Loom canonical data model: Zod schemas, types, and JSON-Schema export.",
   "type": "module",
@@ -23,5 +23,33 @@
     "json5": "^2.2.3",
     "yaml": "^2.6.1",
     "zod": "^4.0.5"
+  },
+  "license": "MIT",
+  "author": "Michael DeMarco",
+  "homepage": "https://github.com/michaelfromyeg/loom#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/michaelfromyeg/loom.git",
+    "directory": "packages/schema"
+  },
+  "bugs": {
+    "url": "https://github.com/michaelfromyeg/loom/issues"
+  },
+  "keywords": [
+    "loom",
+    "coding-agent",
+    "ai-agent",
+    "claude-code",
+    "codex",
+    "cursor",
+    "copilot",
+    "opencode",
+    "mcp",
+    "plugin",
+    "skill",
+    "compiler"
+  ],
+  "publishConfig": {
+    "access": "public"
   }
 }

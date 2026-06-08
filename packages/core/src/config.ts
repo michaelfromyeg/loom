@@ -1,6 +1,6 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import type { Component, Plugin } from "@loom/schema";
+import type { Component, Plugin } from "@michaelfromyeg/loom-schema";
 
 export interface ConfigResolution {
   env: string;

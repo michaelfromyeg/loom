@@ -1,5 +1,5 @@
-import type { PluginCtx } from "@loom/adapter-kit";
-import type { Component, Plugin } from "@loom/schema";
+import type { PluginCtx } from "@michaelfromyeg/loom-adapter-kit";
+import type { Component, Plugin } from "@michaelfromyeg/loom-schema";
 import { describe, expect, it } from "vitest";
 import copilotAdapter from "../src/index";
 import { mcpRunConfig, mcpServerName } from "../src/mcp";

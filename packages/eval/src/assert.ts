@@ -1,11 +1,11 @@
-import type { Transcript } from "@loom/adapter-kit";
+import type { Transcript } from "@michaelfromyeg/loom-adapter-kit";
 import type {
   Assertion,
   DifferentialAssert,
   JudgeAssert,
   OutputAssert,
   TraceAssert,
-} from "@loom/schema";
+} from "@michaelfromyeg/loom-schema";
 
 export type AssertStatus = "pass" | "fail" | "degraded" | "skipped";
 

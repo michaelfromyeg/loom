@@ -1,12 +1,12 @@
-import claudeAdapter from "@loom/adapter-claude";
-import codexAdapter from "@loom/adapter-codex";
-import copilotAdapter from "@loom/adapter-copilot";
-import cursorAdapter from "@loom/adapter-cursor";
-import type { HarnessDriver } from "@loom/adapter-kit";
-import opencodeAdapter from "@loom/adapter-opencode";
-import { AdapterRegistry } from "@loom/core";
-import { drivers } from "@loom/eval";
-import type { Target } from "@loom/schema";
+import claudeAdapter from "@michaelfromyeg/loom-adapter-claude";
+import codexAdapter from "@michaelfromyeg/loom-adapter-codex";
+import copilotAdapter from "@michaelfromyeg/loom-adapter-copilot";
+import cursorAdapter from "@michaelfromyeg/loom-adapter-cursor";
+import type { HarnessDriver } from "@michaelfromyeg/loom-adapter-kit";
+import opencodeAdapter from "@michaelfromyeg/loom-adapter-opencode";
+import { AdapterRegistry } from "@michaelfromyeg/loom-core";
+import { drivers } from "@michaelfromyeg/loom-eval";
+import type { Target } from "@michaelfromyeg/loom-schema";
 
 /**
  * Wire every concrete adapter into a registry. The CLI sits at the top of the
@@ -22,7 +22,7 @@ export function buildRegistry(): AdapterRegistry {
     .register(opencodeAdapter);
 }
 
-/** The headless eval drivers, keyed by Target (from @loom/eval). */
+/** The headless eval drivers, keyed by Target (from @michaelfromyeg/loom-eval). */
 export function allDrivers(): Record<Target, HarnessDriver> {
   return drivers;
 }

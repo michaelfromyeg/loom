@@ -1,7 +1,7 @@
 # Architecture
 
 Loom is a compiler, not a platform. The primary artifact is an importable library
-(`@loom/core`) with a thin CLI on top. Everything tool-specific lives behind a versioned
+(`@michaelfromyeg/loom-core`) with a thin CLI on top. Everything tool-specific lives behind a versioned
 adapter, so an upstream manifest change touches one adapter, not your plugins.
 
 ## Packages and dependency direction
@@ -12,20 +12,20 @@ schema  <-  core  <-  (adapter-*, eval, index)  <-  cli
           adapter-kit  (the public contract adapters implement)
 ```
 
-- `@loom/schema` is the canonical data model. It holds Zod schemas for `loom.yaml`,
+- `@michaelfromyeg/loom-schema` is the canonical data model. It holds Zod schemas for `loom.yaml`,
   `marketplace.yaml`, `loom.lock`, and `cases.yaml`; inferred types; a JSON-Schema export
   for editor autocomplete; and the YAML-1.2 / JSON5 parse path.
-- `@loom/adapter-kit` is the `HarnessAdapter` and `HarnessDriver` interfaces plus
+- `@michaelfromyeg/loom-adapter-kit` is the `HarnessAdapter` and `HarnessDriver` interfaces plus
   shared helpers (frontmatter, paths, artifact builder). A community adapter depends only
-  on this + `@loom/schema`.
-- `@loom/core` is the compile pipeline, the adapter registry, namespacing/aliases,
+  on this + `@michaelfromyeg/loom-schema`.
+- `@michaelfromyeg/loom-core` is the compile pipeline, the adapter registry, namespacing/aliases,
   placement (build vs install), and the lockfile.
-- `@loom/adapter-*` is one package per harness. Each implements `HarnessAdapter`.
-- `@loom/cli` sits at the top of the graph and wires concrete adapters into a
+- `@michaelfromyeg/loom-adapter-*` is one package per harness. Each implements `HarnessAdapter`.
+- `@michaelfromyeg/loom-cli` sits at the top of the graph and wires concrete adapters into a
   registry. Core never imports a concrete adapter, which keeps the dependency direction
   one-way and lets community adapters slot in.
 
-## The compile pipeline (`@loom/core`)
+## The compile pipeline (`@michaelfromyeg/loom-core`)
 
 `compile(fetchedPlugin, { registry, targets })` runs the canonical-to-native transform
 (spec §9.1). Placement and the lockfile are deliberately separate so `build` can produce

@@ -1,9 +1,15 @@
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import type { HarnessDriver, Transcript } from "@loom/adapter-kit";
-import { type AdapterRegistry, install, loadPluginDir } from "@loom/core";
-import { type Case, EvalFile, leafNameOf, loadManifest, type Target } from "@loom/schema";
+import type { HarnessDriver, Transcript } from "@michaelfromyeg/loom-adapter-kit";
+import { type AdapterRegistry, install, loadPluginDir } from "@michaelfromyeg/loom-core";
+import {
+  type Case,
+  EvalFile,
+  leafNameOf,
+  loadManifest,
+  type Target,
+} from "@michaelfromyeg/loom-schema";
 import { execa } from "execa";
 import { type AssertResult, evaluateAssertion, type JudgeFn } from "./assert";
 import { type Baseline, loadBaseline, writeBaseline } from "./baselines";

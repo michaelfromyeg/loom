@@ -1,6 +1,6 @@
 import { createHash, generateKeyPairSync, type KeyObject, sign, verify } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
-import type { Lockfile } from "@loom/schema";
+import type { Lockfile } from "@michaelfromyeg/loom-schema";
 
 /**
  * A digest over the lockfile's artifact set (component + target + content hash).

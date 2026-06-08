@@ -1,4 +1,4 @@
-import type { Target } from "@loom/schema";
+import type { Target } from "@michaelfromyeg/loom-schema";
 
 export interface ToolCall {
   name: string;

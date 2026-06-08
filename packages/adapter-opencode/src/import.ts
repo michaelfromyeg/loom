@@ -7,8 +7,8 @@ import {
   type ImportedPlugin,
   type ImportOptions,
   type ImportResult,
-} from "@loom/adapter-kit";
-import type { Component, Marketplace, Plugin } from "@loom/schema";
+} from "@michaelfromyeg/loom-adapter-kit";
+import type { Component, Marketplace, Plugin } from "@michaelfromyeg/loom-schema";
 import type { OpencodeMcpServer } from "./mcp";
 
 const MCP_SCHEMA = "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json";

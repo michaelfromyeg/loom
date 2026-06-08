@@ -5,8 +5,8 @@ phase's packages are not started before the current phase's acceptance passes.
 
 ## Phase 0: Prove the compile (Claude Code only), DONE
 
-Packages: `@loom/schema`, `@loom/core`, `@loom/adapter-kit`, `@loom/adapter-claude`,
-`@loom/cli`.
+Packages: `@michaelfromyeg/loom-schema`, `@michaelfromyeg/loom-core`, `@michaelfromyeg/loom-adapter-kit`, `@michaelfromyeg/loom-adapter-claude`,
+`@michaelfromyeg/loom-cli`.
 
 Acceptance (all met, exercised by `pnpm test`):
 
@@ -18,8 +18,8 @@ Acceptance (all met, exercised by `pnpm test`):
 - [x] Unit tests for schema parsing (incl. the YAML 1.2 "Norway" cases) and an e2e fixture
       test pass under Vitest.
 
-> `@loom/adapter-kit` was created in Phase 0 (not Phase 1 as the spec lists it) because
-> `@loom/adapter-claude` implements its `HarnessAdapter` interface. Only the interfaces +
+> `@michaelfromyeg/loom-adapter-kit` was created in Phase 0 (not Phase 1 as the spec lists it) because
+> `@michaelfromyeg/loom-adapter-claude` implements its `HarnessAdapter` interface. Only the interfaces +
 > helpers exist so far; the `HarnessDriver` implementations land in Phase 1.
 
 ### Brought forward from later phases (already implemented)
@@ -38,8 +38,8 @@ Acceptance (all met, exercised by `pnpm test`):
 
 ## Phase 1: Breadth + drivers + deterministic evals, DONE
 
-Packages: the four remaining `@loom/adapter-*` (codex, cursor, copilot, opencode),
-`@loom/eval` (runner + five `HarnessDriver`s via `execa`).
+Packages: the four remaining `@michaelfromyeg/loom-adapter-*` (codex, cursor, copilot, opencode),
+`@michaelfromyeg/loom-eval` (runner + five `HarnessDriver`s via `execa`).
 
 - [x] All five adapters implemented; `loom build` emits native manifests for every harness.
 - [x] A plugin installs to every harness present on the machine (`loom install` detects
@@ -48,7 +48,7 @@ Packages: the four remaining `@loom/adapter-*` (codex, cursor, copilot, opencode
       Codex / Cursor / OpenCode NDJSON/JSONL parsing; Copilot has no trace, so `trace`
       degrades to `output`) and reports per-harness coverage honestly, incl. UNTESTED.
 - [x] Piecemeal install (`--only`) and namespacing/alias.
-- [x] A community adapter can be authored against `@loom/adapter-kit` without importing core
+- [x] A community adapter can be authored against `@michaelfromyeg/loom-adapter-kit` without importing core
       internals (verified: every adapter imports only adapter-kit + schema).
 - [x] Remote resolver. `github:`/git/`file://` sources are git-cloned into `~/.loom/cache`
       and pinned to a SHA; `depends` vendors selected components into a merged tree (piecemeal +
@@ -69,7 +69,7 @@ structured trace (degrade to output); OpenCode `run --format json` or the SDK `/
 
 ## Phase 2: Index, federation, badges, CI, DONE
 
-Package: `@loom/index` (build + client + MCP-Registry federation + badges + publish gate).
+Package: `@michaelfromyeg/loom-index` (build + client + MCP-Registry federation + badges + publish gate).
 
 - [x] `loom index <dirs...>` builds a `loom.index/1` (metadata only) from a set of plugins.
 - [x] `--federate` ingests the MCP Registry `GET /v0.1/servers` (injectable fetch; offline-tested)

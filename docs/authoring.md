@@ -3,7 +3,7 @@
 A plugin is a directory with a `loom.yaml` (or `loom.json5`) and the component files it
 references. Manifests are parsed in YAML 1.2 core mode (so `no`/`yes`/`on`/`off` stay
 strings) or as JSON5, then validated by Zod. A JSON Schema for each manifest is published
-for editor autocomplete (`pnpm --filter @loom/schema emit-schemas`).
+for editor autocomplete (`pnpm --filter @michaelfromyeg/loom-schema emit-schemas`).
 
 ## `loom.yaml`
 

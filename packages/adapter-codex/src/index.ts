@@ -8,8 +8,15 @@ import {
   type PluginCtx,
   parseFrontmatter,
   type ResolvedMarketplace,
-} from "@loom/adapter-kit";
-import { type Component, kindOf, leafNameOf, type Plugin, refOf, type Scope } from "@loom/schema";
+} from "@michaelfromyeg/loom-adapter-kit";
+import {
+  type Component,
+  kindOf,
+  leafNameOf,
+  type Plugin,
+  refOf,
+  type Scope,
+} from "@michaelfromyeg/loom-schema";
 import { importCodex } from "./import";
 import { type McpServerConfig, mcpRunConfig, mcpServerName, renderMcpServersToml } from "./mcp";
 

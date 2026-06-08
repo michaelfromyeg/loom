@@ -1,5 +1,5 @@
-import { loadPluginDir } from "@loom/core";
-import { kindOf, refOf } from "@loom/schema";
+import { loadPluginDir } from "@michaelfromyeg/loom-core";
+import { kindOf, refOf } from "@michaelfromyeg/loom-schema";
 
 export interface ScanFinding {
   file: string;

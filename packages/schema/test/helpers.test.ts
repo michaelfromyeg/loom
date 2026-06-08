@@ -7,7 +7,7 @@ import {
   Marketplace,
   refOf,
   targetsOf,
-} from "@loom/schema";
+} from "@michaelfromyeg/loom-schema";
 import { describe, expect, it } from "vitest";
 
 describe("targetsOf", () => {

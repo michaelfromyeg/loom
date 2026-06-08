@@ -1,4 +1,4 @@
-import type { IndexEntry, IndexFile } from "@loom/schema";
+import type { IndexEntry, IndexFile } from "@michaelfromyeg/loom-schema";
 
 /** The inline server.json shape the MCP Registry serves (subset; spec §10). */
 export interface McpServerJson {

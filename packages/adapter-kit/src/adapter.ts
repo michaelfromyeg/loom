@@ -1,4 +1,4 @@
-import type { Component, Plugin, Scope, Target } from "@loom/schema";
+import type { Component, Plugin, Scope, Target } from "@michaelfromyeg/loom-schema";
 import type { CompiledArtifact } from "./artifact";
 import type { ResolvedMarketplace } from "./catalog";
 import type { HarnessDriver } from "./driver";
@@ -24,7 +24,7 @@ export interface PluginCtx {
  * upstream schema change is a version bump here, not a change to any plugin.
  *
  * A community adapter implements this interface and is registered by its consumer
- * (the CLI or an embedding app) -- it depends only on @loom/adapter-kit + @loom/schema.
+ * (the CLI or an embedding app) -- it depends only on @michaelfromyeg/loom-adapter-kit + @michaelfromyeg/loom-schema.
  */
 export interface HarnessAdapter {
   readonly target: Target;

@@ -1,7 +1,7 @@
 {
-  "name": "@loom/cli",
+  "name": "@michaelfromyeg/loom-cli",
   "version": "0.1.0",
-  "description": "The `loom` CLI: a thin shell over @loom/core and the harness adapters.",
+  "description": "The `loom` CLI: a thin shell over @michaelfromyeg/loom-core and the harness adapters.",
   "type": "module",
   "bin": {
     "loom": "./dist/index.js"
@@ -14,16 +14,44 @@
     "build": "tsup"
   },
   "dependencies": {
-    "@loom/adapter-claude": "workspace:*",
-    "@loom/adapter-codex": "workspace:*",
-    "@loom/adapter-copilot": "workspace:*",
-    "@loom/adapter-cursor": "workspace:*",
-    "@loom/adapter-kit": "workspace:*",
-    "@loom/adapter-opencode": "workspace:*",
-    "@loom/core": "workspace:*",
-    "@loom/eval": "workspace:*",
-    "@loom/index": "workspace:*",
-    "@loom/schema": "workspace:*",
+    "@michaelfromyeg/loom-adapter-claude": "workspace:*",
+    "@michaelfromyeg/loom-adapter-codex": "workspace:*",
+    "@michaelfromyeg/loom-adapter-copilot": "workspace:*",
+    "@michaelfromyeg/loom-adapter-cursor": "workspace:*",
+    "@michaelfromyeg/loom-adapter-kit": "workspace:*",
+    "@michaelfromyeg/loom-adapter-opencode": "workspace:*",
+    "@michaelfromyeg/loom-core": "workspace:*",
+    "@michaelfromyeg/loom-eval": "workspace:*",
+    "@michaelfromyeg/loom-index": "workspace:*",
+    "@michaelfromyeg/loom-schema": "workspace:*",
     "citty": "^0.1.6"
+  },
+  "license": "MIT",
+  "author": "Michael DeMarco",
+  "homepage": "https://github.com/michaelfromyeg/loom#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/michaelfromyeg/loom.git",
+    "directory": "packages/cli"
+  },
+  "bugs": {
+    "url": "https://github.com/michaelfromyeg/loom/issues"
+  },
+  "keywords": [
+    "loom",
+    "coding-agent",
+    "ai-agent",
+    "claude-code",
+    "codex",
+    "cursor",
+    "copilot",
+    "opencode",
+    "mcp",
+    "plugin",
+    "skill",
+    "compiler"
+  ],
+  "publishConfig": {
+    "access": "public"
   }
 }

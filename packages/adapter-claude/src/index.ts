@@ -7,8 +7,15 @@ import {
   type InstallPaths,
   type PluginCtx,
   type ResolvedMarketplace,
-} from "@loom/adapter-kit";
-import { type Component, kindOf, leafNameOf, type Plugin, refOf, type Scope } from "@loom/schema";
+} from "@michaelfromyeg/loom-adapter-kit";
+import {
+  type Component,
+  kindOf,
+  leafNameOf,
+  type Plugin,
+  refOf,
+  type Scope,
+} from "@michaelfromyeg/loom-schema";
 import { importClaude } from "./import";
 import { type McpServerConfig, mcpRunConfig, mcpServerName } from "./mcp";
 

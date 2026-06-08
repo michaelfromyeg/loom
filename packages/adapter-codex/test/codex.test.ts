@@ -1,7 +1,7 @@
 import { homedir } from "node:os";
 import { join } from "node:path";
-import type { PluginCtx } from "@loom/adapter-kit";
-import type { Component, Plugin } from "@loom/schema";
+import type { PluginCtx } from "@michaelfromyeg/loom-adapter-kit";
+import type { Component, Plugin } from "@michaelfromyeg/loom-schema";
 import { describe, expect, it } from "vitest";
 import codexAdapter from "../src/index";
 import { mcpRunConfig, mcpServerName, renderMcpServersToml } from "../src/mcp";

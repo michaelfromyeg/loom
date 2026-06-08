@@ -1,5 +1,5 @@
 {
-  "name": "@loom/core",
+  "name": "@michaelfromyeg/loom-core",
   "version": "0.1.0",
   "description": "Loom compile pipeline: resolver, namespacing, placement, lockfile, adapter registry.",
   "type": "module",
@@ -19,12 +19,40 @@
     "build": "tsup"
   },
   "dependencies": {
-    "@loom/adapter-kit": "workspace:*",
-    "@loom/schema": "workspace:*",
+    "@michaelfromyeg/loom-adapter-kit": "workspace:*",
+    "@michaelfromyeg/loom-schema": "workspace:*",
     "execa": "^9.5.2",
     "semver": "^7.6.3"
   },
   "devDependencies": {
     "@types/semver": "^7.5.8"
+  },
+  "license": "MIT",
+  "author": "Michael DeMarco",
+  "homepage": "https://github.com/michaelfromyeg/loom#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/michaelfromyeg/loom.git",
+    "directory": "packages/core"
+  },
+  "bugs": {
+    "url": "https://github.com/michaelfromyeg/loom/issues"
+  },
+  "keywords": [
+    "loom",
+    "coding-agent",
+    "ai-agent",
+    "claude-code",
+    "codex",
+    "cursor",
+    "copilot",
+    "opencode",
+    "mcp",
+    "plugin",
+    "skill",
+    "compiler"
+  ],
+  "publishConfig": {
+    "access": "public"
   }
 }

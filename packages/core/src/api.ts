@@ -1,7 +1,15 @@
 import { existsSync, mkdirSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
-import type { CatalogEntry, ResolvedMarketplace } from "@loom/adapter-kit";
-import type { Badge, Lockfile, Marketplace, ParseIssue, Plugin, Scope, Target } from "@loom/schema";
+import type { CatalogEntry, ResolvedMarketplace } from "@michaelfromyeg/loom-adapter-kit";
+import type {
+  Badge,
+  Lockfile,
+  Marketplace,
+  ParseIssue,
+  Plugin,
+  Scope,
+  Target,
+} from "@michaelfromyeg/loom-schema";
 import { type CompileResult, compile, staticPass } from "./compile";
 import { resolveConfig, type SecretsResult } from "./config";
 import { type DependencyRecord, resolveDependencies } from "./deps";
