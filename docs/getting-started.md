@@ -68,7 +68,7 @@ If the `claude` CLI is installed, the output validates:
 claude plugin validate out/claude --strict   # exit 0
 ```
 
-`build` is deterministic -- the same plugin always produces identical content hashes.
+`build` is deterministic; the same plugin always produces identical content hashes.
 
 ## 4. Install
 
@@ -77,12 +77,12 @@ bun packages/cli/src/index.ts install fixtures/sample-plugin \
   --scope project --cwd /tmp/sandbox
 ```
 
-`install` prints a **trust summary** (components by kind, every executable artifact, every
+`install` prints a trust summary (components by kind, every executable artifact, every
 MCP server that will run, publisher-verification state), copies the plugin tree into
 `<cwd>/.claude/plugins/<plugin>/`, and writes `loom.lock` next to `loom.yaml`.
 
-Install never executes plugin code -- it is strictly fetch, compile, place.
-Executable/passthrough artifacts are placed **disabled**; enabling them is a separate
+Install never executes plugin code. It is strictly fetch, compile, place.
+Executable and passthrough artifacts are placed disabled; enabling them is a separate
 explicit opt-in (spec §11).
 
 ## The sample plugin

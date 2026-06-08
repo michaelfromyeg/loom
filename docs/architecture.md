@@ -1,6 +1,6 @@
 # Architecture
 
-Loom is a **compiler**, not a platform. The primary artifact is an importable library
+Loom is a compiler, not a platform. The primary artifact is an importable library
 (`@loom/core`) with a thin CLI on top. Everything tool-specific lives behind a versioned
 adapter, so an upstream manifest change touches one adapter, not your plugins.
 
@@ -12,16 +12,16 @@ schema  <-  core  <-  (adapter-*, eval, index)  <-  cli
           adapter-kit  (the public contract adapters implement)
 ```
 
-- **`@loom/schema`** -- the canonical data model. Zod schemas for `loom.yaml`,
+- `@loom/schema` is the canonical data model. It holds Zod schemas for `loom.yaml`,
   `marketplace.yaml`, `loom.lock`, and `cases.yaml`; inferred types; a JSON-Schema export
   for editor autocomplete; and the YAML-1.2 / JSON5 parse path.
-- **`@loom/adapter-kit`** -- the `HarnessAdapter` and `HarnessDriver` interfaces plus
+- `@loom/adapter-kit` is the `HarnessAdapter` and `HarnessDriver` interfaces plus
   shared helpers (frontmatter, paths, artifact builder). A community adapter depends only
   on this + `@loom/schema`.
-- **`@loom/core`** -- the compile pipeline, the adapter registry, namespacing/aliases,
+- `@loom/core` is the compile pipeline, the adapter registry, namespacing/aliases,
   placement (build vs install), and the lockfile.
-- **`@loom/adapter-*`** -- one package per harness. Each implements `HarnessAdapter`.
-- **`@loom/cli`** -- sits at the top of the graph and wires concrete adapters into a
+- `@loom/adapter-*` is one package per harness. Each implements `HarnessAdapter`.
+- `@loom/cli` sits at the top of the graph and wires concrete adapters into a
   registry. Core never imports a concrete adapter, which keeps the dependency direction
   one-way and lets community adapters slot in.
 
@@ -31,21 +31,21 @@ schema  <-  core  <-  (adapter-*, eval, index)  <-  cli
 (spec §9.1). Placement and the lockfile are deliberately separate so `build` can produce
 inspectable output without touching any harness install directory.
 
-1. **Load & validate** -- `loom.yaml` is parsed (YAML 1.2-strict | JSON5) and validated by
+1. Load and validate. `loom.yaml` is parsed (YAML 1.2-strict | JSON5) and validated by
    Zod with path-precise errors. `loom_min_version` is enforced.
-2. **Static validation** (`staticPass`) -- referenced files exist, skill/agent frontmatter
-   is well-formed, `server.json` parses, descriptions clear a quality bar. This is the
-   deterministic "is this plugin valid?" pass behind the **valid** badge.
-3. **Namespace + alias resolution** -- each component gets a fully-qualified id
+2. Static validation (`staticPass`) confirms that referenced files exist, skill/agent
+   frontmatter is well-formed, `server.json` parses, and descriptions clear a quality bar.
+   This is the deterministic "is this plugin valid?" pass behind the valid badge.
+3. Namespace and alias resolution. Each component gets a fully-qualified id
    `{namespace}/{plugin}:{leaf}`; a leaf used by exactly one component earns the bare
-   alias, a shared leaf surfaces as a collision (never silent last-wins).
-4. **Transform** -- for each `(component x target)`, the adapter's `transform` produces
+   alias, and a shared leaf surfaces as a collision (never silent last-wins).
+4. Transform. For each `(component x target)`, the adapter's `transform` produces
    native artifacts; `emitManifest` produces the plugin-level manifest (e.g. Claude
    `plugin.json`); `emitCatalog` produces the marketplace catalog.
-5. **Place** -- `build` writes `outDir/<target>/` in marketplace+plugin layout; `install`
+5. Place. `build` writes `outDir/<target>/` in marketplace+plugin layout; `install`
    copies the plugin tree into the scope's dirs and records every file.
-6. **Lockfile** -- `install` writes `loom.lock` with content hashes, scope/paths, adapter
-   + target-schema versions, and the alias table.
+6. Lockfile. `install` writes `loom.lock` with content hashes, scope/paths, adapter
+   and target-schema versions, and the alias table.
 
 Diagnostics are accumulated, not thrown, so the caller can render every problem at once;
 `build`/`install` fail closed when any error is present.
@@ -67,25 +67,25 @@ interface HarnessAdapter {
 
 Every harness-specific fact (manifest field names, install paths, headless flags) lives
 behind `targetSchema`. When an upstream tool changes its format, that is a new adapter
-release with a bumped `targetSchema` -- plugins are untouched. See
+release with a bumped `targetSchema`, and plugins are untouched. See
 [docs/harness-research.md](harness-research.md) for the verified per-harness facts.
 
 ## Versioning (three independent axes)
 
 All three are pinned in `loom.lock` (spec §5):
 
-1. **Plugin version** -- semver, git-tag to resolved SHA.
-2. **Loom/CLI version** -- plugins declare `loom_min_version`.
-3. **Adapter <-> target-schema version** -- each adapter declares the harness schema it emits.
+1. Plugin version: semver, git-tag to resolved SHA.
+2. Loom/CLI version: plugins declare `loom_min_version`.
+3. Adapter <-> target-schema version: each adapter declares the harness schema it emits.
 
 Content-addressed artifact hashes make "is there really a new version?" exact: `loom
 update` re-resolves, recompiles, diffs hashes, and re-places only what changed.
 
 ## Why these boundaries
 
-- **Single source of truth.** The author writes the plugin once; all tool-specific output
+- Single source of truth. The author writes the plugin once; all tool-specific output
   is generated, never hand-maintained. No command ever asks you to edit a generated file.
-- **Standards as inputs.** `SKILL.md` and `server.json` are stored verbatim in the plugin;
+- Standards as inputs. `SKILL.md` and `server.json` are stored verbatim in the plugin;
   the adapter is the only place that knows a harness's shape.
-- **Deep modules.** `compile` does a lot behind a small interface; adapters hide a harness's
+- Deep modules. `compile` does a lot behind a small interface; adapters hide a harness's
   full manifest complexity behind four methods.

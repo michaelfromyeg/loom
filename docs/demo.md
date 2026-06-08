@@ -13,7 +13,7 @@ annotated.
 
 ## 1. A solo dev ships one capability to every harness
 
-You author a plugin once (`loom.yaml` + a `SKILL.md`) -- no per-harness JSON -- and compile
+You author a plugin once (`loom.yaml` + a `SKILL.md`), with no per-harness JSON, and compile
 it to all five harnesses. `install` only touches the harnesses you actually have.
 
 ```
@@ -36,7 +36,7 @@ Installed com.acme/code-helper@0.1.0 (project)
 
 ## 2. A company curates an internal marketplace
 
-One `marketplace.yaml` packages many plugins into each harness's native catalog -- the
+One `marketplace.yaml` packages many plugins into each harness's native catalog. This is the
 platform-team workflow.
 
 ```
@@ -64,7 +64,7 @@ signature: valid
 tampered artifacts: 0
 signed badge verified.
 
-Now tamper with a placed file and re-verify -- it must fail:
+Now tamper with a placed file and re-verify; it must fail:
 verify correctly FAILED (tamper detected)
 ```
 
@@ -82,7 +82,7 @@ install correctly BLOCKED (com.acme not in the com.enterprise allowlist)
 The headline of the eval system: drive the actual headless Claude and assert over what it
 did. Here Loom installs the `code-review` skill into a scratch project, asks Claude to
 review a file with a planted bug, parses the live `stream-json` trace, and checks that
-Claude **read the file** and **named the bug** -- a real pass, not a mock:
+Claude read the file and named the bug. It's a real pass, not a mock:
 
 ```
 Eval: com.acme/sample-plugin:code-review
@@ -92,5 +92,5 @@ Eval: com.acme/sample-plugin:code-review
         output: pass (1/1 samples matched)
 ```
 
-A harness with no available CLI is reported `UNTESTED` rather than faked, and Copilot --
-which has no structured trace -- degrades its `trace` assertions to `output`.
+A harness with no available CLI is reported `UNTESTED` rather than faked. Copilot,
+which has no structured trace, degrades its `trace` assertions to `output`.

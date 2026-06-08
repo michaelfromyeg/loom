@@ -2,7 +2,7 @@
 
 A harness adapter is the "compiler backend" that turns canonical components into one
 harness's native plugin format. It is a plain object implementing `HarnessAdapter` from
-`@loom/adapter-kit`, and it depends only on `@loom/adapter-kit` + `@loom/schema` -- never
+`@loom/adapter-kit`, and it depends only on `@loom/adapter-kit` and `@loom/schema`, never
 on core internals. The consumer (the CLI, or an embedding app) registers it.
 
 ## The contract
@@ -26,8 +26,8 @@ export const myAdapter: HarnessAdapter = {
 
 ### `targetSchema` is the churn firewall
 
-Put **every** harness-specific fact -- manifest field names, file locations, headless
-flags -- behind this adapter, and bump `targetSchema` when the harness changes its format.
+Put every harness-specific fact behind this adapter, including manifest field names, file
+locations, and headless flags, and bump `targetSchema` when the harness changes its format.
 That way an upstream change is a version bump in one package, not a change to any plugin.
 The verified facts to encode are in [docs/harness-research.md](harness-research.md).
 
@@ -43,7 +43,7 @@ interface CompiledArtifact {
 ```
 
 `relPath` is plugin-root-relative (e.g. `skills/code-review/SKILL.md`,
-`.claude-plugin/plugin.json`). Core decides the absolute base per build mode and scope --
+`.claude-plugin/plugin.json`). Core decides the absolute base per build mode and scope, so
 your adapter never hard-codes absolute paths.
 
 ### `PluginCtx`
@@ -64,12 +64,12 @@ Use `list` + `read` to copy a component directory verbatim; use `read` to parse 
 
 ## Two emission modes
 
-- **transform** is called once per component. Return its native files.
-- **emitManifest** is called once per plugin. Return the plugin-level manifest (e.g.
-  Claude's `plugin.json`), aggregating across components where needed -- e.g. collecting
+- transform is called once per component. Return its native files.
+- emitManifest is called once per plugin. Return the plugin-level manifest (e.g.
+  Claude's `plugin.json`), aggregating across components where needed, such as collecting
   every MCP server into one inline `mcpServers` block. Return `[]` for
   directory-convention harnesses (like OpenCode) that need no manifest.
-- **emitCatalog** turns a `ResolvedMarketplace` (every entry already resolved to concrete
+- emitCatalog turns a `ResolvedMarketplace` (every entry already resolved to concrete
   name/description/version by core) into the harness's native catalog.
 
 ## Headless eval (optional)
