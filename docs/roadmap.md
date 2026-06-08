@@ -147,9 +147,13 @@ The adapter-kit seam is designed for this; each is a new package, no core change
 
 ### Resolver depth
 
-- `npm:` source resolution and the `git-subdir` form.
 - Transitive (multi-level) `depends` and semver ranges on dependencies (today: one level,
   exact SHA pins).
+
+Shipped: `loom install`/`build` now resolve a remote target, not just `depends`. A
+`github:`/git/`npm:`/`owner/repo` ref is fetched into `~/.loom/cache` (git clone or
+`npm pack`) and installed from there, and a trailing `//subdir` selects a plugin or
+marketplace nested in the source (e.g. `loom install github:owner/repo//marketplace`).
 
 ### Discovery & operations
 

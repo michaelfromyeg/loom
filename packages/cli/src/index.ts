@@ -14,6 +14,7 @@ import {
   lint,
   lockDirForScope,
   readLock,
+  resolveSourceDir,
   signLock,
   uninstall,
   update,
@@ -116,7 +117,7 @@ const buildCmd = defineCommand({
       type: "positional",
       required: false,
       default: ".",
-      description: "Plugin or marketplace directory",
+      description: "Local dir, or a remote ref (github:/npm:/owner/repo, optional //subdir)",
     },
     out: { type: "string", default: ".loom-out", description: "Output directory" },
     target: { type: "string", description: "Comma-separated targets (default: all registered)" },
@@ -125,11 +126,14 @@ const buildCmd = defineCommand({
     try {
       const registry = buildRegistry();
       const targets = parseTargets(args.target);
+      // A remote ref (github:/git/owner-repo, optionally //subdir) clones into the
+      // cache; a local path is used as-is.
+      const { dir } = await resolveSourceDir(args.dir, process.cwd());
 
       // A marketplace.yaml packages many plugins into one catalog.
-      if (hasMarketplaceManifest(args.dir)) {
+      if (hasMarketplaceManifest(dir)) {
         const { marketplace, plugins, written } = await buildMarketplace({
-          marketplaceDir: args.dir,
+          marketplaceDir: dir,
           outDir: args.out,
           registry,
           targets,
@@ -148,7 +152,7 @@ const buildCmd = defineCommand({
       }
 
       const { result, written } = await build({
-        pluginDir: args.dir,
+        pluginDir: dir,
         outDir: args.out,
         registry,
         targets,
@@ -175,7 +179,7 @@ const installCmd = defineCommand({
       type: "positional",
       required: false,
       default: ".",
-      description: "Plugin or marketplace directory",
+      description: "Local dir, or a remote ref (github:/npm:/owner/repo, optional //subdir)",
     },
     scope: { type: "string", default: "project", description: "user | project" },
     target: { type: "string", description: "Comma-separated targets (default: all registered)" },
@@ -212,10 +216,14 @@ const installCmd = defineCommand({
         targets = present;
       }
 
+      // A remote ref (github:/git/npm/owner-repo, optionally //subdir) is fetched
+      // into the cache; a local path is used as-is.
+      const { dir } = await resolveSourceDir(args.dir, process.cwd());
+
       // A marketplace.yaml installs all of its plugins across the targets at once.
-      if (hasMarketplaceManifest(args.dir)) {
+      if (hasMarketplaceManifest(dir)) {
         const mp = await installMarketplace({
-          marketplaceDir: args.dir,
+          marketplaceDir: dir,
           scope,
           cwd: args.cwd ?? process.cwd(),
           registry,
@@ -241,7 +249,7 @@ const installCmd = defineCommand({
       }
 
       const result = await install({
-        pluginDir: args.dir,
+        pluginDir: dir,
         scope,
         cwd: args.cwd ?? process.cwd(),
         registry,

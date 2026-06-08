@@ -16,6 +16,7 @@ import {
   parseSource,
   readLock,
   resolvePluginRef,
+  resolveSourceDir,
   uninstall,
   writeLock,
 } from "../src/index";
@@ -60,8 +61,35 @@ describe("parseSource", () => {
     expect(parseSource("a/b")).toEqual({ kind: "github", repo: "a/b" });
   });
 
-  it("parses npm: sources", () => {
+  it("parses npm: sources with optional version and subdir", () => {
     expect(parseSource("npm:x")).toEqual({ kind: "npm", pkg: "x" });
+    expect(parseSource("npm:x@1.2.3")).toEqual({ kind: "npm", pkg: "x", version: "1.2.3" });
+    expect(parseSource("npm:@scope/x@1.0.0")).toEqual({
+      kind: "npm",
+      pkg: "@scope/x",
+      version: "1.0.0",
+    });
+    expect(parseSource("npm:x//skills/a")).toEqual({ kind: "npm", pkg: "x", subdir: "skills/a" });
+  });
+
+  it("parses a //subdir (and optional #ref) on github/git refs", () => {
+    expect(parseSource("github:a/b//marketplace")).toEqual({
+      kind: "github",
+      repo: "a/b",
+      subdir: "marketplace",
+    });
+    expect(parseSource("github:a/b//sub#v1")).toEqual({
+      kind: "github",
+      repo: "a/b",
+      ref: "v1",
+      subdir: "sub",
+    });
+    expect(parseSource("a/b//sub")).toEqual({ kind: "github", repo: "a/b", subdir: "sub" });
+    expect(parseSource("https://h/x.git//sub")).toEqual({
+      kind: "git",
+      url: "https://h/x.git",
+      subdir: "sub",
+    });
   });
 
   it("parses https and scp-style git urls", () => {
@@ -82,14 +110,22 @@ describe("parseSource", () => {
 });
 
 describe("resolvePluginRef", () => {
-  it("refuses npm sources as a not-yet-implemented stub", async () => {
-    await expect(resolvePluginRef("npm:some-pkg", tmp)).rejects.toThrow(/npm/);
-  });
-
   it("loads a local plugin fixture into a FetchedPlugin", async () => {
     const fb = await resolvePluginRef(PLUGIN, tmp);
     expect(fb.plugin.name).toBe("sample-plugin");
     expect(fb.root).toBe(PLUGIN);
+  });
+});
+
+describe("resolveSourceDir", () => {
+  it("treats an existing local path as local, without parsing it as a remote ref", async () => {
+    expect(await resolveSourceDir(PLUGIN, tmp)).toEqual({ dir: PLUGIN, ref: "local", sha: "" });
+  });
+
+  it("resolves a relative local dir against fromRoot", async () => {
+    const sub = join(tmp, "src-rel");
+    cpSync(PLUGIN, sub, { recursive: true });
+    expect(await resolveSourceDir("src-rel", tmp)).toEqual({ dir: sub, ref: "local", sha: "" });
   });
 });
 

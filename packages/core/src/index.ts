@@ -63,7 +63,7 @@ export {
   planScopeArtifacts,
 } from "./place";
 export { AdapterRegistry } from "./registry";
-export type { ResolvedPlugin, Source } from "./resolve";
+export type { ResolvedPlugin, ResolvedSource, Source } from "./resolve";
 export {
   CACHE_DIR,
   gitInfo,
@@ -71,6 +71,7 @@ export {
   resolveDependency,
   resolvePluginRef,
   resolvePluginRefFull,
+  resolveSourceDir,
 } from "./resolve";
 export type { VerifyResult } from "./sign";
 export {

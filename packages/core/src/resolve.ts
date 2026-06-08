@@ -8,27 +8,52 @@ import { type FetchedPlugin, loadPluginDir } from "./loader";
 
 export type Source =
   | { kind: "local"; path: string }
-  | { kind: "github"; repo: string; ref?: string }
-  | { kind: "git"; url: string; ref?: string }
-  | { kind: "npm"; pkg: string; version?: string };
+  | { kind: "github"; repo: string; ref?: string; subdir?: string }
+  | { kind: "git"; url: string; ref?: string; subdir?: string }
+  | { kind: "npm"; pkg: string; version?: string; subdir?: string };
 
 /** Where cloned/fetched remote plugins are cached. */
 export const CACHE_DIR = join(homedir(), ".loom", "cache");
+
+/**
+ * Split a remote ref into its base, an optional `//subdir` (a plugin/marketplace
+ * in a repo subdirectory), and an optional `#ref` (branch/tag/SHA). The leading
+ * protocol's own `//` (e.g. `https://`) is ignored when finding the subdir.
+ */
+function splitRefAndSubdir(s: string): { base: string; subdir?: string; ref?: string } {
+  const hash = s.indexOf("#");
+  const ref = hash >= 0 ? s.slice(hash + 1) : undefined;
+  const head = hash >= 0 ? s.slice(0, hash) : s;
+  const proto = head.match(/^[a-z+]+:\/\//i)?.[0] ?? "";
+  const rest = head.slice(proto.length);
+  const slash = rest.indexOf("//");
+  if (slash === -1) return { base: head, ...(ref ? { ref } : {}) };
+  return {
+    base: proto + rest.slice(0, slash),
+    subdir: rest.slice(slash + 2),
+    ...(ref ? { ref } : {}),
+  };
+}
 
 /** Parse a plugin/dependency source string into a structured form (spec §6.1). */
 export function parseSource(src: string): Source {
   if (src.startsWith("./") || src.startsWith("../") || isAbsolute(src)) {
     return { kind: "local", path: src };
   }
-  if (src.startsWith("github:")) {
-    const [repo, ref] = src.slice("github:".length).split("#");
-    return ref ? { kind: "github", repo, ref } : { kind: "github", repo };
-  }
   if (src.startsWith("npm:")) {
-    const spec = src.slice("npm:".length);
+    const raw = src.slice("npm:".length);
+    const slash = raw.indexOf("//");
+    const subdir = slash >= 0 ? raw.slice(slash + 2) : undefined;
+    const spec = slash >= 0 ? raw.slice(0, slash) : raw;
+    // lastIndexOf("@") > 0 finds a version while leaving a scoped name's leading @.
     const at = spec.lastIndexOf("@");
-    if (at > 0) return { kind: "npm", pkg: spec.slice(0, at), version: spec.slice(at + 1) };
-    return { kind: "npm", pkg: spec };
+    const pkg = at > 0 ? spec.slice(0, at) : spec;
+    const version = at > 0 ? spec.slice(at + 1) : undefined;
+    return { kind: "npm", pkg, ...(version ? { version } : {}), ...(subdir ? { subdir } : {}) };
+  }
+  if (src.startsWith("github:")) {
+    const { base, subdir, ref } = splitRefAndSubdir(src.slice("github:".length));
+    return { kind: "github", repo: base, ...(ref ? { ref } : {}), ...(subdir ? { subdir } : {}) };
   }
   if (
     src.startsWith("git@") ||
@@ -36,11 +61,14 @@ export function parseSource(src: string): Source {
     src.startsWith("file://") ||
     /^https?:\/\//.test(src)
   ) {
-    const [url, ref] = src.replace(/^git\+/, "").split("#");
-    return ref ? { kind: "git", url, ref } : { kind: "git", url };
+    const { base, subdir, ref } = splitRefAndSubdir(src.replace(/^git\+/, ""));
+    return { kind: "git", url: base, ...(ref ? { ref } : {}), ...(subdir ? { subdir } : {}) };
   }
-  // Bare `owner/repo` is treated as GitHub shorthand.
-  if (/^[\w.-]+\/[\w.-]+$/.test(src)) return { kind: "github", repo: src };
+  // Bare `owner/repo` (optionally `//subdir` / `#ref`) is GitHub shorthand.
+  const { base, subdir, ref } = splitRefAndSubdir(src);
+  if (/^[\w.-]+\/[\w.-]+$/.test(base)) {
+    return { kind: "github", repo: base, ...(ref ? { ref } : {}), ...(subdir ? { subdir } : {}) };
+  }
   return { kind: "local", path: src };
 }
 
@@ -81,9 +109,34 @@ export interface ResolvedPlugin {
 }
 
 /**
+ * Download an npm package tarball into the cache and extract it (no dependency
+ * install); return the extracted package dir and its resolved version. A loom
+ * plugin/marketplace published to npm is just its files inside the tarball.
+ */
+async function npmFetch(
+  pkg: string,
+  version: string | undefined,
+): Promise<{ dir: string; sha: string }> {
+  const spec = version ? `${pkg}@${version}` : pkg;
+  const dir = cacheDirFor(`npm:${spec}`);
+  mkdirSync(dir, { recursive: true });
+  // `npm pack` fetches just the tarball from the registry; --json reports it.
+  const { stdout } = await execa("npm", ["pack", spec, "--pack-destination", dir, "--json"], {
+    cwd: dir,
+  });
+  const meta = JSON.parse(stdout) as Array<{ filename: string; version?: string }>;
+  const first = meta[0];
+  if (!first) throw new Error(`npm pack produced no tarball for "${spec}"`);
+  // The tarball extracts its contents under a top-level `package/` directory.
+  await execa("tar", ["-xzf", join(dir, first.filename), "-C", dir]);
+  return { dir: join(dir, "package"), sha: first.version ?? version ?? "" };
+}
+
+/**
  * Resolve a plugin source to a fetched plugin on disk (spec §5, §9.1 step 2).
  * Local `./path` sources resolve relative to `fromRoot`; `github:`/git sources are
- * git-cloned into the cache and pinned to a resolved SHA; `npm:` is a clear stub.
+ * git-cloned and pinned to a SHA; `npm:` packages are fetched via `npm pack`. A
+ * trailing `//subdir` selects a plugin nested in the source.
  */
 export async function resolvePluginRefFull(
   source: string,
@@ -98,9 +151,44 @@ export async function resolvePluginRefFull(
   if (src.kind === "github" || src.kind === "git") {
     const url = src.kind === "github" ? `https://github.com/${src.repo}.git` : src.url;
     const { dir, sha } = await gitFetch(url, src.ref);
-    return { fb: loadOrThrow(dir, source), ref: src.ref ?? "default", sha };
+    const root = src.subdir ? join(dir, src.subdir) : dir;
+    return { fb: loadOrThrow(root, source), ref: src.ref ?? "default", sha };
   }
-  throw new Error(`npm source resolution ("${source}") is not implemented yet`);
+  const { dir, sha } = await npmFetch(src.pkg, src.version);
+  const root = src.subdir ? join(dir, src.subdir) : dir;
+  return { fb: loadOrThrow(root, source), ref: src.version ?? "latest", sha };
+}
+
+/** A resolved source directory on disk, plus the ref/SHA it came from. */
+export interface ResolvedSource {
+  dir: string;
+  ref: string;
+  sha: string;
+}
+
+/**
+ * Resolve an install/build target (a plugin OR a marketplace) to a directory on
+ * disk: a local path is returned as-is; a `github:`/git ref (optionally with a
+ * `//subdir`) is cloned into the cache. Unlike `resolvePluginRefFull` this does
+ * not load a plugin, so it works for a `marketplace.yaml` target too.
+ */
+export async function resolveSourceDir(source: string, fromRoot: string): Promise<ResolvedSource> {
+  // A path that exists on disk is always local; this avoids misreading a real
+  // local dir like "a/b" as the GitHub shorthand "owner/repo".
+  const localGuess = isAbsolute(source) ? source : resolvePath(fromRoot, source);
+  if (existsSync(localGuess)) return { dir: localGuess, ref: "local", sha: "" };
+
+  const src = parseSource(source);
+  if (src.kind === "local") {
+    return { dir: localGuess, ref: "local", sha: "" };
+  }
+  if (src.kind === "github" || src.kind === "git") {
+    const url = src.kind === "github" ? `https://github.com/${src.repo}.git` : src.url;
+    const { dir, sha } = await gitFetch(url, src.ref);
+    return { dir: src.subdir ? join(dir, src.subdir) : dir, ref: src.ref ?? "default", sha };
+  }
+  const { dir, sha } = await npmFetch(src.pkg, src.version);
+  return { dir: src.subdir ? join(dir, src.subdir) : dir, ref: src.version ?? "latest", sha };
 }
 
 /** Convenience: resolve and return only the fetched plugin. */

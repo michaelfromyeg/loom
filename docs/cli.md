@@ -39,7 +39,7 @@ USAGE `loom build [OPTIONS] [DIR]`
 
 ARGUMENTS
 
-  `DIR="."`    Plugin or marketplace directory    
+  `DIR="."`    Local dir, or a remote ref (github:/npm:/owner/repo, optional //subdir)    
 
 OPTIONS
 
@@ -149,7 +149,7 @@ USAGE `loom install [OPTIONS] [DIR]`
 
 ARGUMENTS
 
-  `DIR="."`    Plugin or marketplace directory    
+  `DIR="."`    Local dir, or a remote ref (github:/npm:/owner/repo, optional //subdir)    
 
 OPTIONS
 
