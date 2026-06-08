@@ -1,0 +1,8 @@
+component: com.example/all-kinds:demo-command
+harnesses: [claude]
+cases:
+  - name: command-runs
+    prompt: "/demo-command"
+    assert:
+      - kind: output
+        matches: "(?i)demo"

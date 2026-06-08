@@ -55,6 +55,8 @@ export const PassthroughComponent = z.strictObject({
   target: Target,
   kind: z.enum(["hook", "plugin", "script"]),
   default_enabled: z.boolean().default(false),
+  /** Path to a `cases.yaml` eval file (a passthrough eval is a setup+verify check). */
+  evals: z.string().optional(),
 });
 
 export const Component = z.union([

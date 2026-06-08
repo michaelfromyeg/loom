@@ -1,0 +1,11 @@
+component: com.example/all-kinds:demo-hook
+harnesses: [claude]
+# Hooks are event-driven, not prompt-driven: a headless prompt won't fire them. A hook
+# eval is therefore a post-state shell check (setup arranges state, verify asserts it).
+cases:
+  - name: hook-verify-path
+    prompt: "(hook eval runs via setup+verify, not the model)"
+    setup: "echo hook-fired > eval.marker"
+    verify: "grep -q hook-fired eval.marker"
+    cleanup: "rm -f eval.marker"
+    assert: []

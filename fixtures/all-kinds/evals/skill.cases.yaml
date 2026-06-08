@@ -1,0 +1,8 @@
+component: com.example/all-kinds:demo-skill
+harnesses: [claude]
+cases:
+  - name: skill-activates
+    prompt: "Follow your demo skill and reply."
+    assert:
+      - kind: output
+        matches: "(?i)demo"

@@ -1,0 +1,11 @@
+component: com.example/all-kinds:demo-pass
+harnesses: [claude]
+# Passthrough artifacts are verbatim and placed disabled; like hooks they are evaluated
+# by a post-state shell check rather than a model prompt.
+cases:
+  - name: passthrough-verify-path
+    prompt: "(passthrough eval runs via setup+verify, not the model)"
+    setup: "echo pass-fired > eval.marker"
+    verify: "grep -q pass-fired eval.marker"
+    cleanup: "rm -f eval.marker"
+    assert: []

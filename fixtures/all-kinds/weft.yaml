@@ -1,0 +1,19 @@
+name: all-kinds
+version: 1.0.0
+owner: { name: Test, namespace: com.example }
+description: One component of every kind, each declaring an eval, to prove eval coverage.
+components:
+  - skill: skills/demo-skill
+    evals: evals/skill.cases.yaml
+  - mcp: mcp/demo-mcp
+    evals: evals/mcp.cases.yaml
+  - agent: agents/demo-agent.md
+    evals: evals/agent.cases.yaml
+  - command: commands/demo-command.md
+    evals: evals/command.cases.yaml
+  - hook: hooks/demo-hook.sh
+    evals: evals/hook.cases.yaml
+  - passthrough: scripts/demo-pass.sh
+    target: claude
+    kind: script
+    evals: evals/passthrough.cases.yaml

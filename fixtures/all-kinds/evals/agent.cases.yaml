@@ -1,0 +1,10 @@
+component: com.example/all-kinds:demo-agent
+harnesses: [claude]
+cases:
+  - name: agent-spawns
+    prompt: "Delegate to the demo sub-agent."
+    assert:
+      - kind: trace
+        toolCalled: Task
+      - kind: output
+        matches: "(?i)done"

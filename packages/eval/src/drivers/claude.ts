@@ -2,11 +2,13 @@ import type { HarnessDriver, Transcript } from "@michaelfromyeg/weft-adapter-kit
 import { parseClaudeStream } from "./parse";
 import { cliAvailable, runCli } from "./util";
 
-// Include "Skill" so an installed plugin's skill can actually activate during an
-// eval; without it, headless claude answers from general knowledge and a skill is
-// never exercised (the whole point of the eval).
-const ALLOWED_TOOLS = "Read,Edit,Write,Bash,Grep,Glob,WebFetch,Skill";
-
+// bypassPermissions (rather than an --allowedTools allow-list) lets every installed
+// component kind actually activate during an eval: a skill via the Skill tool, an MCP
+// server via its mcp__* tools, a sub-agent via Task, a slash command directly. The
+// allow-list silently blocked all but the listed tools, so only skills were exercised.
+// The eval installs into a throwaway scratch dir (runner.ts), so running real tools is
+// contained. --output-format stream-json --verbose keeps the tool-call stream, so
+// `trace` assertions stay meaningful.
 export const claudeDriver: HarnessDriver = {
   target: "claude",
   available: () => cliAvailable("claude", ["--version"]),
@@ -20,9 +22,7 @@ export const claudeDriver: HarnessDriver = {
         "stream-json",
         "--verbose",
         "--permission-mode",
-        "acceptEdits",
-        "--allowedTools",
-        ALLOWED_TOOLS,
+        "bypassPermissions",
       ],
       { cwd, config, timeoutMs },
     );

@@ -1,0 +1,8 @@
+component: com.example/all-kinds:demo-mcp
+harnesses: [claude]
+cases:
+  - name: mcp-tool-available
+    prompt: "Use the demo MCP server."
+    assert:
+      - kind: output
+        matches: "(?i)demo"

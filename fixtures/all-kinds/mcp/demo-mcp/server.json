@@ -1,0 +1,6 @@
+{
+  "name": "com.example/demo-mcp",
+  "description": "A demo MCP server used to prove mcp evals run.",
+  "version": "1.0.0",
+  "packages": [{ "registryType": "npm", "identifier": "demo-mcp", "version": "1.0.0" }]
+}
