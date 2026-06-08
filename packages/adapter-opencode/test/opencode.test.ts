@@ -151,7 +151,7 @@ describe("opencode adapter emitManifest", () => {
 });
 
 describe("opencode adapter emitCatalog", () => {
-  it("emits a Loom-only loom-marketplace.json index", () => {
+  it("emits a Weft-only weft-marketplace.json index", () => {
     const arts = opencodeAdapter.emitCatalog({
       name: "sample-plugin",
       owner: plugin.owner,
@@ -162,7 +162,7 @@ describe("opencode adapter emitCatalog", () => {
       ],
     });
     expect(arts).toHaveLength(1);
-    expect(arts[0].relPath).toBe("loom-marketplace.json");
+    expect(arts[0].relPath).toBe("weft-marketplace.json");
     expect(arts[0].kind).toBe("catalog");
     const catalog = JSON.parse(arts[0].contents.toString());
     expect(catalog.plugins).toHaveLength(2);

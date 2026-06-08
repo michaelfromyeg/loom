@@ -45,12 +45,12 @@ export const PluginLock = z.object({
 export type PluginLock = z.infer<typeof PluginLock>;
 
 /**
- * `loom.lock` — the ledger of everything installed into one target (a project for
+ * `weft.lock` — the ledger of everything installed into one target (a project for
  * project scope, the user dir for user scope). Drives update/uninstall/verify.
  * Holds many plugins so a marketplace install is a single lockfile.
  */
 export const Lockfile = z.object({
-  loomVersion: z.string(),
+  weftVersion: z.string(),
   generatedAt: z.string(),
   plugins: z.array(PluginLock),
   /** Every placed artifact across all plugins; each tagged with its `plugin` id. */

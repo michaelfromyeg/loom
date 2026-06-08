@@ -20,7 +20,7 @@ const registry = () => new AdapterRegistry().register(claudeAdapter);
 
 let tmp: string;
 beforeAll(() => {
-  tmp = mkdtempSync(join(tmpdir(), "loom-p3-"));
+  tmp = mkdtempSync(join(tmpdir(), "weft-p3-"));
 });
 afterAll(() => rmSync(tmp, { recursive: true, force: true }));
 

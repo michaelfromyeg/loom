@@ -19,7 +19,7 @@ export interface PluginCtx {
 }
 
 /**
- * The seam between Loom's canonical model and one harness's native format
+ * The seam between Weft's canonical model and one harness's native format
  * (spec §7). Every harness-specific fact lives behind `targetSchema`, so an
  * upstream schema change is a version bump here, not a change to any plugin.
  *
@@ -57,7 +57,7 @@ export interface HarnessAdapter {
 
   /**
    * Reverse-compile an existing native plugin or marketplace in `dir` into the
-   * canonical Loom model, so it can be cross-compiled to the other harnesses
+   * canonical Weft model, so it can be cross-compiled to the other harnesses
    * ("federate, don't wall off" applied to assets you already maintain). Returns
    * null when `dir` is not this harness's format. Present iff the harness supports it.
    */

@@ -38,7 +38,7 @@ function walkFiles(root: string, dir: string): string[] {
   return out;
 }
 
-const MANIFEST_NAMES = ["loom.yaml", "loom.yml", "loom.json5", "loom.json"];
+const MANIFEST_NAMES = ["weft.yaml", "weft.yml", "weft.json5", "weft.json"];
 
 /** Build `read`/`list` accessors rooted at a directory (used for merged plugins too). */
 export function fileAccessors(root: string): Pick<FetchedPlugin, "read" | "list"> {

@@ -54,7 +54,7 @@ function copyTree(
   return out;
 }
 
-/** A Loom source string from a Cursor marketplace `source` (string or object). */
+/** A Weft source string from a Cursor marketplace `source` (string or object). */
 function sourceToString(source: unknown): string {
   if (typeof source === "string") return source;
   const s = source as Record<string, unknown>;
@@ -149,7 +149,7 @@ function importPlugin(
     );
   }
 
-  // Prefer a verbatim mcp/<leaf>/server.json (a Loom-built plugin keeps it); only
+  // Prefer a verbatim mcp/<leaf>/server.json (a Weft-built plugin keeps it); only
   // reconstruct from the native `mcpServers` config when there is no mcp/ dir.
   const mcpRoot = join(dir, "mcp");
   const verbatim = subdirsWith(mcpRoot, "server.json");
@@ -214,7 +214,7 @@ function importMarketplace(
   return { kind: "marketplace", marketplace };
 }
 
-/** Reverse-compile a Cursor plugin or marketplace dir into the Loom model. */
+/** Reverse-compile a Cursor plugin or marketplace dir into the Weft model. */
 export function importCursor(dir: string, opts?: ImportOptions): ImportResult | null {
   const namespace = opts?.namespace ?? "com.imported";
   const marketplace = readJson(join(dir, ".cursor-plugin", "marketplace.json"));

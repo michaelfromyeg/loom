@@ -28,7 +28,7 @@ export function loadBaseline(
 }
 
 /**
- * Snapshot a baseline (spec §9.5). Called on `loom publish` so the next release's
+ * Snapshot a baseline (spec §9.5). Called on `weft publish` so the next release's
  * differential evals compare against this score.
  */
 export function writeBaseline(

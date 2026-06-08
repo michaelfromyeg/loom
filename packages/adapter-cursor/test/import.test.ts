@@ -9,7 +9,7 @@ import cursorAdapter from "../src/index";
 
 let tmp: string;
 beforeAll(() => {
-  tmp = mkdtempSync(join(tmpdir(), "loom-cursor-import-"));
+  tmp = mkdtempSync(join(tmpdir(), "weft-cursor-import-"));
 });
 afterAll(() => rmSync(tmp, { recursive: true, force: true }));
 
@@ -40,14 +40,14 @@ describe("importCursor round-trip", () => {
     expect(res.files.some((f) => f.relPath === "mcp/weather/server.json")).toBe(true);
     expect(res.files.some((f) => f.relPath === "skills/code-review/SKILL.md")).toBe(true);
 
-    const loomOut = join(tmp, "reimported");
+    const weftOut = join(tmp, "reimported");
     importNativePlugin({
       dir: builtPluginDir,
       adapter: cursorAdapter,
-      outDir: loomOut,
+      outDir: weftOut,
       namespace: "com.acme",
     });
-    const linted = lint(loomOut);
+    const linted = lint(weftOut);
     expect(linted.diagnostics.hasErrors).toBe(false);
     expect(linted.plugin.components.map((c) => Object.values(c)[0])).toEqual([
       "skills/code-review",
@@ -155,7 +155,7 @@ describe("importCursor plugin", () => {
 });
 
 describe("importCursor marketplace", () => {
-  it("maps every Cursor source form to a Loom source string", () => {
+  it("maps every Cursor source form to a Weft source string", () => {
     const dir = join(tmp, "mkt");
     write(
       join(dir, ".cursor-plugin/marketplace.json"),

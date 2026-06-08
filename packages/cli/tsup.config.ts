@@ -1,8 +1,8 @@
 import { defineConfig } from "tsup";
-import { loomTsup } from "../../tsup.base";
+import { weftTsup } from "../../tsup.base";
 
 export default defineConfig(
-  loomTsup({
+  weftTsup({
     banner: { js: "#!/usr/bin/env node" },
   }),
 );

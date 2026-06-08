@@ -54,7 +54,7 @@ function copyTree(
   return out;
 }
 
-/** A Loom source string from a Claude marketplace `source` (string or object). */
+/** A Weft source string from a Claude marketplace `source` (string or object). */
 function sourceToString(source: unknown): string {
   if (typeof source === "string") return source;
   const s = source as Record<string, unknown>;
@@ -194,7 +194,7 @@ function importMarketplace(
   return { kind: "marketplace", marketplace };
 }
 
-/** Reverse-compile a Claude plugin or marketplace dir into the Loom model. */
+/** Reverse-compile a Claude plugin or marketplace dir into the Weft model. */
 export function importClaude(dir: string, opts?: ImportOptions): ImportResult | null {
   const namespace = opts?.namespace ?? "com.imported";
   const marketplace = readJson(join(dir, ".claude-plugin", "marketplace.json"));

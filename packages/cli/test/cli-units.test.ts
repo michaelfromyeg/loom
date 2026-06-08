@@ -38,14 +38,14 @@ function captureConsole(fn: () => void): string {
 
 describe("scaffoldPlugin", () => {
   it("writes a manifest + sample skill and reports the kebab name and files", () => {
-    tmp = mkdtempSync(join(tmpdir(), "loom-cli-scaffold-"));
+    tmp = mkdtempSync(join(tmpdir(), "weft-cli-scaffold-"));
     const result = scaffoldPlugin({ dir: tmp, name: "My Plugin", namespace: "com.test" });
 
     expect(result.name).toBe("my-plugin");
-    expect(result.files).toContain("loom.yaml");
+    expect(result.files).toContain("weft.yaml");
     expect(result.files).toContain(join("skills", "hello", "SKILL.md"));
 
-    expect(existsSync(join(tmp, "loom.yaml"))).toBe(true);
+    expect(existsSync(join(tmp, "weft.yaml"))).toBe(true);
     expect(existsSync(join(tmp, "skills", "hello", "SKILL.md"))).toBe(true);
   });
 
@@ -81,7 +81,7 @@ describe("report output", () => {
   it("prints a trust summary covering components and mcp servers", async () => {
     const out = await build({
       pluginDir: FIXTURE,
-      outDir: mkdtempSync(join(tmpdir(), "loom-cli-build-")),
+      outDir: mkdtempSync(join(tmpdir(), "weft-cli-build-")),
       registry: new AdapterRegistry().register(claudeAdapter),
     });
 

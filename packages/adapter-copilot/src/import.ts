@@ -55,7 +55,7 @@ function copyTree(
   return out;
 }
 
-/** A Loom source string from a Copilot marketplace `source` (string or object). */
+/** A Weft source string from a Copilot marketplace `source` (string or object). */
 function sourceToString(source: unknown): string {
   if (typeof source === "string") return source;
   const s = source as Record<string, unknown>;
@@ -150,7 +150,7 @@ function importPlugin(
     );
   }
 
-  // MCP: prefer a verbatim mcp/<leaf>/server.json (a Loom-built plugin carries one);
+  // MCP: prefer a verbatim mcp/<leaf>/server.json (a Weft-built plugin carries one);
   // only reconstruct from the native run config when there is no mcp/ dir.
   if (existsSync(join(dir, "mcp"))) {
     for (const leaf of subdirsWith(join(dir, "mcp"), "server.json")) {
@@ -233,7 +233,7 @@ const MANIFEST_PATHS = [
   [".claude-plugin", "plugin.json"],
 ];
 
-/** Reverse-compile a GitHub Copilot plugin or marketplace dir into the Loom model. */
+/** Reverse-compile a GitHub Copilot plugin or marketplace dir into the Weft model. */
 export function importCopilot(dir: string, opts?: ImportOptions): ImportResult | null {
   const namespace = opts?.namespace ?? "com.imported";
   const marketplace = readJson(join(dir, ".copilot-plugin", "marketplace.json"));

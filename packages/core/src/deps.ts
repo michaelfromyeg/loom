@@ -52,7 +52,7 @@ export async function resolveDependencies(
   const depends = fb.plugin.depends ?? [];
   if (depends.length === 0) return { fb, dependencies: [] };
 
-  const merged = mkdtempSync(join(tmpRoot ?? tmpdir(), "loom-merged-"));
+  const merged = mkdtempSync(join(tmpRoot ?? tmpdir(), "weft-merged-"));
   cpSync(fb.root, merged, { recursive: true, filter: skipGit });
 
   const components: Component[] = [...fb.plugin.components];
@@ -86,7 +86,7 @@ export async function resolveDependencies(
   const mergedFb: FetchedPlugin = {
     plugin,
     root: merged,
-    manifestPath: join(merged, "loom.yaml"),
+    manifestPath: join(merged, "weft.yaml"),
     ...fileAccessors(merged),
   };
   return { fb: mergedFb, dependencies };

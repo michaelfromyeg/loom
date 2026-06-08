@@ -9,7 +9,7 @@ import {
   validate,
 } from "@michaelfromyeg/weft-schema";
 import type { CompileResult } from "./compile";
-import { LOOM_VERSION } from "./version";
+import { WEFT_VERSION } from "./version";
 
 /** One plugin's contribution to a lockfile: its record, placed artifacts, and adapters used. */
 export interface LockEntry {
@@ -65,16 +65,16 @@ export function mergeLock(
     artifacts.push(...e.artifacts);
     Object.assign(adapters, e.adapters);
   }
-  return { loomVersion: LOOM_VERSION, generatedAt, plugins, artifacts, adapters };
+  return { weftVersion: WEFT_VERSION, generatedAt, plugins, artifacts, adapters };
 }
 
 /**
- * Where a target's `loom.lock` lives: the project root for project scope, a
+ * Where a target's `weft.lock` lives: the project root for project scope, a
  * per-user dir for user scope. The lock travels with the install target, not the
  * (possibly remote, read-only) source.
  */
 export function lockDirForScope(scope: Scope, cwd: string): string {
-  return scope === "user" ? join(homedir(), ".loom") : cwd;
+  return scope === "user" ? join(homedir(), ".weft") : cwd;
 }
 
 export function serializeLock(lock: Lockfile): string {
@@ -82,7 +82,7 @@ export function serializeLock(lock: Lockfile): string {
 }
 
 export function writeLock(dir: string, lock: Lockfile): string {
-  const p = join(dir, "loom.lock");
+  const p = join(dir, "weft.lock");
   writeFileSync(p, serializeLock(lock));
   return p;
 }
@@ -90,7 +90,7 @@ export function writeLock(dir: string, lock: Lockfile): string {
 /** Read and validate an existing lockfile; null when absent or malformed. */
 export function readLock(dir: string): Lockfile | null {
   try {
-    const text = readFileSync(join(dir, "loom.lock"), "utf8");
+    const text = readFileSync(join(dir, "weft.lock"), "utf8");
     const res = validate(Lockfile, JSON.parse(text));
     return res.ok ? res.value : null;
   } catch {

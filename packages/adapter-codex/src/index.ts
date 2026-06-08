@@ -194,7 +194,7 @@ export const codexAdapter: HarnessAdapter = {
 
   emitCatalog(marketplace: ResolvedMarketplace): CompiledArtifact[] {
     // TODO(verify): Codex has no confirmed native marketplace catalog format;
-    // this loom-marketplace.json index is best-effort.
+    // this weft-marketplace.json index is best-effort.
     const plugins = marketplace.entries.map((entry) => {
       const e: {
         name: string;
@@ -228,7 +228,7 @@ export const codexAdapter: HarnessAdapter = {
     };
     if (marketplace.description) catalog.description = marketplace.description;
 
-    return [artifact("loom-marketplace.json", json(catalog), { kind: "catalog" })];
+    return [artifact("weft-marketplace.json", json(catalog), { kind: "catalog" })];
   },
 
   importNative: importCodex,

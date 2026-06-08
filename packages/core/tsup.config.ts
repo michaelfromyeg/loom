@@ -1,4 +1,4 @@
 import { defineConfig } from "tsup";
-import { loomTsup } from "../../tsup.base";
+import { weftTsup } from "../../tsup.base";
 
-export default defineConfig(loomTsup());
+export default defineConfig(weftTsup());

@@ -1,7 +1,7 @@
 {
   "name": "@michaelfromyeg/weft-core",
   "version": "0.3.0",
-  "description": "Loom compile pipeline: resolver, namespacing, placement, lockfile, adapter registry.",
+  "description": "Weft compile pipeline: resolver, namespacing, placement, lockfile, adapter registry.",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
@@ -29,17 +29,17 @@
   },
   "license": "MIT",
   "author": "Michael DeMarco",
-  "homepage": "https://github.com/michaelfromyeg/loom#readme",
+  "homepage": "https://github.com/michaelfromyeg/weft#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/michaelfromyeg/loom.git",
+    "url": "git+https://github.com/michaelfromyeg/weft.git",
     "directory": "packages/core"
   },
   "bugs": {
-    "url": "https://github.com/michaelfromyeg/loom/issues"
+    "url": "https://github.com/michaelfromyeg/weft/issues"
   },
   "keywords": [
-    "loom",
+    "weft",
     "coding-agent",
     "ai-agent",
     "claude-code",

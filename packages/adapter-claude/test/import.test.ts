@@ -6,7 +6,7 @@ import { importClaude } from "../src/import";
 
 let tmp: string;
 beforeAll(() => {
-  tmp = mkdtempSync(join(tmpdir(), "loom-claude-import-"));
+  tmp = mkdtempSync(join(tmpdir(), "weft-claude-import-"));
 });
 afterAll(() => rmSync(tmp, { recursive: true, force: true }));
 
@@ -75,7 +75,7 @@ describe("importClaude plugin", () => {
 });
 
 describe("importClaude marketplace", () => {
-  it("maps every Claude source form to a Loom source string", () => {
+  it("maps every Claude source form to a Weft source string", () => {
     const dir = join(tmp, "mkt");
     write(
       join(dir, ".claude-plugin/marketplace.json"),

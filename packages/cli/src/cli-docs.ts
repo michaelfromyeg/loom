@@ -9,15 +9,15 @@ async function resolve<T>(r: Resolvable<T>): Promise<T> {
 /**
  * Render a full Markdown CLI reference straight from the citty command tree, so
  * the docs can never drift from the actual commands -- the same single-source
- * principle Loom applies to manifests, applied to its own CLI.
+ * principle Weft applies to manifests, applied to its own CLI.
  */
 export async function renderCliReference(main: CommandDef): Promise<string> {
   const out: string[] = [
-    "# Loom CLI reference",
+    "# Weft CLI reference",
     "",
-    "_Generated from the CLI definition by `loom docs` -- do not edit by hand._",
+    "_Generated from the CLI definition by `weft docs` -- do not edit by hand._",
     "",
-    "## `loom`",
+    "## `weft`",
     "",
     "```",
     (await renderUsage(main)).trim(),
@@ -29,7 +29,7 @@ export async function renderCliReference(main: CommandDef): Promise<string> {
   for (const name of Object.keys(subs).sort()) {
     const sub = await resolve(subs[name] as Resolvable<CommandDef>);
     const meta = await resolve(sub.meta);
-    out.push(`## \`loom ${name}\``, "");
+    out.push(`## \`weft ${name}\``, "");
     if (meta?.description) out.push(meta.description as string, "");
     out.push("```", (await renderUsage(sub, main)).trim(), "```", "");
   }

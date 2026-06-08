@@ -11,7 +11,7 @@ const PLUGIN = fileURLToPath(new URL("../../../fixtures/sample-plugin", import.m
 
 let tmp: string;
 beforeAll(() => {
-  tmp = mkdtempSync(join(tmpdir(), "loom-codex-import-"));
+  tmp = mkdtempSync(join(tmpdir(), "weft-codex-import-"));
 });
 afterAll(() => rmSync(tmp, { recursive: true, force: true }));
 
@@ -21,8 +21,8 @@ function write(path: string, contents: string) {
 }
 
 describe("importCodex round-trip", () => {
-  it("re-imports a Loom-built Codex plugin into a valid Loom plugin", async () => {
-    // Loom -> Codex plugin (verbatim mcp/<leaf>/server.json + skill sidecars).
+  it("re-imports a Weft-built Codex plugin into a valid Weft plugin", async () => {
+    // Weft -> Codex plugin (verbatim mcp/<leaf>/server.json + skill sidecars).
     const built = join(tmp, "built");
     await build({
       pluginDir: PLUGIN,
@@ -40,15 +40,15 @@ describe("importCodex round-trip", () => {
     expect(res.files.find((f) => f.relPath === "mcp/weather/server.json")).toBeDefined();
 
     // Write the imported plugin to disk and lint it; both components survive.
-    const loomOut = join(tmp, "imported");
+    const weftOut = join(tmp, "imported");
     importNativePlugin({
       dir: builtPlugin,
       adapter: codexAdapter,
-      outDir: loomOut,
+      outDir: weftOut,
       namespace: "com.acme",
     });
-    expect(existsSync(join(loomOut, "loom.yaml"))).toBe(true);
-    const linted = lint(loomOut);
+    expect(existsSync(join(weftOut, "weft.yaml"))).toBe(true);
+    const linted = lint(weftOut);
     expect(linted.diagnostics.hasErrors).toBe(false);
     expect(linted.id).toBe("com.acme/sample-plugin");
     expect(Object.keys(linted.aliases).sort()).toEqual(["code-review", "weather"]);
@@ -157,10 +157,10 @@ describe("importCodex plugin (synthetic)", () => {
 });
 
 describe("importCodex marketplace", () => {
-  it("maps every loom-marketplace source form to a Loom source string", () => {
+  it("maps every weft-marketplace source form to a Weft source string", () => {
     const dir = join(tmp, "mkt");
     write(
-      join(dir, "loom-marketplace.json"),
+      join(dir, "weft-marketplace.json"),
       JSON.stringify({
         name: "m",
         owner: { name: "O", email: "o@x" },

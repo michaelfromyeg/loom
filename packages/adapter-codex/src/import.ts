@@ -54,7 +54,7 @@ function copyTree(
   return out;
 }
 
-/** A Loom source string from a Codex `loom-marketplace.json` entry `source`. */
+/** A Weft source string from a Codex `weft-marketplace.json` entry `source`. */
 function sourceToString(source: unknown): string {
   if (typeof source === "string") return source;
   const s = source as Record<string, unknown>;
@@ -208,7 +208,7 @@ function importPlugin(
     files.push(artifact(`agents/${f}`, readFileSync(join(dir, "agents", f)), { kind: "agent" }));
   }
 
-  // MCP: prefer the verbatim server.json copies a Loom build leaves under mcp/.
+  // MCP: prefer the verbatim server.json copies a Weft build leaves under mcp/.
   // Only when there is no mcp/ dir do we reconstruct from the config.toml tables.
   const mcpDir = join(dir, "mcp");
   if (existsSync(mcpDir) && statSync(mcpDir).isDirectory()) {
@@ -273,12 +273,12 @@ function importMarketplace(
   return { kind: "marketplace", marketplace };
 }
 
-/** Reverse-compile a Codex plugin or marketplace dir into the Loom model. */
+/** Reverse-compile a Codex plugin or marketplace dir into the Weft model. */
 export function importCodex(dir: string, opts?: ImportOptions): ImportResult | null {
   const namespace = opts?.namespace ?? "com.imported";
 
-  // Codex has no native marketplace; our adapter emits a Loom-only index.
-  const marketplace = readJson(join(dir, "loom-marketplace.json"));
+  // Codex has no native marketplace; our adapter emits a Weft-only index.
+  const marketplace = readJson(join(dir, "weft-marketplace.json"));
   if (marketplace) return importMarketplace(marketplace, namespace);
 
   const manifest = readJson(join(dir, "plugin.json"));

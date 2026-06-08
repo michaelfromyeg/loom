@@ -25,7 +25,7 @@ const TARGET_SCHEMA = "opencode/1";
 interface OpencodeManifest {
   mcp: Record<string, OpencodeMcpServer>;
 }
-interface LoomMarketplacePlugin {
+interface WeftMarketplacePlugin {
   name: string;
   source: string;
   description?: string;
@@ -33,11 +33,11 @@ interface LoomMarketplacePlugin {
   category?: string;
   tags?: string[];
 }
-interface LoomMarketplace {
+interface WeftMarketplace {
   name: string;
   owner: { name: string; namespace: string; email?: string };
   description?: string;
-  plugins: LoomMarketplacePlugin[];
+  plugins: WeftMarketplacePlugin[];
 }
 
 const json = (o: unknown): string => `${JSON.stringify(o, null, 2)}\n`;
@@ -146,10 +146,10 @@ export const opencodeAdapter: HarnessAdapter = {
 
   emitCatalog(marketplace: ResolvedMarketplace): CompiledArtifact[] {
     // OpenCode reads no marketplace catalog -- do NOT synthesize a manifest it
-    // ignores. Emit a Loom-only index so the build output is inspectable; OpenCode
+    // ignores. Emit a Weft-only index so the build output is inspectable; OpenCode
     // does not consume this file.
-    const plugins: LoomMarketplacePlugin[] = marketplace.entries.map((entry) => {
-      const entryPlugin: LoomMarketplacePlugin = {
+    const plugins: WeftMarketplacePlugin[] = marketplace.entries.map((entry) => {
+      const entryPlugin: WeftMarketplacePlugin = {
         name: entry.name,
         source: entry.source.startsWith("./") ? entry.source : `./${entry.source}`,
       };
@@ -160,14 +160,14 @@ export const opencodeAdapter: HarnessAdapter = {
       return entryPlugin;
     });
 
-    const catalog: LoomMarketplace = {
+    const catalog: WeftMarketplace = {
       name: marketplace.name,
       owner: marketplace.owner,
       plugins,
     };
     if (marketplace.description) catalog.description = marketplace.description;
 
-    return [artifact("loom-marketplace.json", json(catalog), { kind: "catalog" })];
+    return [artifact("weft-marketplace.json", json(catalog), { kind: "catalog" })];
   },
 
   importNative: importOpencode,

@@ -21,14 +21,14 @@ const registry = () => new AdapterRegistry().register(claudeAdapter);
 
 let tmp: string;
 beforeAll(() => {
-  tmp = mkdtempSync(join(tmpdir(), "loom-p1t-"));
+  tmp = mkdtempSync(join(tmpdir(), "weft-p1t-"));
 });
 afterAll(() => rmSync(tmp, { recursive: true, force: true }));
 
 function writeConsumer(dir: string, depends: string): string {
   cpSync(FIXTURE, dir, { recursive: true });
   writeFileSync(
-    join(dir, "loom.yaml"),
+    join(dir, "weft.yaml"),
     `name: consumer\nversion: 1.0.0\nowner: { name: A, namespace: com.consumer }\ncomponents: []\ndepends:\n${depends}\n`,
   );
   return dir;
@@ -60,9 +60,9 @@ describe("secrets (declare-not-store, spec §11)", () => {
     // The summary contains no secret values.
     expect(JSON.stringify(res.resolved)).not.toContain("xyz");
 
-    const values = JSON.parse(readFileSync(join(cwd, ".loom/secrets.local.json"), "utf8"));
+    const values = JSON.parse(readFileSync(join(cwd, ".weft/secrets.local.json"), "utf8"));
     expect(values).toEqual({ API_KEY: "xyz", REGION: "us" });
-    expect(readFileSync(join(cwd, ".loom/.gitignore"), "utf8")).toContain("*");
+    expect(readFileSync(join(cwd, ".weft/.gitignore"), "utf8")).toContain("*");
   });
 });
 
@@ -95,7 +95,7 @@ describe("dependency resolution (spec §9.1 step 2)", () => {
     const self = writeConsumer(join(tmp, "dep-cycle"), `  - plugin: ${join(tmp, "dep-cycle")}`);
     // Make the dep id equal the consumer id to force a cycle.
     writeFileSync(
-      join(self, "loom.yaml"),
+      join(self, "weft.yaml"),
       `name: consumer\nversion: 1.0.0\nowner: { name: A, namespace: com.consumer }\ncomponents: []\ndepends:\n  - plugin: ${self}\n`,
     );
     const fb = loadPluginDir(self);
@@ -113,7 +113,7 @@ describe("remote resolution (git clone)", () => {
     // Inline identity so the test does not depend on a global git config (CI has none).
     await execa(
       "git",
-      ["-c", "user.email=ci@loom.test", "-c", "user.name=loom", "commit", "-q", "-m", "init"],
+      ["-c", "user.email=ci@weft.test", "-c", "user.name=weft", "commit", "-q", "-m", "init"],
       { cwd: repo },
     );
 

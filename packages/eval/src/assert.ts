@@ -140,7 +140,7 @@ function evaluateDifferential(a: DifferentialAssert, ctx: AssertContext): Assert
     return {
       kind: "differential",
       status: "skipped",
-      detail: "no baseline (run loom publish to snapshot one)",
+      detail: "no baseline (run weft publish to snapshot one)",
     };
   }
   const score = ctx.caseScore ?? 0;

@@ -2,11 +2,11 @@ import type { Marketplace, Plugin } from "@michaelfromyeg/weft-schema";
 import type { CompiledArtifact } from "./artifact";
 
 export interface ImportOptions {
-  /** Reverse-DNS namespace to assign (native plugins have no Loom namespace). */
+  /** Reverse-DNS namespace to assign (native plugins have no Weft namespace). */
   namespace?: string;
 }
 
-/** An existing native plugin reverse-compiled into a Loom plugin + its files. */
+/** An existing native plugin reverse-compiled into a Weft plugin + its files. */
 export interface ImportedPlugin {
   kind: "plugin";
   plugin: Plugin;
@@ -14,7 +14,7 @@ export interface ImportedPlugin {
   files: CompiledArtifact[];
 }
 
-/** An existing native marketplace reverse-compiled into a Loom marketplace. */
+/** An existing native marketplace reverse-compiled into a Weft marketplace. */
 export interface ImportedMarketplace {
   kind: "marketplace";
   marketplace: Marketplace;

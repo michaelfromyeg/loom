@@ -1,7 +1,7 @@
 import type { Options } from "tsup";
 
-/** Shared tsup options for every Loom package. Workspace deps stay external. */
-export function loomTsup(overrides: Options = {}): Options {
+/** Shared tsup options for every Weft package. Workspace deps stay external. */
+export function weftTsup(overrides: Options = {}): Options {
   return {
     entry: ["src/index.ts"],
     format: ["esm"],

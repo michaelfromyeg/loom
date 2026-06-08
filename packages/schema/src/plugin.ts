@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-/** The five coding-agent harnesses Loom compiles to. */
+/** The five coding-agent harnesses Weft compiles to. */
 export const Target = z.enum(["claude", "codex", "cursor", "copilot", "opencode"]);
 export type Target = z.infer<typeof Target>;
 
@@ -83,14 +83,14 @@ export const Trust = z.object({
 });
 export type Trust = z.infer<typeof Trust>;
 
-/** `loom.yaml` — the single file an author writes. */
+/** `weft.yaml` — the single file an author writes. */
 export const Plugin = z.object({
   name: z.string().regex(/^[a-z0-9-]+$/, "plugin name must be kebab-case"),
   version: z.string(),
   owner: Owner,
   description: z.string().optional(),
   license: z.string().optional(),
-  loom_min_version: z.string().optional(),
+  weft_min_version: z.string().optional(),
   components: z.array(Component),
   depends: z.array(Dependency).optional(),
   trust: Trust.optional(),

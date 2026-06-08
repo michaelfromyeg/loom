@@ -1,7 +1,7 @@
 {
   "name": "@michaelfromyeg/weft-adapter-opencode",
   "version": "0.3.0",
-  "description": "Loom adapter for OpenCode: directory-convention placement + opencode.json mcp block.",
+  "description": "Weft adapter for OpenCode: directory-convention placement + opencode.json mcp block.",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
@@ -27,17 +27,17 @@
   },
   "license": "MIT",
   "author": "Michael DeMarco",
-  "homepage": "https://github.com/michaelfromyeg/loom#readme",
+  "homepage": "https://github.com/michaelfromyeg/weft#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/michaelfromyeg/loom.git",
+    "url": "git+https://github.com/michaelfromyeg/weft.git",
     "directory": "packages/adapter-opencode"
   },
   "bugs": {
-    "url": "https://github.com/michaelfromyeg/loom/issues"
+    "url": "https://github.com/michaelfromyeg/weft/issues"
   },
   "keywords": [
-    "loom",
+    "weft",
     "coding-agent",
     "ai-agent",
     "claude-code",

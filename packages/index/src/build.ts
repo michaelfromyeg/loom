@@ -12,7 +12,7 @@ export interface IndexPluginInput {
 }
 
 /**
- * Build a `loom.index/1` from per-version plugin metadata (spec §10). Entries are
+ * Build a `weft.index/1` from per-version plugin metadata (spec §10). Entries are
  * grouped by id and accumulate versions; the index is metadata only -- it never
  * hosts plugin contents.
  */
@@ -34,7 +34,7 @@ export function buildIndex(
     byId.set(p.id, entry);
   }
   return {
-    schema: "loom.index/1",
+    schema: "weft.index/1",
     plugins: [...byId.values()],
     ...(federated && federated.length > 0 ? { federated } : {}),
   };

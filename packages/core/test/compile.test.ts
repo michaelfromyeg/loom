@@ -25,7 +25,7 @@ const CLAUDE_AVAILABLE = await execa("claude", ["--version"])
 
 let tmp: string;
 beforeAll(() => {
-  tmp = mkdtempSync(join(tmpdir(), "loom-test-"));
+  tmp = mkdtempSync(join(tmpdir(), "weft-test-"));
 });
 afterAll(() => {
   rmSync(tmp, { recursive: true, force: true });
@@ -97,8 +97,8 @@ describe("install", () => {
     });
 
     // The lock lives at the install target (sandbox), not the source plugin dir.
-    expect(existsSync(join(pluginDir, "loom.lock"))).toBe(false);
-    expect(existsSync(join(sandbox, "loom.lock"))).toBe(true);
+    expect(existsSync(join(pluginDir, "weft.lock"))).toBe(false);
+    expect(existsSync(join(sandbox, "weft.lock"))).toBe(true);
     expect(r.lockfile.artifacts).toHaveLength(3);
     expect(r.lockfile.plugins).toHaveLength(1);
     expect(r.lockfile.adapters.claude?.targetSchema).toBe("claude-code-plugin/2.1");
@@ -107,7 +107,7 @@ describe("install", () => {
     ).toBe(true);
 
     // The on-disk lockfile round-trips through the schema.
-    const lock = JSON.parse(readFileSync(join(sandbox, "loom.lock"), "utf8"));
+    const lock = JSON.parse(readFileSync(join(sandbox, "weft.lock"), "utf8"));
     expect(lock.generatedAt).toBe("2026-01-01T00:00:00.000Z");
     expect(lock.artifacts.every((a: { enabled: boolean }) => a.enabled === true)).toBe(true);
   });

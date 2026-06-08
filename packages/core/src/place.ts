@@ -57,7 +57,7 @@ export function placeCatalog(
 }
 
 /**
- * `loom build` placement for a single plugin (spec §9.1 step 6, inspect-only):
+ * `weft build` placement for a single plugin (spec §9.1 step 6, inspect-only):
  * writes the plugin tree at `outDir/<target>/plugins/<plugin>/` plus a synthetic
  * one-entry catalog at the target root, leaving harness install dirs untouched.
  */
@@ -117,7 +117,7 @@ export function planScopeArtifacts(
   return planned;
 }
 
-/** `loom install` placement (spec §9.1 step 6): write every artifact, record each. */
+/** `weft install` placement (spec §9.1 step 6): write every artifact, record each. */
 export function installToScope(result: CompileResult, scope: Scope, cwd: string): ArtifactRecord[] {
   return planScopeArtifacts(result, scope, cwd).map(({ record, contents }) => {
     mkdirSync(dirname(record.path), { recursive: true });

@@ -1,7 +1,7 @@
 {
   "name": "@michaelfromyeg/weft-adapter-copilot",
   "version": "0.3.0",
-  "description": "Loom adapter for GitHub Copilot CLI: plugin.json + mcp-config + component placement.",
+  "description": "Weft adapter for GitHub Copilot CLI: plugin.json + mcp-config + component placement.",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
@@ -27,17 +27,17 @@
   },
   "license": "MIT",
   "author": "Michael DeMarco",
-  "homepage": "https://github.com/michaelfromyeg/loom#readme",
+  "homepage": "https://github.com/michaelfromyeg/weft#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/michaelfromyeg/loom.git",
+    "url": "git+https://github.com/michaelfromyeg/weft.git",
     "directory": "packages/adapter-copilot"
   },
   "bugs": {
-    "url": "https://github.com/michaelfromyeg/loom/issues"
+    "url": "https://github.com/michaelfromyeg/weft/issues"
   },
   "keywords": [
-    "loom",
+    "weft",
     "coding-agent",
     "ai-agent",
     "claude-code",

@@ -168,7 +168,7 @@ export async function runEval(opts: RunEvalOptions): Promise<EvalReport> {
     }
 
     const baselineScore = loadBaseline(opts.pluginDir, evalFile.component, harness)?.score;
-    const scratch = mkdtempSync(join(opts.scratchRoot ?? tmpdir(), `loom-eval-${harness}-`));
+    const scratch = mkdtempSync(join(opts.scratchRoot ?? tmpdir(), `weft-eval-${harness}-`));
     try {
       await install({
         pluginDir: opts.pluginDir,

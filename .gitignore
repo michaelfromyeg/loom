@@ -5,9 +5,9 @@ coverage/
 .DS_Store
 *.log
 
-# Loom build output / local install artifacts in test sandboxes
-.loom-out/
-.loom-sandbox/
+# Weft build output / local install artifacts in test sandboxes
+.weft-out/
+.weft-sandbox/
 
 # never commit resolved secrets
 .env
@@ -18,11 +18,11 @@ coverage/
 packages/schema/schemas/
 
 # fixture install artifacts (never commit; machine-specific paths)
-fixtures/**/loom.lock
-fixtures/**/.loom/
-fixtures/**/loom.sig
-fixtures/**/loom.pub
+fixtures/**/weft.lock
+fixtures/**/.weft/
+fixtures/**/weft.sig
+fixtures/**/weft.pub
 
 # marketplace install artifacts (written when installing the repo's own marketplace)
-marketplace/**/loom.lock
-marketplace/**/.loom/
+marketplace/**/weft.lock
+marketplace/**/.weft/

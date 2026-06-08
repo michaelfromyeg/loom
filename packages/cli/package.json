@@ -1,10 +1,10 @@
 {
   "name": "@michaelfromyeg/weft-cli",
   "version": "0.3.0",
-  "description": "The `loom` CLI: a thin shell over @michaelfromyeg/weft-core and the harness adapters.",
+  "description": "The `weft` CLI: a thin shell over @michaelfromyeg/weft-core and the harness adapters.",
   "type": "module",
   "bin": {
-    "loom": "./dist/index.js"
+    "weft": "./dist/index.js"
   },
   "main": "./dist/index.js",
   "files": [
@@ -28,17 +28,17 @@
   },
   "license": "MIT",
   "author": "Michael DeMarco",
-  "homepage": "https://github.com/michaelfromyeg/loom#readme",
+  "homepage": "https://github.com/michaelfromyeg/weft#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/michaelfromyeg/loom.git",
+    "url": "git+https://github.com/michaelfromyeg/weft.git",
     "directory": "packages/cli"
   },
   "bugs": {
-    "url": "https://github.com/michaelfromyeg/loom/issues"
+    "url": "https://github.com/michaelfromyeg/weft/issues"
   },
   "keywords": [
-    "loom",
+    "weft",
     "coding-agent",
     "ai-agent",
     "claude-code",

@@ -5,7 +5,7 @@ import { renderCliReference } from "../src/cli-docs";
 describe("CLI reference generator", () => {
   it("renders every subcommand and its options from the command tree", async () => {
     const main = defineCommand({
-      meta: { name: "loom", description: "Author once." },
+      meta: { name: "weft", description: "Author once." },
       subCommands: {
         build: defineCommand({
           meta: { name: "build", description: "Compile a plugin" },
@@ -18,9 +18,9 @@ describe("CLI reference generator", () => {
     });
 
     const md = await renderCliReference(main);
-    expect(md).toContain("# Loom CLI reference");
-    expect(md).toContain("## `loom build`");
-    expect(md).toContain("## `loom install`");
+    expect(md).toContain("# Weft CLI reference");
+    expect(md).toContain("## `weft build`");
+    expect(md).toContain("## `weft install`");
     expect(md).toContain("Compile a plugin");
     expect(md).toContain("Output directory");
   });

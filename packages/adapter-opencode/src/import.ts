@@ -55,7 +55,7 @@ function copyTree(
   return out;
 }
 
-/** A Loom source string from a Loom-marketplace `source` (string or object). */
+/** A Weft source string from a Weft-marketplace `source` (string or object). */
 function sourceToString(source: unknown): string {
   if (typeof source === "string") return source;
   const s = source as Record<string, unknown>;
@@ -206,12 +206,12 @@ function importMarketplace(
   return { kind: "marketplace", marketplace };
 }
 
-/** Reverse-compile an OpenCode plugin or Loom-marketplace dir into the Loom model. */
+/** Reverse-compile an OpenCode plugin or Weft-marketplace dir into the Weft model. */
 export function importOpencode(dir: string, opts?: ImportOptions): ImportResult | null {
   const namespace = opts?.namespace ?? "com.imported";
 
-  // OpenCode has no native marketplace; the adapter emits a Loom-only catalog.
-  const marketplace = readJson(join(dir, "loom-marketplace.json"));
+  // OpenCode has no native marketplace; the adapter emits a Weft-only catalog.
+  const marketplace = readJson(join(dir, "weft-marketplace.json"));
   if (marketplace) return importMarketplace(marketplace, namespace);
 
   // Directory convention: any plural component dir makes this an importable plugin.

@@ -9,7 +9,7 @@ import {
   SkillComponent,
 } from "./plugin";
 
-/** The key that names each component variant in `loom.yaml`. */
+/** The key that names each component variant in `weft.yaml`. */
 const KIND_KEYS: Record<ComponentKind, string> = {
   skill: "skill",
   mcp: "mcp",

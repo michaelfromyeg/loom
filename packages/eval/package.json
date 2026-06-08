@@ -1,7 +1,7 @@
 {
   "name": "@michaelfromyeg/weft-eval",
   "version": "0.3.0",
-  "description": "Loom eval runner + headless HarnessDriver implementations (real harnesses, local-first).",
+  "description": "Weft eval runner + headless HarnessDriver implementations (real harnesses, local-first).",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
@@ -26,17 +26,17 @@
   },
   "license": "MIT",
   "author": "Michael DeMarco",
-  "homepage": "https://github.com/michaelfromyeg/loom#readme",
+  "homepage": "https://github.com/michaelfromyeg/weft#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/michaelfromyeg/loom.git",
+    "url": "git+https://github.com/michaelfromyeg/weft.git",
     "directory": "packages/eval"
   },
   "bugs": {
-    "url": "https://github.com/michaelfromyeg/loom/issues"
+    "url": "https://github.com/michaelfromyeg/weft/issues"
   },
   "keywords": [
-    "loom",
+    "weft",
     "coding-agent",
     "ai-agent",
     "claude-code",

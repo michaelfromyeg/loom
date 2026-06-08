@@ -27,7 +27,7 @@ const registry = () => new AdapterRegistry().register(claudeAdapter);
 
 let tmp: string;
 beforeAll(() => {
-  tmp = mkdtempSync(join(tmpdir(), "loom-units-"));
+  tmp = mkdtempSync(join(tmpdir(), "weft-units-"));
 });
 afterAll(() => {
   rmSync(tmp, { recursive: true, force: true });
@@ -38,7 +38,7 @@ describe("checkMinVersion", () => {
     expect(checkMinVersion(undefined)).toBeNull();
   });
 
-  it("returns null when the running Loom satisfies the minimum", () => {
+  it("returns null when the running Weft satisfies the minimum", () => {
     expect(checkMinVersion("0.0.1")).toBeNull();
   });
 
@@ -51,7 +51,7 @@ describe("checkMinVersion", () => {
   it("coerces a loose-but-resolvable minimum rather than rejecting it", () => {
     // semver.coerce("not-a-version") finds no digits -> invalid semver message.
     const msg = checkMinVersion("not-a-version");
-    expect(msg).toBe('loom_min_version "not-a-version" is not a valid semver');
+    expect(msg).toBe('weft_min_version "not-a-version" is not a valid semver');
   });
 });
 
@@ -150,12 +150,12 @@ describe("lockfile round-trip", () => {
       now: "2026-01-01T00:00:00.000Z",
     });
 
-    const dir = mkdtempSync(join(tmpdir(), "loom-units-rt-"));
+    const dir = mkdtempSync(join(tmpdir(), "weft-units-rt-"));
     writeLock(dir, lockfile);
     expect(readLock(dir)).toEqual(lockfile);
     rmSync(dir, { recursive: true, force: true });
 
-    const empty = mkdtempSync(join(tmpdir(), "loom-units-empty-"));
+    const empty = mkdtempSync(join(tmpdir(), "weft-units-empty-"));
     expect(readLock(empty)).toBeNull();
     rmSync(empty, { recursive: true, force: true });
   });
@@ -174,7 +174,7 @@ describe("marketplace loader", () => {
   });
 
   it("fails on a directory with no marketplace manifest", () => {
-    const empty = mkdtempSync(join(tmpdir(), "loom-units-mp-"));
+    const empty = mkdtempSync(join(tmpdir(), "weft-units-mp-"));
     expect(loadMarketplaceDir(empty).ok).toBe(false);
     rmSync(empty, { recursive: true, force: true });
   });
@@ -198,7 +198,7 @@ describe("installMarketplace", () => {
     expect(marketplace.name).toBe("acme-tools");
     expect(installs).toHaveLength(2);
     // One combined lock at the install target records both plugins.
-    expect(lockPath).toBe(join(cwd, "loom.lock"));
+    expect(lockPath).toBe(join(cwd, "weft.lock"));
     expect(lockfile.plugins).toHaveLength(2);
     // Every plugin actually placed artifacts on disk.
     for (const i of installs) {

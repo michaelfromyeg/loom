@@ -160,7 +160,7 @@ describe("codex adapter emitManifest", () => {
 });
 
 describe("codex adapter emitCatalog", () => {
-  it("emits a best-effort loom-marketplace.json index", () => {
+  it("emits a best-effort weft-marketplace.json index", () => {
     const arts = codexAdapter.emitCatalog({
       name: "sample-plugin",
       owner: plugin.owner,
@@ -171,7 +171,7 @@ describe("codex adapter emitCatalog", () => {
       ],
     });
     expect(arts).toHaveLength(1);
-    expect(arts[0].relPath).toBe("loom-marketplace.json");
+    expect(arts[0].relPath).toBe("weft-marketplace.json");
     expect(arts[0].kind).toBe("catalog");
     const catalog = JSON.parse(arts[0].contents.toString());
     expect(catalog.owner).toEqual({ name: "Acme", email: "a@acme.example" });

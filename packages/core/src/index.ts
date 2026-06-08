@@ -82,4 +82,4 @@ export {
   verifyLockSignature,
 } from "./sign";
 export { validatePlugin } from "./validate";
-export { checkMinVersion, LOOM_VERSION } from "./version";
+export { checkMinVersion, WEFT_VERSION } from "./version";

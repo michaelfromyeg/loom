@@ -35,7 +35,7 @@ function fakeClaude(transcript: Transcript): HarnessDriver {
 
 let tmp: string;
 beforeAll(() => {
-  tmp = mkdtempSync(join(tmpdir(), "loom-evp3-"));
+  tmp = mkdtempSync(join(tmpdir(), "weft-evp3-"));
 });
 afterAll(() => rmSync(tmp, { recursive: true, force: true }));
 

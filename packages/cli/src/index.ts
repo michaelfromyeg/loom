@@ -10,7 +10,7 @@ import {
   importNativePlugin,
   install,
   installMarketplace,
-  LOOM_VERSION,
+  WEFT_VERSION,
   lint,
   lockDirForScope,
   readLock,
@@ -67,7 +67,7 @@ function fail(err: unknown): never {
 }
 
 const initCmd = defineCommand({
-  meta: { name: "init", description: "Scaffold a new plugin (loom.yaml + a sample skill)" },
+  meta: { name: "init", description: "Scaffold a new plugin (weft.yaml + a sample skill)" },
   args: {
     dir: { type: "positional", required: false, default: ".", description: "Target directory" },
     name: { type: "string", description: "Plugin name (kebab-case)" },
@@ -81,7 +81,7 @@ const initCmd = defineCommand({
     });
     log.info(`Scaffolded plugin "${created.name}" in ${created.dir}`);
     for (const f of created.files) log.info(`  + ${f}`);
-    log.info(`\nNext: loom validate ${args.dir} && loom build ${args.dir}`);
+    log.info(`\nNext: weft validate ${args.dir} && weft build ${args.dir}`);
   },
 });
 
@@ -119,7 +119,7 @@ const buildCmd = defineCommand({
       default: ".",
       description: "Local dir, or a remote ref (github:/npm:/owner/repo, optional //subdir)",
     },
-    out: { type: "string", default: ".loom-out", description: "Output directory" },
+    out: { type: "string", default: ".weft-out", description: "Output directory" },
     target: { type: "string", description: "Comma-separated targets (default: all registered)" },
   },
   async run({ args }) {
@@ -416,27 +416,27 @@ const signCmd = defineCommand({
   meta: {
     name: "sign",
     description:
-      "Sign loom.lock's artifact set (ed25519) -> loom.sig + loom.pub (the signed badge)",
+      "Sign weft.lock's artifact set (ed25519) -> weft.sig + weft.pub (the signed badge)",
   },
   args: {
     dir: {
       type: "positional",
       required: false,
       default: ".",
-      description: "Plugin dir with loom.lock",
+      description: "Plugin dir with weft.lock",
     },
   },
   run({ args }) {
     try {
       const lock = readLock(args.dir);
       if (!lock) {
-        log.error("no loom.lock found (run `loom install` first)");
+        log.error("no weft.lock found (run `weft install` first)");
         process.exit(1);
       }
-      const loomDir = join(args.dir, ".loom");
-      mkdirSync(loomDir, { recursive: true });
-      writeFileSync(join(loomDir, ".gitignore"), "*\n");
-      const keyPath = join(loomDir, "signing.key");
+      const weftDir = join(args.dir, ".weft");
+      mkdirSync(weftDir, { recursive: true });
+      writeFileSync(join(weftDir, ".gitignore"), "*\n");
+      const keyPath = join(weftDir, "signing.key");
 
       let privateKey: ReturnType<typeof createPrivateKey>;
       if (existsSync(keyPath)) {
@@ -446,13 +446,13 @@ const signCmd = defineCommand({
         privateKey = keys.privateKey;
         writeFileSync(keyPath, keys.privateKey.export({ type: "pkcs8", format: "pem" }));
         writeFileSync(
-          join(args.dir, "loom.pub"),
+          join(args.dir, "weft.pub"),
           keys.publicKey.export({ type: "spki", format: "pem" }),
         );
       }
-      writeFileSync(join(args.dir, "loom.sig"), `${signLock(lock, privateKey)}\n`);
+      writeFileSync(join(args.dir, "weft.sig"), `${signLock(lock, privateKey)}\n`);
       log.info(
-        `Signed ${lock.artifacts.length} artifacts -> loom.sig (key kept in .loom/, public key in loom.pub)`,
+        `Signed ${lock.artifacts.length} artifacts -> weft.sig (key kept in .weft/, public key in weft.pub)`,
       );
     } catch (err) {
       fail(err);
@@ -463,25 +463,25 @@ const signCmd = defineCommand({
 const verifyCmd = defineCommand({
   meta: {
     name: "verify",
-    description: "Verify loom.sig against loom.lock and the on-disk artifacts",
+    description: "Verify weft.sig against weft.lock and the on-disk artifacts",
   },
   args: {
     dir: {
       type: "positional",
       required: false,
       default: ".",
-      description: "Plugin dir with loom.lock",
+      description: "Plugin dir with weft.lock",
     },
   },
   run({ args }) {
     try {
       const lock = readLock(args.dir);
       if (!lock) {
-        log.error("no loom.lock found");
+        log.error("no weft.lock found");
         process.exit(1);
       }
-      const sig = readFileSync(join(args.dir, "loom.sig"), "utf8").trim();
-      const publicKey = createPublicKey(readFileSync(join(args.dir, "loom.pub")));
+      const sig = readFileSync(join(args.dir, "weft.sig"), "utf8").trim();
+      const publicKey = createPublicKey(readFileSync(join(args.dir, "weft.pub")));
       const res = verifyArtifacts(lock, publicKey, sig);
       log.data({ signatureValid: res.signatureValid, tampered: res.tampered });
       log.info(`signature: ${res.signatureValid ? "valid" : "INVALID"}`);
@@ -532,7 +532,7 @@ const indexCmd = defineCommand({
 const importCmd = defineCommand({
   meta: {
     name: "import",
-    description: "Reverse-compile an existing native plugin/marketplace into a Loom plugin",
+    description: "Reverse-compile an existing native plugin/marketplace into a Weft plugin",
   },
   args: {
     dir: {
@@ -570,7 +570,7 @@ const importCmd = defineCommand({
       });
       log.info(`Imported ${res.kind} "${res.name}" -> ${res.manifestPath}`);
       if (res.kind === "plugin") log.info(`  ${res.fileCount} component file(s)`);
-      log.info(`  next: loom build ${res.outDir}`);
+      log.info(`  next: weft build ${res.outDir}`);
     } catch (err) {
       fail(err);
     }
@@ -580,14 +580,14 @@ const importCmd = defineCommand({
 const uninstallCmd = defineCommand({
   meta: {
     name: "uninstall",
-    description: "Remove what install placed into this project (read from its loom.lock)",
+    description: "Remove what install placed into this project (read from its weft.lock)",
   },
   args: {
     dir: {
       type: "positional",
       required: false,
       default: ".",
-      description: "Install target holding loom.lock (default: derived from --scope)",
+      description: "Install target holding weft.lock (default: derived from --scope)",
     },
     scope: { type: "string", default: "project", description: "user | project" },
     plugin: {
@@ -599,7 +599,7 @@ const uninstallCmd = defineCommand({
     try {
       const scope = (args.scope === "user" ? "user" : "project") as Scope;
       // An explicit dir wins; otherwise read the lock from the scope's target
-      // (the project cwd for project scope, ~/.loom for user scope).
+      // (the project cwd for project scope, ~/.weft for user scope).
       const dir = args.dir === "." ? lockDirForScope(scope, process.cwd()) : args.dir;
       const res = uninstall({ dir, ...(args.plugin ? { plugin: args.plugin } : {}) });
       log.data({ removed: res.removed, plugins: res.plugins });
@@ -634,8 +634,8 @@ const docsCmd = defineCommand({
 
 const main = defineCommand({
   meta: {
-    name: "loom",
-    version: LOOM_VERSION,
+    name: "weft",
+    version: WEFT_VERSION,
     description: "Author once, compile to every coding-agent harness.",
   },
   subCommands: {

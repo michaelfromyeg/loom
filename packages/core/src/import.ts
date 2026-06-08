@@ -7,7 +7,7 @@ export interface ImportPluginOptions {
   /** Directory holding an existing native plugin or marketplace. */
   dir: string;
   adapter: HarnessAdapter;
-  /** Where to write the generated Loom plugin/marketplace. */
+  /** Where to write the generated Weft plugin/marketplace. */
   outDir: string;
   /** Reverse-DNS namespace to assign (native assets lack one). */
   namespace?: string;
@@ -23,8 +23,8 @@ export interface ImportOutput {
 }
 
 /**
- * Reverse-compile an existing native plugin/marketplace into the Loom model and
- * write it to `outDir`, ready for `loom build` to cross-compile to every other
+ * Reverse-compile an existing native plugin/marketplace into the Weft model and
+ * write it to `outDir`, ready for `weft build` to cross-compile to every other
  * harness. This is "federate, don't wall off" applied to assets you already have.
  */
 export function importNativePlugin(opts: ImportPluginOptions): ImportOutput {
@@ -49,7 +49,7 @@ export function importNativePlugin(opts: ImportPluginOptions): ImportOutput {
     };
   }
 
-  const manifestPath = join(opts.outDir, "loom.yaml");
+  const manifestPath = join(opts.outDir, "weft.yaml");
   writeFileSync(manifestPath, stringifyDocument(result.plugin));
   for (const f of result.files) {
     const abs = join(opts.outDir, f.relPath);

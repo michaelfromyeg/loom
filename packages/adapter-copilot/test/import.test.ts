@@ -9,7 +9,7 @@ import copilotAdapter from "../src/index";
 
 let tmp: string;
 beforeAll(() => {
-  tmp = mkdtempSync(join(tmpdir(), "loom-copilot-import-"));
+  tmp = mkdtempSync(join(tmpdir(), "weft-copilot-import-"));
 });
 afterAll(() => rmSync(tmp, { recursive: true, force: true }));
 
@@ -19,7 +19,7 @@ function write(path: string, contents: string) {
 }
 
 describe("importCopilot round-trip", () => {
-  it("imports a Loom-built copilot plugin back into a valid Loom plugin", async () => {
+  it("imports a Weft-built copilot plugin back into a valid Weft plugin", async () => {
     const pluginDir = fileURLToPath(new URL("../../../fixtures/sample-plugin", import.meta.url));
     const outDir = join(tmp, "built");
     await build({
@@ -36,14 +36,14 @@ describe("importCopilot round-trip", () => {
     // The verbatim mcp/weather/server.json must be reused (not reconstructed).
     expect(res.files.find((f) => f.relPath === "mcp/weather/server.json")).toBeDefined();
 
-    const loomOut = join(tmp, "loom-out");
+    const weftOut = join(tmp, "weft-out");
     importNativePlugin({
       dir: builtPluginDir,
       adapter: copilotAdapter,
-      outDir: loomOut,
+      outDir: weftOut,
       namespace: "com.acme",
     });
-    const linted = lint(loomOut);
+    const linted = lint(weftOut);
     expect(linted.diagnostics.hasErrors).toBe(false);
     const refs = linted.plugin.components.map((c) => Object.values(c)[0]);
     expect(refs).toContain("skills/code-review");
@@ -147,7 +147,7 @@ describe("importCopilot plugin", () => {
 });
 
 describe("importCopilot marketplace", () => {
-  it("maps every Copilot source form to a Loom source string", () => {
+  it("maps every Copilot source form to a Weft source string", () => {
     const dir = join(tmp, "mkt");
     write(
       join(dir, ".copilot-plugin/marketplace.json"),

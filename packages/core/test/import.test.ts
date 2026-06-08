@@ -20,18 +20,18 @@ const registry = () => new AdapterRegistry().register(claudeAdapter);
 
 let tmp: string;
 beforeAll(() => {
-  tmp = mkdtempSync(join(tmpdir(), "loom-import-"));
+  tmp = mkdtempSync(join(tmpdir(), "weft-import-"));
 });
 afterAll(() => rmSync(tmp, { recursive: true, force: true }));
 
-describe("loom import (reverse-compile native -> Loom)", () => {
-  it("round-trips a Claude plugin back into a valid Loom plugin", async () => {
-    // Loom -> Claude plugin.
+describe("weft import (reverse-compile native -> Weft)", () => {
+  it("round-trips a Claude plugin back into a valid Weft plugin", async () => {
+    // Weft -> Claude plugin.
     const built = join(tmp, "built");
     await build({ pluginDir: PLUGIN, outDir: built, registry: registry(), targets: ["claude"] });
     const claudePlugin = join(built, "claude/plugins/sample-plugin");
 
-    // Claude plugin -> Loom.
+    // Claude plugin -> Weft.
     const out = join(tmp, "imported");
     const res = importNativePlugin({
       dir: claudePlugin,
@@ -40,7 +40,7 @@ describe("loom import (reverse-compile native -> Loom)", () => {
       namespace: "com.acme",
     });
     expect(res.kind).toBe("plugin");
-    expect(existsSync(join(out, "loom.yaml"))).toBe(true);
+    expect(existsSync(join(out, "weft.yaml"))).toBe(true);
 
     // The imported plugin is valid and has both components back.
     const linted = lint(out);
@@ -59,7 +59,7 @@ describe("loom import (reverse-compile native -> Loom)", () => {
   });
 
   it("throws when the directory is not the adapter's native format", () => {
-    const empty = mkdtempSync(join(tmpdir(), "loom-empty-"));
+    const empty = mkdtempSync(join(tmpdir(), "weft-empty-"));
     expect(() =>
       importNativePlugin({ dir: empty, adapter: claudeAdapter, outDir: join(tmp, "y") }),
     ).toThrow(/no claude/);
@@ -87,7 +87,7 @@ describe("loom import (reverse-compile native -> Loom)", () => {
   });
 });
 
-describe("loom uninstall", () => {
+describe("weft uninstall", () => {
   it("removes everything install placed and deletes the lockfile", async () => {
     const pluginDir = join(tmp, "u-plugin");
     const sandbox = join(tmp, "u-sandbox");
@@ -101,7 +101,7 @@ describe("loom uninstall", () => {
     const res = uninstall({ dir: sandbox });
     expect(res.removed.length).toBe(3);
     expect(existsSync(join(sandbox, ".claude/plugins/sample-plugin"))).toBe(false);
-    expect(existsSync(join(sandbox, "loom.lock"))).toBe(false);
+    expect(existsSync(join(sandbox, "weft.lock"))).toBe(false);
   });
 
   it("errors when there is no lockfile", () => {

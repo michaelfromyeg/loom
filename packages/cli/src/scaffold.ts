@@ -22,12 +22,12 @@ function kebab(s: string): string {
   );
 }
 
-/** Create a minimal, valid plugin: loom.yaml + one sample skill. Never clobbers. */
+/** Create a minimal, valid plugin: weft.yaml + one sample skill. Never clobbers. */
 export function scaffoldPlugin(opts: ScaffoldOptions): ScaffoldResult {
   const dir = resolve(opts.dir);
   mkdirSync(dir, { recursive: true });
 
-  const manifestPath = join(dir, "loom.yaml");
+  const manifestPath = join(dir, "weft.yaml");
   if (existsSync(manifestPath)) {
     throw new Error(`a plugin already exists at ${manifestPath}`);
   }
@@ -36,16 +36,16 @@ export function scaffoldPlugin(opts: ScaffoldOptions): ScaffoldResult {
   const namespace = opts.namespace ?? "com.example";
   const files: string[] = [];
 
-  const loomYaml = `name: ${name}
+  const weftYaml = `name: ${name}
 version: 0.1.0
 owner:
   name: Your Name
   namespace: ${namespace}
-description: A Loom plugin.
+description: A Weft plugin.
 components:
   - skill: skills/hello
 `;
-  writeFileSync(manifestPath, loomYaml);
+  writeFileSync(manifestPath, weftYaml);
   files.push(relative(dir, manifestPath));
 
   const skillDir = join(dir, "skills", "hello");

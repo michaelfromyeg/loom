@@ -192,7 +192,7 @@ export interface InstallOptions {
   managed?: ManagedPolicy;
   /** Badges known for this plugin (for managed `requireBadges`). */
   badges?: Badge[];
-  /** Where to write `loom.lock` (default: the plugin dir). Eval points this at a scratch dir. */
+  /** Where to write `weft.lock` (default: the plugin dir). Eval points this at a scratch dir. */
   lockDir?: string;
   /** Inject the lockfile timestamp for deterministic tests. */
   now?: string;
@@ -248,7 +248,7 @@ function installResolved(
   return { result, entry, secrets };
 }
 
-/** Merge install entries into the target's `loom.lock` and write it once. */
+/** Merge install entries into the target's `weft.lock` and write it once. */
 function commitLock(
   scope: Scope,
   cwd: string,
@@ -262,7 +262,7 @@ function commitLock(
   return { lockfile, lockPath: writeLock(dir, lockfile) };
 }
 
-/** Compile a plugin, place it into the scope, resolve config, write the target `loom.lock`. */
+/** Compile a plugin, place it into the scope, resolve config, write the target `weft.lock`. */
 export async function install(opts: InstallOptions): Promise<InstallResult> {
   const { fb, dependencies } = await loadResolved(opts.pluginDir);
   const { ref, sha } = await gitInfo(opts.pluginDir);
@@ -310,7 +310,7 @@ export interface InstallMarketplaceResult {
 /**
  * Install every plugin in a marketplace into the scope in one pass (the
  * company-marketplace install). Each plugin is resolved (local or remote),
- * compiled, and placed; all of them land in a single target `loom.lock`,
+ * compiled, and placed; all of them land in a single target `weft.lock`,
  * mirroring a single-plugin install at marketplace scale (same primitives).
  */
 export async function installMarketplace(
@@ -362,7 +362,7 @@ export async function installMarketplace(
 }
 
 export interface UninstallOptions {
-  /** The install target that holds loom.lock (project root for project scope). */
+  /** The install target that holds weft.lock (project root for project scope). */
   dir: string;
   /** Optionally remove just one plugin (by id or bare name); default removes all. */
   plugin?: string;
@@ -393,7 +393,7 @@ function pruneEmptyDirs(paths: string[]): void {
 
 /**
  * Remove what `install` placed into a target, using the paths recorded in the
- * target's `loom.lock` (spec §6.3). Removes one plugin (by id or bare name) or
+ * target's `weft.lock` (spec §6.3). Removes one plugin (by id or bare name) or
  * all of them; deletes the lock when nothing is left, else rewrites the rest.
  * Errors are defined out of existence: a missing artifact is simply skipped.
  */
@@ -401,7 +401,7 @@ export function uninstall(opts: UninstallOptions): UninstallResult {
   const lock = readLock(opts.dir);
   if (!lock) {
     throw new CompileError("nothing to uninstall", [
-      { severity: "error", where: "loom.lock", message: `no loom.lock found in ${opts.dir}` },
+      { severity: "error", where: "weft.lock", message: `no weft.lock found in ${opts.dir}` },
     ]);
   }
   const match = opts.plugin;
@@ -413,7 +413,7 @@ export function uninstall(opts: UninstallOptions): UninstallResult {
   );
   if (match && ids.size === 0) {
     throw new CompileError(`plugin "${match}" is not installed here`, [
-      { severity: "error", where: "loom.lock", message: `no plugin matching "${match}"` },
+      { severity: "error", where: "weft.lock", message: `no plugin matching "${match}"` },
     ]);
   }
 
@@ -429,7 +429,7 @@ export function uninstall(opts: UninstallOptions): UninstallResult {
 
   const remaining = lock.plugins.filter((p) => !ids.has(p.id));
   if (remaining.length === 0) {
-    rmSync(join(opts.dir, "loom.lock"), { force: true });
+    rmSync(join(opts.dir, "weft.lock"), { force: true });
   } else {
     writeLock(opts.dir, {
       ...lock,
@@ -451,7 +451,7 @@ export interface UpdateResult {
 
 /**
  * Re-resolve refs, recompile a plugin source, diff its artifact content hashes
- * against the target `loom.lock`, and re-place ONLY changed artifacts (spec §5,
+ * against the target `weft.lock`, and re-place ONLY changed artifacts (spec §5,
  * §9.3); its entry is then merged back into the target lock. Content addressing
  * makes "is there really a new version?" exact: unchanged artifacts are not rewritten.
  */

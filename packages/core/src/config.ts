@@ -50,7 +50,7 @@ export function resolveConfig(
 
   if (Object.keys(values).length === 0) return { resolved, path: null };
 
-  const dir = join(cwd, ".loom");
+  const dir = join(cwd, ".weft");
   mkdirSync(dir, { recursive: true });
   // Gitignore the whole local-config dir so resolved values never get committed.
   writeFileSync(join(dir, ".gitignore"), "*\n");

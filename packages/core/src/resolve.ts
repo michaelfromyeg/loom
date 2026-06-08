@@ -13,7 +13,7 @@ export type Source =
   | { kind: "npm"; pkg: string; version?: string; subdir?: string };
 
 /** Where cloned/fetched remote plugins are cached. */
-export const CACHE_DIR = join(homedir(), ".loom", "cache");
+export const CACHE_DIR = join(homedir(), ".weft", "cache");
 
 /**
  * Split a remote ref into its base, an optional `//subdir` (a plugin/marketplace
@@ -110,7 +110,7 @@ export interface ResolvedPlugin {
 
 /**
  * Download an npm package tarball into the cache and extract it (no dependency
- * install); return the extracted package dir and its resolved version. A loom
+ * install); return the extracted package dir and its resolved version. A weft
  * plugin/marketplace published to npm is just its files inside the tarball.
  */
 async function npmFetch(

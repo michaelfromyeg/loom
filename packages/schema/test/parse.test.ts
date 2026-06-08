@@ -23,7 +23,7 @@ describe("YAML 1.2 parsing (Norway problem)", () => {
 
   it("coerces an unquoted 1.10 to a float, which the string schema then rejects", () => {
     const r = loadPlugin(`name: x\nversion: 1.10\n${owner}\ncomponents: []`, {
-      filename: "loom.yaml",
+      filename: "weft.yaml",
     });
     expect(r.ok).toBe(false);
     if (!r.ok) expect(r.issues.some((i) => i.path === "version")).toBe(true);
@@ -31,7 +31,7 @@ describe("YAML 1.2 parsing (Norway problem)", () => {
 
   it("keeps a quoted 1.10 as a string", () => {
     const r = loadPlugin(`name: x\nversion: "1.10"\n${owner}\ncomponents: []`, {
-      filename: "loom.yaml",
+      filename: "weft.yaml",
     });
     expect(r.ok).toBe(true);
     if (r.ok) expect(r.value.version).toBe("1.10");
@@ -39,7 +39,7 @@ describe("YAML 1.2 parsing (Norway problem)", () => {
 
   it("rejects duplicate keys (strict mode)", () => {
     const r = loadPlugin(`name: x\nname: y\nversion: "1.0.0"\n${owner}\ncomponents: []`, {
-      filename: "loom.yaml",
+      filename: "weft.yaml",
     });
     expect(r.ok).toBe(false);
   });
@@ -47,7 +47,7 @@ describe("YAML 1.2 parsing (Norway problem)", () => {
   it("accepts JSON5 input against the same schema", () => {
     const r = loadPlugin(
       `{ name: "x", version: "1.0.0", owner: { name: "A", namespace: "com.a" }, components: [] }`,
-      { filename: "loom.json5" },
+      { filename: "weft.json5" },
     );
     expect(r.ok).toBe(true);
   });
@@ -57,7 +57,7 @@ describe("plugin validation", () => {
   it("parses a valid plugin with two components", () => {
     const r = loadPlugin(
       `name: ok\nversion: "1.0.0"\n${owner}\ncomponents:\n  - skill: skills/x\n  - mcp: mcp/y`,
-      { filename: "loom.yaml" },
+      { filename: "weft.yaml" },
     );
     expect(r.ok).toBe(true);
     if (r.ok) expect(r.value.components).toHaveLength(2);
@@ -66,7 +66,7 @@ describe("plugin validation", () => {
   it("reports path-precise errors for bad fields and bad components", () => {
     const r = loadPlugin(
       `name: Bad_Name\nversion: "1.0.0"\nowner: { name: A, namespace: nodots }\ncomponents:\n  - mcp: 123\n  - foo: bar`,
-      { filename: "loom.yaml" },
+      { filename: "weft.yaml" },
     );
     expect(r.ok).toBe(false);
     if (!r.ok) {
@@ -81,7 +81,7 @@ describe("plugin validation", () => {
   it("rejects a component with conflicting kind keys", () => {
     const r = loadPlugin(
       `name: ok\nversion: "1.0.0"\n${owner}\ncomponents:\n  - { skill: a, mcp: b }`,
-      { filename: "loom.yaml" },
+      { filename: "weft.yaml" },
     );
     expect(r.ok).toBe(false);
     if (!r.ok) expect(r.issues[0].message).toMatch(/conflicting kind keys/);
@@ -128,9 +128,9 @@ describe("other manifests", () => {
 
 describe("JSON Schema export", () => {
   it("emits a draft-2020-12 schema per manifest", () => {
-    expect(jsonSchemaFor("loom.yaml")).toBeTruthy();
+    expect(jsonSchemaFor("weft.yaml")).toBeTruthy();
     expect(Object.keys(allJsonSchemas()).sort()).toEqual(
-      ["cases.yaml", "loom.lock", "loom.yaml", "marketplace.yaml"].sort(),
+      ["cases.yaml", "weft.lock", "weft.yaml", "marketplace.yaml"].sort(),
     );
   });
 });

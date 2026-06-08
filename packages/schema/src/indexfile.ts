@@ -29,9 +29,9 @@ export const IndexEntry = z.object({
 });
 export type IndexEntry = z.infer<typeof IndexEntry>;
 
-/** `loom.index/1` -- a metadata-only aggregator (spec §10), self-hostable static JSON. */
+/** `weft.index/1` -- a metadata-only aggregator (spec §10), self-hostable static JSON. */
 export const IndexFile = z.object({
-  schema: z.literal("loom.index/1"),
+  schema: z.literal("weft.index/1"),
   plugins: z.array(IndexEntry),
   federated: z.array(z.object({ source: z.string(), ingestedAt: z.string() })).optional(),
 });

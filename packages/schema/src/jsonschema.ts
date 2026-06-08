@@ -6,9 +6,9 @@ import { Plugin } from "./plugin";
 
 /** Canonical manifests for which we publish a `$schema` for editor autocomplete. */
 export const SCHEMAS = {
-  "loom.yaml": Plugin,
+  "weft.yaml": Plugin,
   "marketplace.yaml": Marketplace,
-  "loom.lock": Lockfile,
+  "weft.lock": Lockfile,
   "cases.yaml": EvalFile,
 } as const;
 

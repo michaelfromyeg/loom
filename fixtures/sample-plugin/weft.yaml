@@ -4,7 +4,7 @@ owner:
   name: Acme Tools
   namespace: com.acme
   email: tools@acme.example
-description: A sample Loom plugin with a code-review skill and a weather MCP server.
+description: A sample Weft plugin with a code-review skill and a weather MCP server.
 license: MIT
 components:
   - skill: skills/code-review

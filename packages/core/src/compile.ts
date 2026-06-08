@@ -96,8 +96,8 @@ export function staticPass(fb: FetchedPlugin): StaticPass {
   const { plugin } = fb;
   const id = `${plugin.owner.namespace}/${plugin.name}`;
 
-  const minErr = checkMinVersion(plugin.loom_min_version);
-  if (minErr) diagnostics.error("loom_min_version", minErr);
+  const minErr = checkMinVersion(plugin.weft_min_version);
+  if (minErr) diagnostics.error("weft_min_version", minErr);
 
   validatePlugin(fb, diagnostics);
 
