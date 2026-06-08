@@ -7,21 +7,23 @@ _Generated from the CLI definition by `loom docs` -- do not edit by hand._
 ```
 Author once, compile to every coding-agent harness. (loom v0.1.0)
 
-USAGE `loom init|validate|build|install|update|eval|publish|sign|verify|index|docs`
+USAGE `loom init|validate|build|install|uninstall|update|import|eval|publish|sign|verify|index|docs`
 
 COMMANDS
 
-      `init`    Scaffold a new plugin (loom.yaml + a sample skill)                               
-  `validate`    Statically validate a plugin (the valid badge)                                   
-     `build`    Compile a plugin (or a marketplace of plugins) to harness manifests              
-   `install`    Compile + place a plugin into a harness scope, write loom.lock                   
-    `update`    Re-resolve refs, recompile, and re-place only artifacts whose hash changed       
-      `eval`    Run a component's evals against the real harnesses (reports UNTESTED honestly)   
-   `publish`    Run the deterministic publish gate (static valid + trace/output evals)           
-      `sign`    Sign loom.lock's artifact set (ed25519) -> loom.sig + loom.pub (the signed badge)
-    `verify`    Verify loom.sig against loom.lock and the on-disk artifacts                      
-     `index`    Build a metadata index from plugin dirs (optionally federating the MCP Registry) 
-      `docs`    Print the full CLI reference (a CLI map), generated from the command tree        
+       `init`    Scaffold a new plugin (loom.yaml + a sample skill)                               
+   `validate`    Statically validate a plugin (the valid badge)                                   
+      `build`    Compile a plugin (or a marketplace of plugins) to harness manifests              
+    `install`    Compile + place a plugin into a harness scope, write loom.lock                   
+  `uninstall`    Remove everything install placed (from loom.lock) and delete the lockfile        
+     `update`    Re-resolve refs, recompile, and re-place only artifacts whose hash changed       
+     `import`    Reverse-compile an existing native plugin/marketplace into a Loom plugin         
+       `eval`    Run a component's evals against the real harnesses (reports UNTESTED honestly)   
+    `publish`    Run the deterministic publish gate (static valid + trace/output evals)           
+       `sign`    Sign loom.lock's artifact set (ed25519) -> loom.sig + loom.pub (the signed badge)
+     `verify`    Verify loom.sig against loom.lock and the on-disk artifacts                      
+      `index`    Build a metadata index from plugin dirs (optionally federating the MCP Registry) 
+       `docs`    Print the full CLI reference (a CLI map), generated from the command tree        
 
 Use `loom <command> --help` for more information about a command.
 ```
@@ -76,6 +78,26 @@ OPTIONS
 
   `--component`    Only eval this component leaf name           
     `--harness`    Restrict to these harnesses (comma-separated)
+```
+
+## `loom import`
+
+Reverse-compile an existing native plugin/marketplace into a Loom plugin
+
+```
+Reverse-compile an existing native plugin/marketplace into a Loom plugin (loom import v0.1.0)
+
+USAGE `loom import [OPTIONS] [DIR]`
+
+ARGUMENTS
+
+  `DIR="."`    Dir with an existing native plugin or marketplace    
+
+OPTIONS
+
+   `--from="claude"`    Source harness format                                 
+  `--out="imported"`    Output directory                                      
+       `--namespace`    Reverse-DNS namespace to assign (default com.imported)
 ```
 
 ## `loom index`
@@ -165,6 +187,20 @@ Sign loom.lock's artifact set (ed25519) -> loom.sig + loom.pub (the signed badge
 Sign loom.lock's artifact set (ed25519) -> loom.sig + loom.pub (the signed badge) (loom sign v0.1.0)
 
 USAGE `loom sign [OPTIONS] [DIR]`
+
+ARGUMENTS
+
+  `DIR="."`    Plugin dir with loom.lock
+```
+
+## `loom uninstall`
+
+Remove everything install placed (from loom.lock) and delete the lockfile
+
+```
+Remove everything install placed (from loom.lock) and delete the lockfile (loom uninstall v0.1.0)
+
+USAGE `loom uninstall [OPTIONS] [DIR]`
 
 ARGUMENTS
 

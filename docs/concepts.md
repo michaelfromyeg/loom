@@ -47,9 +47,10 @@ Loom does not replace plugins and marketplaces; it wraps and cross-compiles them
 
 - The canonical plugin format is a superset of any one harness's plugin, so "author a
   plugin once, compile to every harness" needs no new noun.
-- (Planned) `loom import` will read an existing `.claude-plugin/` plugin or a
-  `marketplace.json` and cross-compile it to the others, the "federate, don't wall off"
-  goal applied to assets you already maintain.
+- `loom import` reads an existing `.claude-plugin/` plugin or a `marketplace.json` and
+  reverse-compiles it into the Loom model, so `loom build` can cross-compile it to the
+  others. This is the "federate, don't wall off" goal applied to assets you already maintain.
+  (Claude is implemented today; the other harnesses are planned.)
 
 ## The one wrinkle: building a single plugin emits a marketplace too
 

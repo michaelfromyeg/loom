@@ -9,6 +9,7 @@ import {
   type ResolvedMarketplace,
 } from "@loom/adapter-kit";
 import { type Component, kindOf, leafNameOf, type Plugin, refOf, type Scope } from "@loom/schema";
+import { importClaude } from "./import";
 import { type McpServerConfig, mcpRunConfig, mcpServerName } from "./mcp";
 
 /** Bump on any change to Claude's plugin/marketplace manifest shape (spec §5). */
@@ -162,6 +163,8 @@ export const claudeAdapter: HarnessAdapter = {
 
     return [artifact(".claude-plugin/marketplace.json", json(catalog), { kind: "catalog" })];
   },
+
+  importNative: importClaude,
 };
 
 export default claudeAdapter;

@@ -2,6 +2,7 @@ import type { Component, Plugin, Scope, Target } from "@loom/schema";
 import type { CompiledArtifact } from "./artifact";
 import type { ResolvedMarketplace } from "./catalog";
 import type { HarnessDriver } from "./driver";
+import type { ImportOptions, ImportResult } from "./import";
 import type { InstallPaths } from "./paths";
 
 /**
@@ -53,4 +54,12 @@ export interface HarnessAdapter {
 
   /** Present iff headless eval is supported on this harness. */
   driver?: HarnessDriver;
+
+  /**
+   * Reverse-compile an existing native plugin or marketplace in `dir` into the
+   * canonical Loom model, so it can be cross-compiled to the other harnesses
+   * ("federate, don't wall off" applied to assets you already maintain). Returns
+   * null when `dir` is not this harness's format. Present iff the harness supports it.
+   */
+  importNative?(dir: string, opts?: ImportOptions): ImportResult | null;
 }

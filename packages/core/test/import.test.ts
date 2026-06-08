@@ -1,0 +1,95 @@
+import { cpSync, existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { fileURLToPath } from "node:url";
+import claudeAdapter from "@loom/adapter-claude";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import {
+  AdapterRegistry,
+  build,
+  buildMarketplace,
+  importNativePlugin,
+  install,
+  lint,
+  uninstall,
+} from "../src/index";
+
+const PLUGIN = fileURLToPath(new URL("../../../fixtures/sample-plugin", import.meta.url));
+const MARKETPLACE = fileURLToPath(new URL("../../../fixtures/sample-marketplace", import.meta.url));
+const registry = () => new AdapterRegistry().register(claudeAdapter);
+
+let tmp: string;
+beforeAll(() => {
+  tmp = mkdtempSync(join(tmpdir(), "loom-import-"));
+});
+afterAll(() => rmSync(tmp, { recursive: true, force: true }));
+
+describe("loom import (reverse-compile native -> Loom)", () => {
+  it("round-trips a Claude plugin back into a valid Loom plugin", async () => {
+    // Loom -> Claude plugin.
+    const built = join(tmp, "built");
+    await build({ pluginDir: PLUGIN, outDir: built, registry: registry(), targets: ["claude"] });
+    const claudePlugin = join(built, "claude/plugins/sample-plugin");
+
+    // Claude plugin -> Loom.
+    const out = join(tmp, "imported");
+    const res = importNativePlugin({
+      dir: claudePlugin,
+      adapter: claudeAdapter,
+      outDir: out,
+      namespace: "com.acme",
+    });
+    expect(res.kind).toBe("plugin");
+    expect(existsSync(join(out, "loom.yaml"))).toBe(true);
+
+    // The imported plugin is valid and has both components back.
+    const linted = lint(out);
+    expect(linted.diagnostics.hasErrors).toBe(false);
+    expect(linted.id).toBe("com.acme/sample-plugin");
+    expect(Object.keys(linted.aliases).sort()).toEqual(["code-review", "weather"]);
+    // The MCP server.json was reconstructed from the inline run config.
+    expect(existsSync(join(out, "mcp/weather/server.json"))).toBe(true);
+  });
+
+  it("imports a Claude marketplace into a marketplace.yaml", async () => {
+    const built = join(tmp, "mkt");
+    await buildMarketplace({
+      marketplaceDir: MARKETPLACE,
+      outDir: built,
+      registry: registry(),
+      targets: ["claude"],
+    });
+    const out = join(tmp, "mkt-import");
+    const res = importNativePlugin({
+      dir: join(built, "claude"),
+      adapter: claudeAdapter,
+      outDir: out,
+      namespace: "com.acme",
+    });
+    expect(res.kind).toBe("marketplace");
+    const yaml = readFileSync(join(out, "marketplace.yaml"), "utf8");
+    expect(yaml).toContain("name: acme-tools");
+    expect(yaml).toContain("code-tools");
+  });
+});
+
+describe("loom uninstall", () => {
+  it("removes everything install placed and deletes the lockfile", async () => {
+    const pluginDir = join(tmp, "u-plugin");
+    const sandbox = join(tmp, "u-sandbox");
+    cpSync(PLUGIN, pluginDir, { recursive: true });
+    await install({ pluginDir, scope: "project", cwd: sandbox, registry: registry() });
+
+    expect(
+      existsSync(join(sandbox, ".claude/plugins/sample-plugin/.claude-plugin/plugin.json")),
+    ).toBe(true);
+    const res = uninstall({ pluginDir });
+    expect(res.removed.length).toBe(3);
+    expect(existsSync(join(sandbox, ".claude/plugins/sample-plugin"))).toBe(false);
+    expect(existsSync(join(pluginDir, "loom.lock"))).toBe(false);
+  });
+
+  it("errors when there is no lockfile", () => {
+    expect(() => uninstall({ pluginDir: join(tmp, "no-lock") })).toThrow(/nothing to uninstall/);
+  });
+});

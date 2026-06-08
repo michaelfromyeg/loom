@@ -37,6 +37,11 @@ export function parseDocument(
   return YAML.parse(text, { version: "1.2", schema: "core", strict: true });
 }
 
+/** Serialize an object back to YAML 1.2 (used when writing a generated manifest). */
+export function stringifyDocument(obj: unknown): string {
+  return YAML.stringify(obj, { version: "1.2" });
+}
+
 function pathStr(path: ReadonlyArray<PropertyKey>): string {
   let out = "";
   for (const seg of path) {

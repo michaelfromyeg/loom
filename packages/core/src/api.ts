@@ -1,4 +1,4 @@
-import { mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import type { CatalogEntry, ResolvedMarketplace } from "@loom/adapter-kit";
 import type { Badge, Lockfile, Marketplace, ParseIssue, Plugin, Scope, Target } from "@loom/schema";
@@ -225,6 +225,58 @@ export async function install(opts: InstallOptions): Promise<InstallResult> {
   });
   const lockPath = writeLock(opts.lockDir ?? opts.pluginDir, lockfile);
   return { result, lockfile, lockPath, secrets };
+}
+
+export interface UninstallOptions {
+  /** Where loom.lock lives (also the default place uninstall reads from). */
+  pluginDir: string;
+  lockDir?: string;
+}
+
+export interface UninstallResult {
+  removed: string[];
+}
+
+/** Prune now-empty directories upward from each removed file (best-effort). */
+function pruneEmptyDirs(paths: string[]): void {
+  const dirs = new Set(paths.map((p) => dirname(p)));
+  for (const start of dirs) {
+    let d = start;
+    while (d && d !== dirname(d)) {
+      try {
+        if (readdirSync(d).length > 0) break;
+        rmSync(d, { recursive: true, force: true });
+      } catch {
+        break;
+      }
+      d = dirname(d);
+    }
+  }
+}
+
+/**
+ * Remove everything `install` placed, using the paths recorded in `loom.lock`,
+ * then delete the lockfile (spec §6.3). Errors are defined out of existence:
+ * a missing artifact is simply skipped.
+ */
+export function uninstall(opts: UninstallOptions): UninstallResult {
+  const dir = opts.lockDir ?? opts.pluginDir;
+  const lock = readLock(dir);
+  if (!lock) {
+    throw new CompileError("nothing to uninstall", [
+      { severity: "error", where: "loom.lock", message: `no loom.lock found in ${dir}` },
+    ]);
+  }
+  const removed: string[] = [];
+  for (const a of lock.artifacts) {
+    if (existsSync(a.path)) {
+      rmSync(a.path, { force: true });
+      removed.push(a.path);
+    }
+  }
+  pruneEmptyDirs(removed);
+  rmSync(join(dir, "loom.lock"), { force: true });
+  return { removed };
 }
 
 export interface UpdateResult {

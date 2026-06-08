@@ -4,6 +4,7 @@ export * from "./config";
 export * from "./deps";
 export * from "./diagnostics";
 export * from "./hash";
+export * from "./import";
 export * from "./loader";
 export * from "./lockfile";
 export * from "./managed";

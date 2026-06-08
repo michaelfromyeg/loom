@@ -97,6 +97,35 @@ Package: `@loom/index` (build + client + MCP-Registry federation + badges + publ
 > default) and an index UI. The deterministic gate already runs the same driver invocations
 > a hosted runner would.
 
+## Phase 4: Lifecycle & federation extras
+
+Beyond the original spec, two lifecycle commands round out the loop:
+
+- [x] `loom import` reverse-compiles an existing native plugin or marketplace into the Loom
+      model, so you can cross-compile assets you already maintain (federate, don't wall off).
+      Claude is implemented; a Loom -> Claude -> Loom -> Claude round-trip passes
+      `claude plugin validate --strict`.
+- [x] `loom uninstall` removes everything `install` placed, using the paths recorded in
+      `loom.lock`, then deletes the lockfile.
+
+## Beyond v1 (planned)
+
+Not built yet; tracked so the boundary is honest:
+
+- `importNative` for the other four harnesses (codex/cursor/copilot/opencode), so import is
+  any-to-any rather than Claude-only.
+- The `verified` badge: prove `owner.namespace` ownership via a GitHub / DNS / HTTP challenge,
+  reusing the MCP Registry's scheme rather than reinventing it.
+- Resolver depth: `npm:` source resolution, the `git-subdir` form, and transitive (multi-level)
+  dependency resolution (today `depends` resolves one level).
+- Richer OpenCode driver via `@opencode-ai/sdk` / `opencode serve` SSE (full pending->running->
+  completed tool states) and the ACP transport.
+- sigstore / cosign keyless signing as the production `signed` backend (today: local ed25519).
+- garak / AI-Infra-Guard scanner integration for the `scanned` badge (today: a heuristic scan).
+- Hosted CI eval tier, opt-in auto-update with channels, a public index UI, and a real
+  telemetry transport (the data model and the deterministic gate already exist).
+- Publishing the JSON Schemas to a CDN for `$schema`-driven editor autocomplete.
+
 ## Invariants held throughout
 
 1. Compiler, not platform; the library is the product.

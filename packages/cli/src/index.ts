@@ -7,11 +7,13 @@ import {
   CompileError,
   generateSigningKeys,
   hasMarketplaceManifest,
+  importNativePlugin,
   install,
   LOOM_VERSION,
   lint,
   readLock,
   signLock,
+  uninstall,
   update,
   verifyArtifacts,
 } from "@loom/core";
@@ -455,6 +457,70 @@ const indexCmd = defineCommand({
   },
 });
 
+const importCmd = defineCommand({
+  meta: {
+    name: "import",
+    description: "Reverse-compile an existing native plugin/marketplace into a Loom plugin",
+  },
+  args: {
+    dir: {
+      type: "positional",
+      required: false,
+      default: ".",
+      description: "Dir with an existing native plugin or marketplace",
+    },
+    from: { type: "string", default: "claude", description: "Source harness format" },
+    out: { type: "string", default: "imported", description: "Output directory" },
+    namespace: {
+      type: "string",
+      description: "Reverse-DNS namespace to assign (default com.imported)",
+    },
+  },
+  run({ args }) {
+    try {
+      const adapter = buildRegistry().get(args.from as Target);
+      if (!adapter) {
+        console.error(`unknown source harness "${args.from}"`);
+        process.exit(1);
+      }
+      const res = importNativePlugin({
+        dir: args.dir,
+        adapter,
+        outDir: args.out,
+        ...(args.namespace ? { namespace: args.namespace } : {}),
+      });
+      console.log(`Imported ${res.kind} "${res.name}" -> ${res.manifestPath}`);
+      if (res.kind === "plugin") console.log(`  ${res.fileCount} component file(s)`);
+      console.log(`  next: loom build ${res.outDir}`);
+    } catch (err) {
+      fail(err);
+    }
+  },
+});
+
+const uninstallCmd = defineCommand({
+  meta: {
+    name: "uninstall",
+    description: "Remove everything install placed (from loom.lock) and delete the lockfile",
+  },
+  args: {
+    dir: {
+      type: "positional",
+      required: false,
+      default: ".",
+      description: "Plugin dir with loom.lock",
+    },
+  },
+  run({ args }) {
+    try {
+      const res = uninstall({ pluginDir: args.dir });
+      console.log(`Uninstalled ${res.removed.length} artifact(s)`);
+    } catch (err) {
+      fail(err);
+    }
+  },
+});
+
 const docsCmd = defineCommand({
   meta: {
     name: "docs",
@@ -488,7 +554,9 @@ const main = defineCommand({
     validate: validateCmd,
     build: buildCmd,
     install: installCmd,
+    uninstall: uninstallCmd,
     update: updateCmd,
+    import: importCmd,
     eval: evalCmd,
     publish: publishCmd,
     sign: signCmd,
