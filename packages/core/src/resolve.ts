@@ -59,17 +59,15 @@ async function gitFetch(
   const dir = cacheDirFor(`${url}@${ref ?? "default"}`);
   const isSha = ref !== undefined && SHA_RE.test(ref);
 
-  if (!existsSync(join(dir, ".git"))) {
-    if (isSha) {
-      await execa("git", ["clone", url, dir]);
-      await execa("git", ["checkout", ref as string], { cwd: dir });
-    } else {
-      const branchArgs = ref ? ["--branch", ref] : [];
-      await execa("git", ["clone", "--depth", "1", ...branchArgs, url, dir]);
-    }
-  } else {
+  if (existsSync(join(dir, ".git"))) {
     await execa("git", ["fetch", "origin", ...(ref ? [ref] : [])], { cwd: dir });
     await execa("git", ["checkout", ref ?? "FETCH_HEAD"], { cwd: dir, reject: false });
+  } else if (isSha) {
+    await execa("git", ["clone", url, dir]);
+    await execa("git", ["checkout", ref as string], { cwd: dir });
+  } else {
+    const branchArgs = ref ? ["--branch", ref] : [];
+    await execa("git", ["clone", "--depth", "1", ...branchArgs, url, dir]);
   }
   const sha = (await execa("git", ["rev-parse", "HEAD"], { cwd: dir })).stdout.trim();
   return { dir, sha };
@@ -121,10 +119,7 @@ function loadOrThrow(dir: string, source: string): FetchedPlugin {
 }
 
 /** Resolve a `depends` entry to a fetched plugin (relative to the depending plugin root). */
-export async function resolveDependency(
-  dep: Dependency,
-  fromRoot: string,
-): Promise<ResolvedPlugin> {
+export function resolveDependency(dep: Dependency, fromRoot: string): Promise<ResolvedPlugin> {
   return resolvePluginRefFull(dep.plugin, fromRoot);
 }
 

@@ -1,7 +1,10 @@
-export * from "./adapter";
-export * from "./artifact";
-export * from "./catalog";
-export * from "./driver";
-export * from "./frontmatter";
-export * from "./import";
-export * from "./paths";
+export type { HarnessAdapter, PluginCtx } from "./adapter";
+export type { ArtifactKind, CompiledArtifact } from "./artifact";
+export { artifact } from "./artifact";
+export type { CatalogEntry, ResolvedMarketplace } from "./catalog";
+export type { HarnessDriver, RunOptions, ToolCall, Transcript } from "./driver";
+export type { Frontmatter } from "./frontmatter";
+export { parseFrontmatter, withFrontmatter } from "./frontmatter";
+export type { ImportedMarketplace, ImportedPlugin, ImportOptions, ImportResult } from "./import";
+export type { InstallPaths } from "./paths";
+export { expandTilde, homedir, resolveUnder } from "./paths";

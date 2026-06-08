@@ -158,6 +158,7 @@ function evaluateDifferential(a: DifferentialAssert, ctx: AssertContext): Assert
  * injected judge model; differential compares the case score to a committed
  * baseline (the "vibes" no-regression gate).
  */
+// biome-ignore lint/suspicious/useAwait: branches mix sync (trace/output) and async (judge/differential) results; async normalizes the return to Promise<AssertResult>.
 export async function evaluateAssertion(
   a: Assertion,
   transcripts: Transcript[],

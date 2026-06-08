@@ -11,7 +11,13 @@ export { codexDriver } from "./codex";
 export { copilotDriver } from "./copilot";
 export { cursorDriver } from "./cursor";
 export { opencodeDriver } from "./opencode";
-export * from "./parse";
+export {
+  parseClaudeStream,
+  parseCodexStream,
+  parseCursorStream,
+  parseLines,
+  parseOpencodeStream,
+} from "./parse";
 export type { CliResult } from "./util";
 
 /** Every built-in headless driver, keyed by Target. */

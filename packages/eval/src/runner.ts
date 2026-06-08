@@ -155,7 +155,7 @@ export async function runEval(opts: RunEvalOptions): Promise<EvalReport> {
 
   for (const harness of evalFile.harnesses) {
     const driver = drivers[harness];
-    if (!driver || !(await driver.available())) {
+    if (!(driver && (await driver.available()))) {
       harnesses.push({
         harness,
         status: "untested",

@@ -29,7 +29,7 @@ import type { AdapterRegistry } from "./registry";
 import { gitInfo, resolvePluginRefFull } from "./resolve";
 
 /** Load a plugin and resolve its `depends` into a merged tree (spec §9.1 step 2). */
-async function loadResolved(
+function loadResolved(
   pluginDir: string,
 ): Promise<{ fb: FetchedPlugin; dependencies: DependencyRecord[] }> {
   return resolveDependencies(loadOrThrow(pluginDir));

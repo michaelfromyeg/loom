@@ -27,7 +27,7 @@ export function parseClaudeStream(raw: string): { finalText: string; toolCalls: 
   for (const evt of parseLines(raw)) {
     if (evt.type === "assistant") {
       const content = (evt.message as { content?: unknown[] } | undefined)?.content ?? [];
-      for (const block of content as Array<Record<string, unknown>>) {
+      for (const block of content as Record<string, unknown>[]) {
         if (block?.type === "tool_use") {
           toolCalls.push({ name: String(block.name), args: block.input, ts: ts++ });
         }

@@ -39,11 +39,11 @@ export function resolveConfig(
       if (fromEnv !== undefined) {
         values[v.env] = fromEnv;
         resolved.push({ env: v.env, source: "env", secret: v.secret });
-      } else if (v.default !== undefined) {
+      } else if (v.default === undefined) {
+        resolved.push({ env: v.env, source: "missing", secret: v.secret });
+      } else {
         values[v.env] = v.default;
         resolved.push({ env: v.env, source: "default", secret: v.secret });
-      } else {
-        resolved.push({ env: v.env, source: "missing", secret: v.secret });
       }
     }
   }

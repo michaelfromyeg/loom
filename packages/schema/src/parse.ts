@@ -42,7 +42,7 @@ export function stringifyDocument(obj: unknown): string {
   return YAML.stringify(obj, { version: "1.2" });
 }
 
-function pathStr(path: ReadonlyArray<PropertyKey>): string {
+function pathStr(path: readonly PropertyKey[]): string {
   let out = "";
   for (const seg of path) {
     if (typeof seg === "number") out += `[${seg}]`;

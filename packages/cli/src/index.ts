@@ -28,6 +28,7 @@ import {
 import type { Scope, Target } from "@michaelfromyeg/loom-schema";
 import { defineCommand, runMain } from "citty";
 import { renderCliReference } from "./cli-docs";
+import { log } from "./logger";
 import { allDrivers, buildRegistry, parseList, parseTargets } from "./registry";
 import { printDiagnostics, printEvalReport, printTrustSummary } from "./report";
 import { scaffoldPlugin } from "./scaffold";
@@ -54,10 +55,10 @@ function countByTarget(written: { target: string }[]): Map<string, number> {
 
 function fail(err: unknown): never {
   if (err instanceof CompileError) {
-    console.error(`\n${err.message}:`);
+    log.error(`\n${err.message}:`);
     printDiagnostics(err.diagnostics);
   } else {
-    console.error(`\n${(err as Error).message}`);
+    log.error(`\n${(err as Error).message}`);
   }
   process.exit(1);
 }
@@ -75,9 +76,9 @@ const initCmd = defineCommand({
       name: args.name,
       namespace: args.namespace,
     });
-    console.log(`Scaffolded plugin "${created.name}" in ${created.dir}`);
-    for (const f of created.files) console.log(`  + ${f}`);
-    console.log(`\nNext: loom validate ${args.dir} && loom build ${args.dir}`);
+    log.info(`Scaffolded plugin "${created.name}" in ${created.dir}`);
+    for (const f of created.files) log.info(`  + ${f}`);
+    log.info(`\nNext: loom validate ${args.dir} && loom build ${args.dir}`);
   },
 });
 
@@ -92,10 +93,11 @@ const validateCmd = defineCommand({
       const { items, hasErrors } = result.diagnostics;
       if (items.length > 0) printDiagnostics(items);
       if (hasErrors) {
-        console.error(`\n${result.id}: invalid`);
+        log.error(`\n${result.id}: invalid`);
         process.exit(1);
       }
-      console.log(`${result.id}: valid (${result.plugin.components.length} components)`);
+      log.data({ id: result.id, valid: true, components: result.plugin.components.length });
+      log.info(`${result.id}: valid (${result.plugin.components.length} components)`);
     } catch (err) {
       fail(err);
     }
@@ -130,10 +132,16 @@ const buildCmd = defineCommand({
           registry,
           targets,
         });
-        console.log(
+        log.data({
+          marketplace: marketplace.name,
+          plugins: plugins.length,
+          out: args.out,
+          files: Object.fromEntries(countByTarget(written)),
+        });
+        log.info(
           `Built marketplace ${marketplace.name} (${plugins.length} plugins) -> ${args.out}/`,
         );
-        for (const [t, n] of countByTarget(written)) console.log(`  ${t}: ${n} files`);
+        for (const [t, n] of countByTarget(written)) log.info(`  ${t}: ${n} files`);
         return;
       }
 
@@ -144,9 +152,10 @@ const buildCmd = defineCommand({
         targets,
       });
       if (result.diagnostics.items.length > 0) printDiagnostics(result.diagnostics.items);
-      console.log(`Built ${result.id} -> ${args.out}/`);
+      log.data({ id: result.id, out: args.out, files: Object.fromEntries(countByTarget(written)) });
+      log.info(`Built ${result.id} -> ${args.out}/`);
       for (const [t, n] of countByTarget(written)) {
-        console.log(`  ${t}: ${n} files (catalog at ${args.out}/${t})`);
+        log.info(`  ${t}: ${n} files (catalog at ${args.out}/${t})`);
       }
     } catch (err) {
       fail(err);
@@ -188,9 +197,9 @@ const installCmd = defineCommand({
       let targets = requested;
       if (!args.all) {
         const { present, missing } = await detectPresent(requested);
-        for (const t of missing) console.log(`  skipped ${t}: harness not detected`);
+        for (const t of missing) log.info(`  skipped ${t}: harness not detected`);
         if (present.length === 0) {
-          console.error("No requested harness is installed. Use --all to place anyway.");
+          log.error("No requested harness is installed. Use --all to place anyway.");
           process.exit(1);
         }
         targets = present;
@@ -206,19 +215,26 @@ const installCmd = defineCommand({
         ...(allow ? { managed: { allowNamespaces: allow } } : {}),
       });
       printTrustSummary(result.result);
-      console.log(
+      log.data({
+        id: result.lockfile.plugin.id,
+        version: result.lockfile.plugin.version,
+        scope,
+        artifacts: result.lockfile.artifacts.length,
+        lockfile: result.lockPath,
+      });
+      log.info(
         `Installed ${result.lockfile.plugin.id}@${result.lockfile.plugin.version} (${scope})`,
       );
-      console.log(`  ${result.lockfile.artifacts.length} artifacts placed`);
+      log.info(`  ${result.lockfile.artifacts.length} artifacts placed`);
       if (result.secrets.resolved.length > 0) {
         const missing = result.secrets.resolved.filter((r) => r.source === "missing");
-        console.log(
+        log.info(
           `  config: ${result.secrets.resolved.length} declared` +
             (result.secrets.path ? ` -> ${result.secrets.path} (gitignored)` : "") +
             (missing.length > 0 ? `; missing: ${missing.map((m) => m.env).join(", ")}` : ""),
         );
       }
-      console.log(`  lockfile: ${result.lockPath}`);
+      log.info(`  lockfile: ${result.lockPath}`);
     } catch (err) {
       fail(err);
     }
@@ -252,10 +268,11 @@ const updateCmd = defineCommand({
         registry: buildRegistry(),
         targets: parseTargets(args.target) ?? lockedTargets,
       });
-      console.log(
+      log.data({ id: result.lockfile.plugin.id, changed: result.changed });
+      log.info(
         `Updated ${result.lockfile.plugin.id}: ${result.changed.length} artifact(s) changed`,
       );
-      for (const p of result.changed) console.log(`  ~ ${p}`);
+      for (const p of result.changed) log.info(`  ~ ${p}`);
     } catch (err) {
       fail(err);
     }
@@ -280,7 +297,7 @@ const evalCmd = defineCommand({
         (d) => !args.component || d.componentLeaf === args.component,
       );
       if (discovered.length === 0) {
-        console.log("No evals found (a component adds them with an `evals:` file).");
+        log.info("No evals found (a component adds them with an `evals:` file).");
         return;
       }
       const onlyHarness = parseTargets(args.harness);
@@ -328,18 +345,27 @@ const publishCmd = defineCommand({
         drivers: allDrivers(),
         snapshot: Boolean(args.snapshot),
       });
-      console.log(`Publish check: ${res.id}@${res.version}`);
+      log.data({
+        id: res.id,
+        version: res.version,
+        ok: res.ok,
+        valid: res.validPassed,
+        scanClean: res.scan.clean,
+        badges: res.badges,
+        harnessCoverage: res.harnessCoverage,
+      });
+      log.info(`Publish check: ${res.id}@${res.version}`);
       if (res.diagnostics.length > 0) printDiagnostics(res.diagnostics);
-      console.log(`  valid: ${res.validPassed ? "yes" : "NO"}`);
-      console.log(`  scan: ${res.scan.clean ? "clean" : `${res.scan.findings.length} finding(s)`}`);
-      console.log(`  badges: ${res.badges.join(", ") || "none"}`);
-      console.log(`  harness coverage: ${res.harnessCoverage.join(", ") || "none"}`);
+      log.info(`  valid: ${res.validPassed ? "yes" : "NO"}`);
+      log.info(`  scan: ${res.scan.clean ? "clean" : `${res.scan.findings.length} finding(s)`}`);
+      log.info(`  badges: ${res.badges.join(", ") || "none"}`);
+      log.info(`  harness coverage: ${res.harnessCoverage.join(", ") || "none"}`);
       for (const r of res.evalReports) printEvalReport(r);
       if (!res.ok) {
-        console.error("\nPublish BLOCKED: the deterministic tier failed.");
+        log.error("\nPublish BLOCKED: the deterministic tier failed.");
         process.exit(1);
       }
-      console.log("\nPublish gate passed.");
+      log.info("\nPublish gate passed.");
     } catch (err) {
       fail(err);
     }
@@ -364,7 +390,7 @@ const signCmd = defineCommand({
     try {
       const lock = readLock(args.dir);
       if (!lock) {
-        console.error("no loom.lock found (run `loom install` first)");
+        log.error("no loom.lock found (run `loom install` first)");
         process.exit(1);
       }
       const loomDir = join(args.dir, ".loom");
@@ -385,7 +411,7 @@ const signCmd = defineCommand({
         );
       }
       writeFileSync(join(args.dir, "loom.sig"), `${signLock(lock, privateKey)}\n`);
-      console.log(
+      log.info(
         `Signed ${lock.artifacts.length} artifacts -> loom.sig (key kept in .loom/, public key in loom.pub)`,
       );
     } catch (err) {
@@ -411,17 +437,18 @@ const verifyCmd = defineCommand({
     try {
       const lock = readLock(args.dir);
       if (!lock) {
-        console.error("no loom.lock found");
+        log.error("no loom.lock found");
         process.exit(1);
       }
       const sig = readFileSync(join(args.dir, "loom.sig"), "utf8").trim();
       const publicKey = createPublicKey(readFileSync(join(args.dir, "loom.pub")));
       const res = verifyArtifacts(lock, publicKey, sig);
-      console.log(`signature: ${res.signatureValid ? "valid" : "INVALID"}`);
-      console.log(`tampered artifacts: ${res.tampered.length}`);
-      for (const p of res.tampered) console.log(`  ! ${p}`);
+      log.data({ signatureValid: res.signatureValid, tampered: res.tampered });
+      log.info(`signature: ${res.signatureValid ? "valid" : "INVALID"}`);
+      log.info(`tampered artifacts: ${res.tampered.length}`);
+      for (const p of res.tampered) log.info(`  ! ${p}`);
       if (!res.signatureValid || res.tampered.length > 0) process.exit(1);
-      console.log("signed badge verified.");
+      log.info("signed badge verified.");
     } catch (err) {
       fail(err);
     }
@@ -450,7 +477,12 @@ const indexCmd = defineCommand({
       }
       writeFileSync(args.out, serializeIndex(index));
       const fed = args.federate ? `, federated ${index.federated?.length ?? 0} source(s)` : "";
-      console.log(`Wrote index (${index.plugins.length} plugins${fed}) -> ${args.out}`);
+      log.data({
+        plugins: index.plugins.length,
+        federated: index.federated?.length ?? 0,
+        out: args.out,
+      });
+      log.info(`Wrote index (${index.plugins.length} plugins${fed}) -> ${args.out}`);
     } catch (err) {
       fail(err);
     }
@@ -480,7 +512,7 @@ const importCmd = defineCommand({
     try {
       const adapter = buildRegistry().get(args.from as Target);
       if (!adapter) {
-        console.error(`unknown source harness "${args.from}"`);
+        log.error(`unknown source harness "${args.from}"`);
         process.exit(1);
       }
       const res = importNativePlugin({
@@ -489,9 +521,16 @@ const importCmd = defineCommand({
         outDir: args.out,
         ...(args.namespace ? { namespace: args.namespace } : {}),
       });
-      console.log(`Imported ${res.kind} "${res.name}" -> ${res.manifestPath}`);
-      if (res.kind === "plugin") console.log(`  ${res.fileCount} component file(s)`);
-      console.log(`  next: loom build ${res.outDir}`);
+      log.data({
+        kind: res.kind,
+        name: res.name,
+        manifest: res.manifestPath,
+        out: res.outDir,
+        ...(res.kind === "plugin" ? { files: res.fileCount } : {}),
+      });
+      log.info(`Imported ${res.kind} "${res.name}" -> ${res.manifestPath}`);
+      if (res.kind === "plugin") log.info(`  ${res.fileCount} component file(s)`);
+      log.info(`  next: loom build ${res.outDir}`);
     } catch (err) {
       fail(err);
     }
@@ -514,7 +553,8 @@ const uninstallCmd = defineCommand({
   run({ args }) {
     try {
       const res = uninstall({ pluginDir: args.dir });
-      console.log(`Uninstalled ${res.removed.length} artifact(s)`);
+      log.data({ removed: res.removed });
+      log.info(`Uninstalled ${res.removed.length} artifact(s)`);
     } catch (err) {
       fail(err);
     }
@@ -536,7 +576,7 @@ const docsCmd = defineCommand({
     const md = await renderCliReference(main);
     if (args.out) {
       writeFileSync(args.out, md);
-      console.log(`Wrote CLI reference to ${args.out}`);
+      log.info(`Wrote CLI reference to ${args.out}`);
     } else {
       process.stdout.write(md);
     }

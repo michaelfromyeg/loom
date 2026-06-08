@@ -23,14 +23,14 @@ function readJson(path: string): Record<string, unknown> | null {
 
 /** Subdirectories of `dir` that contain `marker`. */
 function subdirsWith(dir: string, marker: string): string[] {
-  if (!existsSync(dir) || !statSync(dir).isDirectory()) return [];
+  if (!(existsSync(dir) && statSync(dir).isDirectory())) return [];
   return readdirSync(dir)
     .filter((n) => statSync(join(dir, n)).isDirectory() && existsSync(join(dir, n, marker)))
     .sort();
 }
 
 function filesWithExt(dir: string, ext: string): string[] {
-  if (!existsSync(dir) || !statSync(dir).isDirectory()) return [];
+  if (!(existsSync(dir) && statSync(dir).isDirectory())) return [];
   return readdirSync(dir)
     .filter((n) => n.endsWith(ext) && statSync(join(dir, n)).isFile())
     .sort();
@@ -175,7 +175,7 @@ function importMarketplace(
   namespace: string,
 ): ImportedMarketplace {
   const owner = manifest.owner as { name?: string; email?: string } | undefined;
-  const plugins = ((manifest.plugins as Array<Record<string, unknown>>) ?? []).map((p) => ({
+  const plugins = ((manifest.plugins as Record<string, unknown>[]) ?? []).map((p) => ({
     plugin: sourceToString(p.source),
     ...(p.version ? { version: String(p.version) } : {}),
     ...(p.category ? { category: String(p.category) } : {}),

@@ -1,5 +1,6 @@
 import type { CompileResult, Diagnostic } from "@michaelfromyeg/loom-core";
 import type { EvalReport } from "@michaelfromyeg/loom-eval";
+import { log } from "./logger";
 
 export function formatDiagnostic(d: Diagnostic): string {
   const tag = d.severity === "error" ? "error" : d.severity === "warning" ? "warn" : "info";
@@ -10,8 +11,8 @@ export function formatDiagnostic(d: Diagnostic): string {
 export function printDiagnostics(items: Diagnostic[]): void {
   for (const d of items) {
     const line = formatDiagnostic(d);
-    if (d.severity === "error") console.error(line);
-    else console.warn(line);
+    if (d.severity === "error") log.error(line);
+    else log.warn(line);
   }
 }
 
@@ -24,42 +25,43 @@ export function printTrustSummary(result: CompileResult): void {
   const { plugin } = result.fb;
   // Count from the components actually installed (accurate for piecemeal installs).
   const components = result.components;
-  console.log(`\nTrust summary for ${result.id}@${plugin.version}`);
-  console.log(`  publisher: ${plugin.owner.name} <${plugin.owner.namespace}> (unverified)`);
+  log.info(`\nTrust summary for ${result.id}@${plugin.version}`);
+  log.info(`  publisher: ${plugin.owner.name} <${plugin.owner.namespace}> (unverified)`);
 
   const counts = new Map<string, number>();
   for (const c of components) counts.set(c.kind, (counts.get(c.kind) ?? 0) + 1);
   const summary = [...counts.entries()].map(([k, n]) => `${n} ${k}`).join(", ");
-  console.log(`  components: ${summary || "none"}`);
+  log.info(`  components: ${summary || "none"}`);
 
   const executables = result.targets.flatMap((t) =>
     t.artifacts
       .filter((p) => p.artifact.executable)
       .map((p) => `${t.target}:${p.artifact.relPath}`),
   );
-  console.log(
+  log.info(
     executables.length > 0
       ? `  executables (placed DISABLED): ${executables.join(", ")}`
       : "  executables: none",
   );
 
-  console.log(`  mcp servers that will run: ${counts.get("mcp") ?? 0}`);
-  console.log("  badges: valid (computed) | signed/verified/scanned: not yet\n");
+  log.info(`  mcp servers that will run: ${counts.get("mcp") ?? 0}`);
+  log.info("  badges: valid (computed) | signed/verified/scanned: not yet\n");
 }
 
 /** Render an eval report: per-harness PASS/FAIL/UNTESTED with per-assertion status. */
 export function printEvalReport(report: EvalReport): void {
-  console.log(`\nEval: ${report.component}`);
+  log.data(report);
+  log.info(`\nEval: ${report.component}`);
   for (const h of report.harnesses) {
     if (h.status === "untested") {
-      console.log(`  ${h.harness}: UNTESTED (${h.reason})`);
+      log.info(`  ${h.harness}: UNTESTED (${h.reason})`);
       continue;
     }
-    console.log(`  ${h.harness}: ${h.pass ? "PASS" : "FAIL"}`);
+    log.info(`  ${h.harness}: ${h.pass ? "PASS" : "FAIL"}`);
     for (const c of h.cases) {
-      console.log(`    - ${c.name}: ${c.pass ? "pass" : "fail"}`);
+      log.info(`    - ${c.name}: ${c.pass ? "pass" : "fail"}`);
       for (const a of c.assertions) {
-        console.log(`        ${a.kind}: ${a.status} (${a.detail})`);
+        log.info(`        ${a.kind}: ${a.status} (${a.detail})`);
       }
     }
   }

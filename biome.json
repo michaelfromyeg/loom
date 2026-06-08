@@ -18,20 +18,52 @@
     "enabled": true,
     "rules": {
       "recommended": true,
+      "suspicious": {
+        "noImportCycles": "error",
+        "noConsole": "error",
+        "useAwait": "error",
+        "noEmptyBlockStatements": "error",
+        "noConstEnum": "error"
+      },
       "style": {
         "useImportType": "error",
+        "useExportType": "error",
         "noParameterAssign": "error",
         "useNodejsImportProtocol": "error",
-        "useThrowOnlyError": "error"
+        "useThrowOnlyError": "error",
+        "useConsistentArrayType": { "level": "error", "options": { "syntax": "shorthand" } },
+        "useCollapsedElseIf": "error",
+        "noNonNullAssertion": "error",
+        "useShorthandAssign": "error",
+        "noYodaExpression": "error",
+        "useForOf": "error",
+        "noNegationElse": "error"
+      },
+      "complexity": {
+        "useSimplifiedLogicExpression": "error",
+        "noUselessStringConcat": "error"
       },
       "correctness": {
         "noUnusedImports": "error",
         "noUnusedVariables": "error",
         "noUnusedFunctionParameters": "error"
+      },
+      "performance": {
+        "noReExportAll": "error"
       }
     }
   },
   "javascript": {
     "formatter": { "quoteStyle": "double", "semicolons": "always" }
-  }
+  },
+  "overrides": [
+    {
+      "includes": ["packages/schema/scripts/**"],
+      "linter": { "rules": { "suspicious": { "noConsole": "off" } } }
+    },
+    {
+      "includes": ["**/test/**"],
+      "linter": { "rules": { "suspicious": { "noConsole": "off", "useAwait": "off" } } }
+    }
+  ]
 }
