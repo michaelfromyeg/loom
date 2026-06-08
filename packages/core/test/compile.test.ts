@@ -192,6 +192,21 @@ describe("marketplace build (spec §6.2)", () => {
     expect(written.length).toBeGreaterThanOrEqual(5);
   });
 
+  it("bare mode writes the catalog at outDir root (a Claude-consumable repo)", async () => {
+    const out = join(tmp, "mp-bare");
+    await buildMarketplace({
+      marketplaceDir: MARKETPLACE,
+      outDir: out,
+      registry: registry(),
+      targets: ["claude"],
+      bare: true,
+    });
+    // No <target>/ nesting: .claude-plugin/marketplace.json is at the root.
+    expect(existsSync(join(out, ".claude-plugin/marketplace.json"))).toBe(true);
+    expect(existsSync(join(out, "claude/.claude-plugin/marketplace.json"))).toBe(false);
+    expect(existsSync(join(out, "plugins/code-tools/skills/lint/SKILL.md"))).toBe(true);
+  });
+
   it("propagates an entry version override into the compiled plugin.json", async () => {
     const out = join(tmp, "mp-ver");
     await buildMarketplace({ marketplaceDir: MARKETPLACE, outDir: out, registry: registry() });

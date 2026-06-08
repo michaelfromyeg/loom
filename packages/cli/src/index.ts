@@ -10,7 +10,6 @@ import {
   importNativePlugin,
   install,
   installMarketplace,
-  WEFT_VERSION,
   lint,
   lockDirForScope,
   readLock,
@@ -19,6 +18,7 @@ import {
   uninstall,
   update,
   verifyArtifacts,
+  WEFT_VERSION,
 } from "@michaelfromyeg/weft-core";
 import { discoverEvals, runEval } from "@michaelfromyeg/weft-eval";
 import {
@@ -121,11 +121,20 @@ const buildCmd = defineCommand({
     },
     out: { type: "string", default: ".weft-out", description: "Output directory" },
     target: { type: "string", description: "Comma-separated targets (default: all registered)" },
+    bare: {
+      type: "boolean",
+      description:
+        "Write straight to --out without the <target>/ subdir (one --target only); e.g. `--target claude --out . --bare` makes a repo root a Claude marketplace",
+    },
   },
   async run({ args }) {
     try {
       const registry = buildRegistry();
       const targets = parseTargets(args.target);
+      if (args.bare && targets?.length !== 1) {
+        log.error("--bare requires exactly one --target (e.g. --target claude)");
+        process.exit(1);
+      }
       // A remote ref (github:/git/owner-repo, optionally //subdir) clones into the
       // cache; a local path is used as-is.
       const { dir } = await resolveSourceDir(args.dir, process.cwd());
@@ -137,6 +146,7 @@ const buildCmd = defineCommand({
           outDir: args.out,
           registry,
           targets,
+          bare: Boolean(args.bare),
         });
         log.data({
           marketplace: marketplace.name,
@@ -156,6 +166,7 @@ const buildCmd = defineCommand({
         outDir: args.out,
         registry,
         targets,
+        bare: Boolean(args.bare),
       });
       if (result.diagnostics.items.length > 0) printDiagnostics(result.diagnostics.items);
       log.data({ id: result.id, out: args.out, files: Object.fromEntries(countByTarget(written)) });

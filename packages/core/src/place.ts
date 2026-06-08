@@ -63,12 +63,14 @@ export function placeCatalog(
  * writes the plugin tree at `outDir/<target>/plugins/<plugin>/` plus a synthetic
  * one-entry catalog at the target root, leaving harness install dirs untouched.
  */
-export function buildToDir(result: CompileResult, outDir: string): WrittenArtifact[] {
+export function buildToDir(result: CompileResult, outDir: string, bare = false): WrittenArtifact[] {
   const written: WrittenArtifact[] = [];
   const { plugin } = result.fb;
   const marketplace = synthMarketplace(plugin);
   for (const t of result.targets) {
-    const base = join(outDir, t.target);
+    // `bare` writes straight to outDir (one target only) so a repo root becomes the
+    // harness's native marketplace; otherwise each target nests under <outDir>/<target>/.
+    const base = bare ? outDir : join(outDir, t.target);
     written.push(...placePluginArtifacts(t, base, plugin.name));
     written.push(...placeCatalog(t.adapter, marketplace, base));
   }

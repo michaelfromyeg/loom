@@ -76,6 +76,8 @@ export interface BuildOptions {
   outDir: string;
   registry: AdapterRegistry;
   targets?: Target[];
+  /** Write straight to outDir without the <target>/ subdir (single target only). */
+  bare?: boolean;
 }
 
 export interface BuildResult {
@@ -90,7 +92,7 @@ export async function build(opts: BuildOptions): Promise<BuildResult> {
   if (result.diagnostics.hasErrors) {
     throw new CompileError("compile failed", result.diagnostics.errors);
   }
-  const written = buildToDir(result, opts.outDir);
+  const written = buildToDir(result, opts.outDir, opts.bare);
   return { result, written };
 }
 
@@ -99,6 +101,8 @@ export interface BuildMarketplaceOptions {
   outDir: string;
   registry: AdapterRegistry;
   targets?: Target[];
+  /** Write straight to outDir without the <target>/ subdir (single target only). */
+  bare?: boolean;
 }
 
 export interface BuildMarketplaceResult {
@@ -152,7 +156,7 @@ export async function buildMarketplace(
   for (const target of targets) {
     const adapter = opts.registry.get(target);
     if (!adapter) continue;
-    const base = join(opts.outDir, target);
+    const base = opts.bare ? opts.outDir : join(opts.outDir, target);
     const entries: CatalogEntry[] = [];
     for (const { entry, result } of compiled) {
       const output = result.targets.find((t) => t.target === target);
