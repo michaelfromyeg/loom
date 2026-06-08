@@ -119,6 +119,11 @@ async function npmFetch(
 ): Promise<{ dir: string; sha: string }> {
   const spec = version ? `${pkg}@${version}` : pkg;
   const dir = cacheDirFor(`npm:${spec}`);
+  const pkgDir = join(dir, "package");
+  // A pinned version is immutable, so reuse a prior extraction; an unpinned
+  // (latest) spec always re-fetches to pick up a newer publish.
+  if (version && existsSync(pkgDir)) return { dir: pkgDir, sha: version };
+
   mkdirSync(dir, { recursive: true });
   // `npm pack` fetches just the tarball from the registry; --json reports it.
   const { stdout } = await execa("npm", ["pack", spec, "--pack-destination", dir, "--json"], {
@@ -129,7 +134,31 @@ async function npmFetch(
   if (!first) throw new Error(`npm pack produced no tarball for "${spec}"`);
   // The tarball extracts its contents under a top-level `package/` directory.
   await execa("tar", ["-xzf", join(dir, first.filename), "-C", dir]);
-  return { dir: join(dir, "package"), sha: first.version ?? version ?? "" };
+  return { dir: pkgDir, sha: first.version ?? version ?? "" };
+}
+
+/** A resolved source directory on disk, plus the ref/SHA it came from. */
+export interface ResolvedSource {
+  dir: string;
+  ref: string;
+  sha: string;
+}
+
+type RemoteSource = Exclude<Source, { kind: "local" }>;
+
+/**
+ * Fetch a remote source into the cache (git clone or `npm pack`) and apply a
+ * trailing `//subdir`. The single place that knows the remote-fetch matrix, so
+ * both the plugin loader and the bare-dir resolver build on it.
+ */
+async function fetchSourceDir(src: RemoteSource): Promise<ResolvedSource> {
+  if (src.kind === "github" || src.kind === "git") {
+    const url = src.kind === "github" ? `https://github.com/${src.repo}.git` : src.url;
+    const { dir, sha } = await gitFetch(url, src.ref);
+    return { dir: src.subdir ? join(dir, src.subdir) : dir, ref: src.ref ?? "default", sha };
+  }
+  const { dir, sha } = await npmFetch(src.pkg, src.version);
+  return { dir: src.subdir ? join(dir, src.subdir) : dir, ref: src.version ?? "latest", sha };
 }
 
 /**
@@ -143,34 +172,19 @@ export async function resolvePluginRefFull(
   fromRoot: string,
 ): Promise<ResolvedPlugin> {
   const src = parseSource(source);
-
   if (src.kind === "local") {
     const dir = isAbsolute(src.path) ? src.path : resolvePath(fromRoot, src.path);
     return { fb: loadOrThrow(dir, source), ref: "local", sha: "" };
   }
-  if (src.kind === "github" || src.kind === "git") {
-    const url = src.kind === "github" ? `https://github.com/${src.repo}.git` : src.url;
-    const { dir, sha } = await gitFetch(url, src.ref);
-    const root = src.subdir ? join(dir, src.subdir) : dir;
-    return { fb: loadOrThrow(root, source), ref: src.ref ?? "default", sha };
-  }
-  const { dir, sha } = await npmFetch(src.pkg, src.version);
-  const root = src.subdir ? join(dir, src.subdir) : dir;
-  return { fb: loadOrThrow(root, source), ref: src.version ?? "latest", sha };
-}
-
-/** A resolved source directory on disk, plus the ref/SHA it came from. */
-export interface ResolvedSource {
-  dir: string;
-  ref: string;
-  sha: string;
+  const { dir, ref, sha } = await fetchSourceDir(src);
+  return { fb: loadOrThrow(dir, source), ref, sha };
 }
 
 /**
  * Resolve an install/build target (a plugin OR a marketplace) to a directory on
- * disk: a local path is returned as-is; a `github:`/git ref (optionally with a
- * `//subdir`) is cloned into the cache. Unlike `resolvePluginRefFull` this does
- * not load a plugin, so it works for a `marketplace.yaml` target too.
+ * disk: a local path is returned as-is; a remote ref (optionally with a `//subdir`)
+ * is fetched into the cache. Unlike `resolvePluginRefFull` this does not load a
+ * plugin, so it works for a `marketplace.yaml` target too.
  */
 export async function resolveSourceDir(source: string, fromRoot: string): Promise<ResolvedSource> {
   // A path that exists on disk is always local; this avoids misreading a real
@@ -179,16 +193,8 @@ export async function resolveSourceDir(source: string, fromRoot: string): Promis
   if (existsSync(localGuess)) return { dir: localGuess, ref: "local", sha: "" };
 
   const src = parseSource(source);
-  if (src.kind === "local") {
-    return { dir: localGuess, ref: "local", sha: "" };
-  }
-  if (src.kind === "github" || src.kind === "git") {
-    const url = src.kind === "github" ? `https://github.com/${src.repo}.git` : src.url;
-    const { dir, sha } = await gitFetch(url, src.ref);
-    return { dir: src.subdir ? join(dir, src.subdir) : dir, ref: src.ref ?? "default", sha };
-  }
-  const { dir, sha } = await npmFetch(src.pkg, src.version);
-  return { dir: src.subdir ? join(dir, src.subdir) : dir, ref: src.version ?? "latest", sha };
+  if (src.kind === "local") return { dir: localGuess, ref: "local", sha: "" };
+  return await fetchSourceDir(src);
 }
 
 /** Convenience: resolve and return only the fetched plugin. */

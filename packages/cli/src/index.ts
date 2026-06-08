@@ -587,8 +587,9 @@ const uninstallCmd = defineCommand({
       type: "positional",
       required: false,
       default: ".",
-      description: "Install target dir holding loom.lock (the project you installed into)",
+      description: "Install target holding loom.lock (default: derived from --scope)",
     },
+    scope: { type: "string", default: "project", description: "user | project" },
     plugin: {
       type: "string",
       description: "Remove only this plugin (id or bare name); default removes all",
@@ -596,7 +597,11 @@ const uninstallCmd = defineCommand({
   },
   run({ args }) {
     try {
-      const res = uninstall({ dir: args.dir, ...(args.plugin ? { plugin: args.plugin } : {}) });
+      const scope = (args.scope === "user" ? "user" : "project") as Scope;
+      // An explicit dir wins; otherwise read the lock from the scope's target
+      // (the project cwd for project scope, ~/.loom for user scope).
+      const dir = args.dir === "." ? lockDirForScope(scope, process.cwd()) : args.dir;
+      const res = uninstall({ dir, ...(args.plugin ? { plugin: args.plugin } : {}) });
       log.data({ removed: res.removed, plugins: res.plugins });
       log.info(`Uninstalled ${res.plugins.length} plugin(s), ${res.removed.length} artifact(s)`);
     } catch (err) {

@@ -272,10 +272,10 @@ export async function install(opts: InstallOptions): Promise<InstallResult> {
     registry: opts.registry,
     ref,
     sha,
-    ...(opts.targets ? { targets: opts.targets } : {}),
-    ...(opts.only ? { only: opts.only } : {}),
-    ...(opts.managed ? { managed: opts.managed } : {}),
-    ...(opts.badges ? { badges: opts.badges } : {}),
+    targets: opts.targets,
+    only: opts.only,
+    managed: opts.managed,
+    badges: opts.badges,
   });
   const { lockfile, lockPath } = commitLock(
     opts.scope,
@@ -346,8 +346,8 @@ export async function installMarketplace(
         registry: opts.registry,
         ref: resolved.ref,
         sha: resolved.sha,
-        ...(opts.targets ? { targets: opts.targets } : {}),
-        ...(opts.managed ? { managed: opts.managed } : {}),
+        targets: opts.targets,
+        managed: opts.managed,
       }),
     );
   }
