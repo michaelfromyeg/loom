@@ -139,7 +139,12 @@ The one real gap in the trust story is ownership. Everything else here is a back
 
 The adapter-kit seam is designed for this; each is a new package, no core change.
 
-- Adapters for Windsurf, Cline, Aider, Zed's agent, and Continue.dev.
+Shipped: a generic skills-only adapter (`genericSkillsAdapter`) for the directory-convention
+harnesses that load `SKILL.md` from a `<root>/skills/` layout (the `.agents/skills/` family).
+Zed, Gemini CLI, Amp, and Aider are wired up as targets today; adding another is one row in
+the CLI registry. These get skills only; the five deep harnesses keep full plugin support.
+
+- Full (non-skills) adapters for more harnesses where it's worth the depth.
 - An adapter conformance suite (golden fixtures) so a community adapter self-certifies against
   the `HarnessAdapter` contract.
 - Richer OpenCode driver via `@opencode-ai/sdk` / `opencode serve` SSE (full pending->running->

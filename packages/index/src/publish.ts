@@ -29,7 +29,7 @@ export async function publishCheck(
   pluginDir: string,
   opts: {
     registry: AdapterRegistry;
-    drivers: Record<Target, HarnessDriver>;
+    drivers: Partial<Record<Target, HarnessDriver>>;
     /** Snapshot each harness's score into evals/.baselines/ for the next release. */
     snapshot?: boolean;
   },

@@ -33,6 +33,13 @@ export interface HarnessAdapter {
   /** The harness manifest schema version this adapter emits against. */
   readonly targetSchema: string;
 
+  /**
+   * Place artifacts directly under the scope's category dirs without the
+   * `plugins/<name>/` grouping. For directory-convention harnesses that load
+   * skills flatly from `.agents/skills/<leaf>/` rather than per-plugin.
+   */
+  readonly flat?: boolean;
+
   /** Resolve install directories for a scope on this machine. */
   detect(scope: Scope, cwd: string): InstallPaths;
 

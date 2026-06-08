@@ -5,6 +5,8 @@ export type { CatalogEntry, ResolvedMarketplace } from "./catalog";
 export type { HarnessDriver, RunOptions, ToolCall, Transcript } from "./driver";
 export type { Frontmatter } from "./frontmatter";
 export { parseFrontmatter, withFrontmatter } from "./frontmatter";
+export type { GenericSkillsConfig } from "./generic";
+export { genericSkillsAdapter } from "./generic";
 export type { ImportedMarketplace, ImportedPlugin, ImportOptions, ImportResult } from "./import";
 export type { InstallPaths } from "./paths";
 export { expandTilde, homedir, resolveUnder } from "./paths";

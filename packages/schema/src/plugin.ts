@@ -1,7 +1,21 @@
 import { z } from "zod";
 
-/** The five coding-agent harnesses Weft compiles to. */
-export const Target = z.enum(["claude", "codex", "cursor", "copilot", "opencode"]);
+/**
+ * The coding-agent harnesses Weft compiles to. The first five have full,
+ * dedicated adapters (skills + MCP + agents + hooks + commands); the rest are
+ * skills-only directory-convention harnesses served by a generic adapter.
+ */
+export const Target = z.enum([
+  "claude",
+  "codex",
+  "cursor",
+  "copilot",
+  "opencode",
+  "zed",
+  "gemini",
+  "amp",
+  "aider",
+]);
 export type Target = z.infer<typeof Target>;
 
 export const ALL_TARGETS: readonly Target[] = Target.options;

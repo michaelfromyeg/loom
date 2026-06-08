@@ -134,7 +134,7 @@ export interface RunEvalOptions {
   pluginDir: string;
   componentLeaf: string;
   registry: AdapterRegistry;
-  drivers: Record<Target, HarnessDriver>;
+  drivers: Partial<Record<Target, HarnessDriver>>;
   scratchRoot?: string;
   timeoutMs?: number;
   /** Judge model for `judge` assertions (advisory unless gated). Omit to skip. */

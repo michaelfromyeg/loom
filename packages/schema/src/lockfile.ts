@@ -55,14 +55,7 @@ export const Lockfile = z.object({
   plugins: z.array(PluginLock),
   /** Every placed artifact across all plugins; each tagged with its `plugin` id. */
   artifacts: z.array(ArtifactRecord),
-  adapters: z
-    .object({
-      claude: AdapterRecord.optional(),
-      codex: AdapterRecord.optional(),
-      cursor: AdapterRecord.optional(),
-      copilot: AdapterRecord.optional(),
-      opencode: AdapterRecord.optional(),
-    })
-    .partial(),
+  /** Adapter version + targetSchema used per target, keyed by target name. */
+  adapters: z.record(z.string(), AdapterRecord),
 });
 export type Lockfile = z.infer<typeof Lockfile>;

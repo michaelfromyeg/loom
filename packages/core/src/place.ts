@@ -36,9 +36,11 @@ export function placePluginArtifacts(
   baseDir: string,
   pluginName: string,
 ): WrittenArtifact[] {
-  const pluginPrefix = join("plugins", pluginName);
+  // Flat adapters drop the plugins/<name>/ grouping (directory-convention harnesses).
   return target.artifacts.map(({ artifact }) => {
-    const rel = join(pluginPrefix, artifact.relPath);
+    const rel = target.adapter.flat
+      ? artifact.relPath
+      : join("plugins", pluginName, artifact.relPath);
     const { abs, hash } = writeArtifact(baseDir, rel, artifact.contents);
     return { target: target.target, relPath: rel, abs, hash, kind: artifact.kind };
   });
@@ -96,7 +98,8 @@ export function planScopeArtifacts(
   const name = result.fb.plugin.name;
   for (const t of result.targets) {
     const paths = t.adapter.detect(scope, cwd);
-    const pluginDir = join(paths.plugins, name);
+    // Flat adapters place under the scope dir directly, no plugins/<name>/ grouping.
+    const pluginDir = t.adapter.flat ? paths.plugins : join(paths.plugins, name);
     for (const { componentId, artifact } of t.artifacts) {
       const contents = toBuffer(artifact.contents);
       planned.push({

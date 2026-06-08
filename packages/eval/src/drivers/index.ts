@@ -21,7 +21,7 @@ export {
 export type { CliResult } from "./util";
 
 /** Every built-in headless driver, keyed by Target. */
-export const drivers: Record<Target, HarnessDriver> = {
+export const drivers: Partial<Record<Target, HarnessDriver>> = {
   claude: claudeDriver,
   codex: codexDriver,
   cursor: cursorDriver,
