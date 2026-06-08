@@ -51,6 +51,20 @@ describe("loom import (reverse-compile native -> Loom)", () => {
     expect(existsSync(join(out, "mcp/weather/server.json"))).toBe(true);
   });
 
+  it("throws for an adapter that does not support import", () => {
+    const noImport = { ...claudeAdapter, importNative: undefined };
+    expect(() =>
+      importNativePlugin({ dir: PLUGIN, adapter: noImport, outDir: join(tmp, "x") }),
+    ).toThrow(/does not support import/);
+  });
+
+  it("throws when the directory is not the adapter's native format", () => {
+    const empty = mkdtempSync(join(tmpdir(), "loom-empty-"));
+    expect(() =>
+      importNativePlugin({ dir: empty, adapter: claudeAdapter, outDir: join(tmp, "y") }),
+    ).toThrow(/no claude/);
+  });
+
   it("imports a Claude marketplace into a marketplace.yaml", async () => {
     const built = join(tmp, "mkt");
     await buildMarketplace({
