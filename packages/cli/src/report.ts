@@ -1,6 +1,24 @@
 import type { CompileResult, Diagnostic } from "@michaelfromyeg/weft-core";
-import type { EvalReport } from "@michaelfromyeg/weft-eval";
+import type { CompareReport, EvalReport } from "@michaelfromyeg/weft-eval";
 import { log } from "./logger";
+
+/** Render the A/B "vibes" comparison: each case's before vs after transcript. */
+export function printComparison(component: string, ref: string, reports: CompareReport[]): void {
+  log.data({ component, ref, reports });
+  if (reports.length === 0) {
+    log.info(`\n${component}: no runnable harness to compare (all UNTESTED).`);
+    return;
+  }
+  for (const r of reports) {
+    for (const c of r.cases) {
+      log.info(`\n=== ${component} :: ${c.name} [${r.harness}] ===`);
+      log.info(`prompt: ${c.prompt}`);
+      log.info(`\n--- before (${ref}) ---\n${c.before.trim() || "(empty)"}`);
+      log.info(`\n--- after (working tree) ---\n${c.after.trim() || "(empty)"}`);
+    }
+  }
+  log.info("\n(read the pairs and judge which definition reads better.)");
+}
 
 export function formatDiagnostic(d: Diagnostic): string {
   const tag = d.severity === "error" ? "error" : d.severity === "warning" ? "warn" : "info";

@@ -77,8 +77,9 @@ ARGUMENTS
 
 OPTIONS
 
-  `--component`    Only eval this component leaf name           
-    `--harness`    Restrict to these harnesses (comma-separated)
+  `--component`    Only eval this component leaf name                                                       
+    `--harness`    Restrict to these harnesses (comma-separated)                                            
+    `--compare`    Vibes A/B: run each case against this git ref (or dir) and the working tree, side by side
 ```
 
 ## `weft import`

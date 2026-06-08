@@ -9,6 +9,8 @@ export type {
 export { evaluateAssertion } from "./assert";
 export type { Baseline } from "./baselines";
 export { loadBaseline, writeBaseline } from "./baselines";
+export type { CompareCase, CompareOptions, CompareReport } from "./compare";
+export { compareVersions } from "./compare";
 export type { CliResult } from "./drivers";
 export {
   claudeDriver,

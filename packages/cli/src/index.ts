@@ -1,6 +1,8 @@
+import { execFileSync } from "node:child_process";
 import { createPrivateKey, createPublicKey } from "node:crypto";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join, relative, resolve } from "node:path";
 import {
   build,
   buildMarketplace,
@@ -20,7 +22,7 @@ import {
   verifyArtifacts,
   WEFT_VERSION,
 } from "@michaelfromyeg/weft-core";
-import { discoverEvals, runEval } from "@michaelfromyeg/weft-eval";
+import { compareVersions, discoverEvals, runEval } from "@michaelfromyeg/weft-eval";
 import {
   federate,
   fetchMcpRegistry,
@@ -33,7 +35,7 @@ import { defineCommand, runMain } from "citty";
 import { renderCliReference } from "./cli-docs";
 import { log } from "./logger";
 import { allDrivers, buildRegistry, parseList, parseTargets } from "./registry";
-import { printDiagnostics, printEvalReport, printTrustSummary } from "./report";
+import { printComparison, printDiagnostics, printEvalReport, printTrustSummary } from "./report";
 import { scaffoldPlugin } from "./scaffold";
 
 /** Filter requested targets to harnesses actually present on this machine. */
@@ -64,6 +66,32 @@ function fail(err: unknown): never {
     log.error(`\n${(err as Error).message}`);
   }
   process.exit(1);
+}
+
+/**
+ * Resolve the "before" side of a vibes comparison. An existing path is used as the
+ * older plugin dir directly; otherwise `ref` is a git ref, checked out into a
+ * throwaway worktree (the plugin sits at the same repo-relative path there).
+ */
+function resolveCompareDir(ref: string, currentDir: string): { dir: string; cleanup: () => void } {
+  if (existsSync(ref)) return { dir: ref, cleanup: () => undefined };
+  const git = (args: string[]) =>
+    execFileSync("git", args, { stdio: ["ignore", "pipe", "ignore"] });
+  const repoRoot = git(["-C", currentDir, "rev-parse", "--show-toplevel"]).toString().trim();
+  const rel = relative(repoRoot, resolve(currentDir));
+  const wt = mkdtempSync(join(tmpdir(), "weft-compare-wt-"));
+  git(["-C", repoRoot, "worktree", "add", "--detach", wt, ref]);
+  return {
+    dir: join(wt, rel),
+    cleanup: () => {
+      try {
+        git(["-C", repoRoot, "worktree", "remove", "--force", wt]);
+      } catch {
+        /* best effort */
+      }
+      rmSync(wt, { recursive: true, force: true });
+    },
+  };
 }
 
 const initCmd = defineCommand({
@@ -339,6 +367,11 @@ const evalCmd = defineCommand({
     dir: { type: "positional", required: false, default: ".", description: "Plugin directory" },
     component: { type: "string", description: "Only eval this component leaf name" },
     harness: { type: "string", description: "Restrict to these harnesses (comma-separated)" },
+    compare: {
+      type: "string",
+      description:
+        "Vibes A/B: run each case against this git ref (or dir) and the working tree, side by side",
+    },
   },
   async run({ args }) {
     try {
@@ -352,16 +385,36 @@ const evalCmd = defineCommand({
         return;
       }
       const onlyHarness = parseTargets(args.harness);
+      const filterHarnesses = (ef: (typeof discovered)[number]["evalFile"]) =>
+        onlyHarness
+          ? { ...ef, harnesses: ef.harnesses.filter((h) => onlyHarness.includes(h)) }
+          : ef;
+
+      // Vibes A/B: render each case's before (a git ref / dir) vs after (working tree).
+      if (args.compare) {
+        const { dir: beforeDir, cleanup } = resolveCompareDir(args.compare, args.dir);
+        try {
+          for (const d of discovered) {
+            const reports = await compareVersions({
+              evalFile: filterHarnesses(d.evalFile),
+              componentLeaf: d.componentLeaf,
+              beforeDir,
+              afterDir: args.dir,
+              registry,
+              drivers,
+            });
+            printComparison(d.componentLeaf, args.compare, reports);
+          }
+        } finally {
+          cleanup();
+        }
+        return;
+      }
+
       let anyFail = false;
       for (const d of discovered) {
-        const evalFile = onlyHarness
-          ? {
-              ...d.evalFile,
-              harnesses: d.evalFile.harnesses.filter((h) => onlyHarness.includes(h)),
-            }
-          : d.evalFile;
         const report = await runEval({
-          evalFile,
+          evalFile: filterHarnesses(d.evalFile),
           pluginDir: args.dir,
           componentLeaf: d.componentLeaf,
           registry,
