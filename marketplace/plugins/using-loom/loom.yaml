@@ -1,0 +1,9 @@
+name: using-loom
+version: 0.1.0
+owner:
+  name: Loom
+  namespace: io.github.michaelfromyeg
+description: How to author a capability once and compile it to every coding-agent harness with Loom.
+license: MIT
+components:
+  - skill: skills/using-loom

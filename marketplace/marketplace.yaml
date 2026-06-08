@@ -1,0 +1,12 @@
+name: loom
+owner:
+  name: Loom
+  namespace: io.github.michaelfromyeg
+description: Loom's own skills, compiled with Loom. One for using Loom, one for developing it.
+plugins:
+  - plugin: ./plugins/using-loom
+    category: docs
+    tags: [loom, getting-started]
+  - plugin: ./plugins/developing-loom
+    category: docs
+    tags: [loom, contributing]
