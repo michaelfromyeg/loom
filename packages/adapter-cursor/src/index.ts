@@ -9,6 +9,7 @@ import {
   type ResolvedMarketplace,
 } from "@loom/adapter-kit";
 import { type Component, kindOf, leafNameOf, type Plugin, refOf, type Scope } from "@loom/schema";
+import { importCursor } from "./import";
 import { type McpServerConfig, mcpRunConfig, mcpServerName } from "./mcp";
 
 /** Bump on any change to Cursor's plugin/marketplace manifest shape (spec §5). */
@@ -167,6 +168,8 @@ export const cursorAdapter: HarnessAdapter = {
 
     return [artifact(".cursor-plugin/marketplace.json", json(catalog), { kind: "catalog" })];
   },
+
+  importNative: importCursor,
 };
 
 export default cursorAdapter;

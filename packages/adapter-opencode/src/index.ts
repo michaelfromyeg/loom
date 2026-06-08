@@ -9,6 +9,7 @@ import {
   type ResolvedMarketplace,
 } from "@loom/adapter-kit";
 import { type Component, kindOf, leafNameOf, type Plugin, refOf, type Scope } from "@loom/schema";
+import { importOpencode } from "./import";
 import { mcpRunConfig, mcpServerName, type OpencodeMcpServer } from "./mcp";
 
 /** Bump on any change to OpenCode's directory-convention / opencode.json shape (spec §5). */
@@ -161,6 +162,8 @@ export const opencodeAdapter: HarnessAdapter = {
 
     return [artifact("loom-marketplace.json", json(catalog), { kind: "catalog" })];
   },
+
+  importNative: importOpencode,
 };
 
 export default opencodeAdapter;

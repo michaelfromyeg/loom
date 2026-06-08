@@ -21,5 +21,8 @@
   "dependencies": {
     "@loom/adapter-kit": "workspace:*",
     "@loom/schema": "workspace:*"
+  },
+  "devDependencies": {
+    "@loom/core": "workspace:*"
   }
 }

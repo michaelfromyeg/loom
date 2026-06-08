@@ -10,6 +10,7 @@ import {
   type ResolvedMarketplace,
 } from "@loom/adapter-kit";
 import { type Component, kindOf, leafNameOf, type Plugin, refOf, type Scope } from "@loom/schema";
+import { importCodex } from "./import";
 import { type McpServerConfig, mcpRunConfig, mcpServerName, renderMcpServersToml } from "./mcp";
 
 /** Bump on any change to Codex's plugin/config/sidecar shape (spec §5). */
@@ -222,6 +223,8 @@ export const codexAdapter: HarnessAdapter = {
 
     return [artifact("loom-marketplace.json", json(catalog), { kind: "catalog" })];
   },
+
+  importNative: importCodex,
 };
 
 function tomlString(value: string): string {

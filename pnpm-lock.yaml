@@ -56,6 +56,10 @@ importers:
       '@loom/schema':
         specifier: workspace:*
         version: link:../schema
+    devDependencies:
+      '@loom/core':
+        specifier: workspace:*
+        version: link:../core
 
   packages/adapter-copilot:
     dependencies:
@@ -65,6 +69,10 @@ importers:
       '@loom/schema':
         specifier: workspace:*
         version: link:../schema
+    devDependencies:
+      '@loom/core':
+        specifier: workspace:*
+        version: link:../core
 
   packages/adapter-cursor:
     dependencies:
@@ -74,6 +82,10 @@ importers:
       '@loom/schema':
         specifier: workspace:*
         version: link:../schema
+    devDependencies:
+      '@loom/core':
+        specifier: workspace:*
+        version: link:../core
 
   packages/adapter-kit:
     dependencies:
@@ -92,6 +104,10 @@ importers:
       '@loom/schema':
         specifier: workspace:*
         version: link:../schema
+    devDependencies:
+      '@loom/core':
+        specifier: workspace:*
+        version: link:../core
 
   packages/cli:
     dependencies:

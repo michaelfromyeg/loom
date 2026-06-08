@@ -37,7 +37,7 @@ describe("importClaude plugin", () => {
     write(join(dir, "commands/do.md"), "cmd");
 
     const res = importClaude(dir, { namespace: "com.test" });
-    if (!res || res.kind !== "plugin") throw new Error("expected a plugin import");
+    if (res?.kind !== "plugin") throw new Error("expected a plugin import");
     expect(res.plugin.owner.namespace).toBe("com.test");
     expect(res.plugin.owner.email).toBe("a@b.c");
     expect(res.plugin.version).toBe("1.2.0");
@@ -63,7 +63,7 @@ describe("importClaude plugin", () => {
     const dir = join(tmp, "bare");
     write(join(dir, "skills/x/SKILL.md"), "---\nname: x\ndescription: y\n---\nb");
     const res = importClaude(dir);
-    if (!res || res.kind !== "plugin") throw new Error("expected a plugin import");
+    if (res?.kind !== "plugin") throw new Error("expected a plugin import");
     expect(res.plugin.name).toBe("imported-plugin");
   });
 
@@ -92,7 +92,7 @@ describe("importClaude marketplace", () => {
       }),
     );
     const res = importClaude(dir, { namespace: "com.test" });
-    if (!res || res.kind !== "marketplace") throw new Error("expected a marketplace import");
+    if (res?.kind !== "marketplace") throw new Error("expected a marketplace import");
     expect(res.marketplace.owner.namespace).toBe("com.test");
     expect(res.marketplace.plugins.map((p) => p.plugin)).toEqual([
       "./plugins/a",

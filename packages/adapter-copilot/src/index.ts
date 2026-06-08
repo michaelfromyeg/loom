@@ -9,6 +9,7 @@ import {
   type ResolvedMarketplace,
 } from "@loom/adapter-kit";
 import { type Component, kindOf, leafNameOf, type Plugin, refOf, type Scope } from "@loom/schema";
+import { importCopilot } from "./import";
 import { type McpServerConfig, mcpRunConfig, mcpServerName } from "./mcp";
 
 /**
@@ -189,6 +190,8 @@ export const copilotAdapter: HarnessAdapter = {
     // field names and file location (.copilot-plugin/ vs root) are unconfirmed.
     return [artifact(".copilot-plugin/marketplace.json", json(catalog), { kind: "catalog" })];
   },
+
+  importNative: importCopilot,
 };
 
 export default copilotAdapter;
