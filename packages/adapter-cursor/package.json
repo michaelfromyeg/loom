@@ -1,5 +1,5 @@
 {
-  "name": "@michaelfromyeg/loom-adapter-cursor",
+  "name": "@michaelfromyeg/weft-adapter-cursor",
   "version": "0.3.0",
   "description": "Loom adapter for Cursor: plugin.json + marketplace.json + component placement.",
   "type": "module",
@@ -19,11 +19,11 @@
     "build": "tsup"
   },
   "dependencies": {
-    "@michaelfromyeg/loom-adapter-kit": "workspace:*",
-    "@michaelfromyeg/loom-schema": "workspace:*"
+    "@michaelfromyeg/weft-adapter-kit": "workspace:*",
+    "@michaelfromyeg/weft-schema": "workspace:*"
   },
   "devDependencies": {
-    "@michaelfromyeg/loom-core": "workspace:*"
+    "@michaelfromyeg/weft-core": "workspace:*"
   },
   "license": "MIT",
   "author": "Michael DeMarco",

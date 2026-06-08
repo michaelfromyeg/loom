@@ -3,7 +3,7 @@ import type {
   HarnessAdapter,
   PluginCtx,
   ResolvedMarketplace,
-} from "@michaelfromyeg/loom-adapter-kit";
+} from "@michaelfromyeg/weft-adapter-kit";
 import {
   ALL_TARGETS,
   type Component,
@@ -14,7 +14,7 @@ import {
   type Plugin,
   type Target,
   targetsOf,
-} from "@michaelfromyeg/loom-schema";
+} from "@michaelfromyeg/weft-schema";
 import { Diagnostics } from "./diagnostics";
 import type { FetchedPlugin } from "./loader";
 import { resolveAliases } from "./namespace";

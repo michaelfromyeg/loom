@@ -1,4 +1,4 @@
-import type { IndexFile } from "@michaelfromyeg/loom-schema";
+import type { IndexFile } from "@michaelfromyeg/weft-schema";
 
 /**
  * Opt-in, aggregate-only install record (spec §2, §10): increments an entry's

@@ -3,7 +3,7 @@ import {
   type IndexEntry,
   IndexFile,
   type IndexVersion,
-} from "@michaelfromyeg/loom-schema";
+} from "@michaelfromyeg/weft-schema";
 
 /** Parse + validate a serialized index. */
 export function loadIndex(text: string): IndexFile {

@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { existsSync, mkdirSync } from "node:fs";
 import { homedir } from "node:os";
 import { isAbsolute, join, resolve as resolvePath } from "node:path";
-import type { Dependency } from "@michaelfromyeg/loom-schema";
+import type { Dependency } from "@michaelfromyeg/weft-schema";
 import { execa } from "execa";
 import { type FetchedPlugin, loadPluginDir } from "./loader";
 

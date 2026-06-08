@@ -1,5 +1,5 @@
 {
-  "name": "@michaelfromyeg/loom-core",
+  "name": "@michaelfromyeg/weft-core",
   "version": "0.3.0",
   "description": "Loom compile pipeline: resolver, namespacing, placement, lockfile, adapter registry.",
   "type": "module",
@@ -19,8 +19,8 @@
     "build": "tsup"
   },
   "dependencies": {
-    "@michaelfromyeg/loom-adapter-kit": "workspace:*",
-    "@michaelfromyeg/loom-schema": "workspace:*",
+    "@michaelfromyeg/weft-adapter-kit": "workspace:*",
+    "@michaelfromyeg/weft-schema": "workspace:*",
     "execa": "^9.5.2",
     "semver": "^7.6.3"
   },

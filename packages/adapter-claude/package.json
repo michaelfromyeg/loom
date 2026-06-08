@@ -1,5 +1,5 @@
 {
-  "name": "@michaelfromyeg/loom-adapter-claude",
+  "name": "@michaelfromyeg/weft-adapter-claude",
   "version": "0.3.0",
   "description": "Loom adapter for Claude Code: plugin.json + marketplace.json + component placement.",
   "type": "module",
@@ -19,8 +19,8 @@
     "build": "tsup"
   },
   "dependencies": {
-    "@michaelfromyeg/loom-adapter-kit": "workspace:*",
-    "@michaelfromyeg/loom-schema": "workspace:*"
+    "@michaelfromyeg/weft-adapter-kit": "workspace:*",
+    "@michaelfromyeg/weft-schema": "workspace:*"
   },
   "license": "MIT",
   "author": "Michael DeMarco",

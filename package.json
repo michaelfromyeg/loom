@@ -1,5 +1,5 @@
 {
-  "name": "loom-monorepo",
+  "name": "weft-monorepo",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -14,7 +14,7 @@
     "test:watch": "vitest",
     "lint": "biome check .",
     "format": "biome format --write .",
-    "loom": "bun packages/cli/src/index.ts",
+    "weft": "bun packages/cli/src/index.ts",
     "changeset": "changeset",
     "release": "changeset publish",
     "test:coverage": "vitest run --coverage",

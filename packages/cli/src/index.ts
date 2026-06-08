@@ -19,16 +19,16 @@ import {
   uninstall,
   update,
   verifyArtifacts,
-} from "@michaelfromyeg/loom-core";
-import { discoverEvals, runEval } from "@michaelfromyeg/loom-eval";
+} from "@michaelfromyeg/weft-core";
+import { discoverEvals, runEval } from "@michaelfromyeg/weft-eval";
 import {
   federate,
   fetchMcpRegistry,
   indexFromPluginDirs,
   publishCheck,
   serializeIndex,
-} from "@michaelfromyeg/loom-index";
-import type { Scope, Target } from "@michaelfromyeg/loom-schema";
+} from "@michaelfromyeg/weft-index";
+import type { Scope, Target } from "@michaelfromyeg/weft-schema";
 import { defineCommand, runMain } from "citty";
 import { renderCliReference } from "./cli-docs";
 import { log } from "./logger";

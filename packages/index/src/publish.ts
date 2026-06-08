@@ -1,7 +1,7 @@
-import type { HarnessDriver } from "@michaelfromyeg/loom-adapter-kit";
-import { type AdapterRegistry, type Diagnostic, lint } from "@michaelfromyeg/loom-core";
-import { discoverEvals, type EvalReport, runEval } from "@michaelfromyeg/loom-eval";
-import type { Badge, Target } from "@michaelfromyeg/loom-schema";
+import type { HarnessDriver } from "@michaelfromyeg/weft-adapter-kit";
+import { type AdapterRegistry, type Diagnostic, lint } from "@michaelfromyeg/weft-core";
+import { discoverEvals, type EvalReport, runEval } from "@michaelfromyeg/weft-eval";
+import type { Badge, Target } from "@michaelfromyeg/weft-schema";
 import { computeBadges } from "./badges";
 import { type ScanResult, scanPlugin } from "./scan";
 

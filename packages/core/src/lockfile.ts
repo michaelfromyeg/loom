@@ -7,7 +7,7 @@ import {
   type PluginLock,
   type Scope,
   validate,
-} from "@michaelfromyeg/loom-schema";
+} from "@michaelfromyeg/weft-schema";
 import type { CompileResult } from "./compile";
 import { LOOM_VERSION } from "./version";
 

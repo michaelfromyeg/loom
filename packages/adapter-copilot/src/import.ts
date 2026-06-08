@@ -7,8 +7,8 @@ import {
   type ImportedPlugin,
   type ImportOptions,
   type ImportResult,
-} from "@michaelfromyeg/loom-adapter-kit";
-import type { Component, Marketplace, Plugin } from "@michaelfromyeg/loom-schema";
+} from "@michaelfromyeg/weft-adapter-kit";
+import type { Component, Marketplace, Plugin } from "@michaelfromyeg/weft-schema";
 import type { McpServerConfig } from "./mcp";
 
 const MCP_SCHEMA = "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json";

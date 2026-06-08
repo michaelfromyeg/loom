@@ -1,11 +1,11 @@
-import type { Transcript } from "@michaelfromyeg/loom-adapter-kit";
+import type { Transcript } from "@michaelfromyeg/weft-adapter-kit";
 import type {
   Assertion,
   DifferentialAssert,
   JudgeAssert,
   OutputAssert,
   TraceAssert,
-} from "@michaelfromyeg/loom-schema";
+} from "@michaelfromyeg/weft-schema";
 
 export type AssertStatus = "pass" | "fail" | "degraded" | "skipped";
 

@@ -7,7 +7,7 @@ import {
   kindOf,
   leafNameOf,
   refOf,
-} from "@michaelfromyeg/loom-schema";
+} from "@michaelfromyeg/weft-schema";
 import { type FetchedPlugin, fileAccessors } from "./loader";
 import { resolveDependency } from "./resolve";
 

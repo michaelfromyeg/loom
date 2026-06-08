@@ -6,7 +6,7 @@ import {
   Marketplace,
   type ParseResult,
   type Plugin,
-} from "@michaelfromyeg/loom-schema";
+} from "@michaelfromyeg/weft-schema";
 
 /** A plugin whose files are available on disk under `root`. */
 export interface FetchedPlugin {

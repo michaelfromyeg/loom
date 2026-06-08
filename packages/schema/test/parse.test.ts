@@ -10,7 +10,7 @@ import {
   parseDocument,
   refOf,
   validate,
-} from "@michaelfromyeg/loom-schema";
+} from "@michaelfromyeg/weft-schema";
 import { describe, expect, it } from "vitest";
 
 const owner = "owner: { name: A, namespace: com.a }";

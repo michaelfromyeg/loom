@@ -1,4 +1,4 @@
-import type { Marketplace, Plugin } from "@michaelfromyeg/loom-schema";
+import type { Marketplace, Plugin } from "@michaelfromyeg/weft-schema";
 import type { CompiledArtifact } from "./artifact";
 
 export interface ImportOptions {

@@ -2,11 +2,11 @@ import { cpSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import claudeAdapter from "@michaelfromyeg/loom-adapter-claude";
-import type { HarnessDriver } from "@michaelfromyeg/loom-adapter-kit";
-import { AdapterRegistry } from "@michaelfromyeg/loom-core";
-import type { EvalReport } from "@michaelfromyeg/loom-eval";
-import type { Target } from "@michaelfromyeg/loom-schema";
+import claudeAdapter from "@michaelfromyeg/weft-adapter-claude";
+import type { HarnessDriver } from "@michaelfromyeg/weft-adapter-kit";
+import { AdapterRegistry } from "@michaelfromyeg/weft-core";
+import type { EvalReport } from "@michaelfromyeg/weft-eval";
+import type { Target } from "@michaelfromyeg/weft-schema";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import {
   buildIndex,

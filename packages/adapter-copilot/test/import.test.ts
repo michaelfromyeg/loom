@@ -2,7 +2,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { AdapterRegistry, build, importNativePlugin, lint } from "@michaelfromyeg/loom-core";
+import { AdapterRegistry, build, importNativePlugin, lint } from "@michaelfromyeg/weft-core";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { importCopilot } from "../src/import";
 import copilotAdapter from "../src/index";

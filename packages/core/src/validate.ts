@@ -1,7 +1,7 @@
 import { existsSync, statSync } from "node:fs";
 import { join } from "node:path";
-import { parseFrontmatter } from "@michaelfromyeg/loom-adapter-kit";
-import { kindOf, refOf } from "@michaelfromyeg/loom-schema";
+import { parseFrontmatter } from "@michaelfromyeg/weft-adapter-kit";
+import { kindOf, refOf } from "@michaelfromyeg/weft-schema";
 import type { Diagnostics } from "./diagnostics";
 import type { FetchedPlugin } from "./loader";
 

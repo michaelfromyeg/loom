@@ -1,7 +1,7 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
-import type { HarnessAdapter } from "@michaelfromyeg/loom-adapter-kit";
-import { stringifyDocument } from "@michaelfromyeg/loom-schema";
+import type { HarnessAdapter } from "@michaelfromyeg/weft-adapter-kit";
+import { stringifyDocument } from "@michaelfromyeg/weft-schema";
 
 export interface ImportPluginOptions {
   /** Directory holding an existing native plugin or marketplace. */

@@ -1,4 +1,4 @@
-import type { Owner } from "@michaelfromyeg/loom-schema";
+import type { Owner } from "@michaelfromyeg/weft-schema";
 
 /**
  * One plugin's resolved metadata for a catalog entry. Core resolves each

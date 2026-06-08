@@ -7,7 +7,7 @@ import {
   type InstallPaths,
   type PluginCtx,
   type ResolvedMarketplace,
-} from "@michaelfromyeg/loom-adapter-kit";
+} from "@michaelfromyeg/weft-adapter-kit";
 import {
   type Component,
   kindOf,
@@ -15,7 +15,7 @@ import {
   type Plugin,
   refOf,
   type Scope,
-} from "@michaelfromyeg/loom-schema";
+} from "@michaelfromyeg/weft-schema";
 import { importCursor } from "./import";
 import { type McpServerConfig, mcpRunConfig, mcpServerName } from "./mcp";
 

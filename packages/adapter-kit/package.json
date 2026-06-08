@@ -1,5 +1,5 @@
 {
-  "name": "@michaelfromyeg/loom-adapter-kit",
+  "name": "@michaelfromyeg/weft-adapter-kit",
   "version": "0.3.0",
   "description": "Public HarnessAdapter / HarnessDriver interfaces and helpers. The contract a community adapter implements.",
   "type": "module",
@@ -19,7 +19,7 @@
     "build": "tsup"
   },
   "dependencies": {
-    "@michaelfromyeg/loom-schema": "workspace:*",
+    "@michaelfromyeg/weft-schema": "workspace:*",
     "yaml": "^2.6.1"
   },
   "license": "MIT",

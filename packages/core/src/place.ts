@@ -4,8 +4,8 @@ import type {
   ArtifactKind,
   HarnessAdapter,
   ResolvedMarketplace,
-} from "@michaelfromyeg/loom-adapter-kit";
-import type { ArtifactRecord, Scope, Target } from "@michaelfromyeg/loom-schema";
+} from "@michaelfromyeg/weft-adapter-kit";
+import type { ArtifactRecord, Scope, Target } from "@michaelfromyeg/weft-schema";
 import { type CompileResult, synthMarketplace, type TargetOutput } from "./compile";
 import { sha256 } from "./hash";
 

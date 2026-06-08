@@ -1,6 +1,6 @@
 import { existsSync, mkdirSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
-import type { CatalogEntry, ResolvedMarketplace } from "@michaelfromyeg/loom-adapter-kit";
+import type { CatalogEntry, ResolvedMarketplace } from "@michaelfromyeg/weft-adapter-kit";
 import type {
   Badge,
   Lockfile,
@@ -9,7 +9,7 @@ import type {
   Plugin,
   Scope,
   Target,
-} from "@michaelfromyeg/loom-schema";
+} from "@michaelfromyeg/weft-schema";
 import { type CompileResult, compile, staticPass } from "./compile";
 import { resolveConfig, type SecretsResult } from "./config";
 import { type DependencyRecord, resolveDependencies } from "./deps";

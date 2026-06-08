@@ -1,4 +1,4 @@
-import type { HarnessDriver, Transcript } from "@michaelfromyeg/loom-adapter-kit";
+import type { HarnessDriver, Transcript } from "@michaelfromyeg/weft-adapter-kit";
 import { parseCodexStream } from "./parse";
 import { cliAvailable, runCli } from "./util";
 

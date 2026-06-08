@@ -1,5 +1,5 @@
-import type { HarnessDriver } from "@michaelfromyeg/loom-adapter-kit";
-import type { Target } from "@michaelfromyeg/loom-schema";
+import type { HarnessDriver } from "@michaelfromyeg/weft-adapter-kit";
+import type { Target } from "@michaelfromyeg/weft-schema";
 import { claudeDriver } from "./claude";
 import { codexDriver } from "./codex";
 import { copilotDriver } from "./copilot";

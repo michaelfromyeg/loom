@@ -41,55 +41,55 @@ importers:
 
   packages/adapter-claude:
     dependencies:
-      '@michaelfromyeg/loom-adapter-kit':
+      '@michaelfromyeg/weft-adapter-kit':
         specifier: workspace:*
         version: link:../adapter-kit
-      '@michaelfromyeg/loom-schema':
+      '@michaelfromyeg/weft-schema':
         specifier: workspace:*
         version: link:../schema
 
   packages/adapter-codex:
     dependencies:
-      '@michaelfromyeg/loom-adapter-kit':
+      '@michaelfromyeg/weft-adapter-kit':
         specifier: workspace:*
         version: link:../adapter-kit
-      '@michaelfromyeg/loom-schema':
+      '@michaelfromyeg/weft-schema':
         specifier: workspace:*
         version: link:../schema
     devDependencies:
-      '@michaelfromyeg/loom-core':
+      '@michaelfromyeg/weft-core':
         specifier: workspace:*
         version: link:../core
 
   packages/adapter-copilot:
     dependencies:
-      '@michaelfromyeg/loom-adapter-kit':
+      '@michaelfromyeg/weft-adapter-kit':
         specifier: workspace:*
         version: link:../adapter-kit
-      '@michaelfromyeg/loom-schema':
+      '@michaelfromyeg/weft-schema':
         specifier: workspace:*
         version: link:../schema
     devDependencies:
-      '@michaelfromyeg/loom-core':
+      '@michaelfromyeg/weft-core':
         specifier: workspace:*
         version: link:../core
 
   packages/adapter-cursor:
     dependencies:
-      '@michaelfromyeg/loom-adapter-kit':
+      '@michaelfromyeg/weft-adapter-kit':
         specifier: workspace:*
         version: link:../adapter-kit
-      '@michaelfromyeg/loom-schema':
+      '@michaelfromyeg/weft-schema':
         specifier: workspace:*
         version: link:../schema
     devDependencies:
-      '@michaelfromyeg/loom-core':
+      '@michaelfromyeg/weft-core':
         specifier: workspace:*
         version: link:../core
 
   packages/adapter-kit:
     dependencies:
-      '@michaelfromyeg/loom-schema':
+      '@michaelfromyeg/weft-schema':
         specifier: workspace:*
         version: link:../schema
       yaml:
@@ -98,47 +98,47 @@ importers:
 
   packages/adapter-opencode:
     dependencies:
-      '@michaelfromyeg/loom-adapter-kit':
+      '@michaelfromyeg/weft-adapter-kit':
         specifier: workspace:*
         version: link:../adapter-kit
-      '@michaelfromyeg/loom-schema':
+      '@michaelfromyeg/weft-schema':
         specifier: workspace:*
         version: link:../schema
     devDependencies:
-      '@michaelfromyeg/loom-core':
+      '@michaelfromyeg/weft-core':
         specifier: workspace:*
         version: link:../core
 
   packages/cli:
     dependencies:
-      '@michaelfromyeg/loom-adapter-claude':
+      '@michaelfromyeg/weft-adapter-claude':
         specifier: workspace:*
         version: link:../adapter-claude
-      '@michaelfromyeg/loom-adapter-codex':
+      '@michaelfromyeg/weft-adapter-codex':
         specifier: workspace:*
         version: link:../adapter-codex
-      '@michaelfromyeg/loom-adapter-copilot':
+      '@michaelfromyeg/weft-adapter-copilot':
         specifier: workspace:*
         version: link:../adapter-copilot
-      '@michaelfromyeg/loom-adapter-cursor':
+      '@michaelfromyeg/weft-adapter-cursor':
         specifier: workspace:*
         version: link:../adapter-cursor
-      '@michaelfromyeg/loom-adapter-kit':
+      '@michaelfromyeg/weft-adapter-kit':
         specifier: workspace:*
         version: link:../adapter-kit
-      '@michaelfromyeg/loom-adapter-opencode':
+      '@michaelfromyeg/weft-adapter-opencode':
         specifier: workspace:*
         version: link:../adapter-opencode
-      '@michaelfromyeg/loom-core':
+      '@michaelfromyeg/weft-core':
         specifier: workspace:*
         version: link:../core
-      '@michaelfromyeg/loom-eval':
+      '@michaelfromyeg/weft-eval':
         specifier: workspace:*
         version: link:../eval
-      '@michaelfromyeg/loom-index':
+      '@michaelfromyeg/weft-index':
         specifier: workspace:*
         version: link:../index
-      '@michaelfromyeg/loom-schema':
+      '@michaelfromyeg/weft-schema':
         specifier: workspace:*
         version: link:../schema
       citty:
@@ -147,10 +147,10 @@ importers:
 
   packages/core:
     dependencies:
-      '@michaelfromyeg/loom-adapter-kit':
+      '@michaelfromyeg/weft-adapter-kit':
         specifier: workspace:*
         version: link:../adapter-kit
-      '@michaelfromyeg/loom-schema':
+      '@michaelfromyeg/weft-schema':
         specifier: workspace:*
         version: link:../schema
       execa:
@@ -166,13 +166,13 @@ importers:
 
   packages/eval:
     dependencies:
-      '@michaelfromyeg/loom-adapter-kit':
+      '@michaelfromyeg/weft-adapter-kit':
         specifier: workspace:*
         version: link:../adapter-kit
-      '@michaelfromyeg/loom-core':
+      '@michaelfromyeg/weft-core':
         specifier: workspace:*
         version: link:../core
-      '@michaelfromyeg/loom-schema':
+      '@michaelfromyeg/weft-schema':
         specifier: workspace:*
         version: link:../schema
       execa:
@@ -181,16 +181,16 @@ importers:
 
   packages/index:
     dependencies:
-      '@michaelfromyeg/loom-adapter-kit':
+      '@michaelfromyeg/weft-adapter-kit':
         specifier: workspace:*
         version: link:../adapter-kit
-      '@michaelfromyeg/loom-core':
+      '@michaelfromyeg/weft-core':
         specifier: workspace:*
         version: link:../core
-      '@michaelfromyeg/loom-eval':
+      '@michaelfromyeg/weft-eval':
         specifier: workspace:*
         version: link:../eval
-      '@michaelfromyeg/loom-schema':
+      '@michaelfromyeg/weft-schema':
         specifier: workspace:*
         version: link:../schema
 

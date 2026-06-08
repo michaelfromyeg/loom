@@ -1,5 +1,5 @@
 {
-  "name": "@michaelfromyeg/loom-index",
+  "name": "@michaelfromyeg/weft-index",
   "version": "0.3.0",
   "description": "Loom metadata index: builder, client, MCP-Registry federation, badges, publish gate.",
   "type": "module",
@@ -19,10 +19,10 @@
     "build": "tsup"
   },
   "dependencies": {
-    "@michaelfromyeg/loom-adapter-kit": "workspace:*",
-    "@michaelfromyeg/loom-core": "workspace:*",
-    "@michaelfromyeg/loom-eval": "workspace:*",
-    "@michaelfromyeg/loom-schema": "workspace:*"
+    "@michaelfromyeg/weft-adapter-kit": "workspace:*",
+    "@michaelfromyeg/weft-core": "workspace:*",
+    "@michaelfromyeg/weft-eval": "workspace:*",
+    "@michaelfromyeg/weft-schema": "workspace:*"
   },
   "license": "MIT",
   "author": "Michael DeMarco",

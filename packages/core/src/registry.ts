@@ -1,5 +1,5 @@
-import type { HarnessAdapter } from "@michaelfromyeg/loom-adapter-kit";
-import type { Target } from "@michaelfromyeg/loom-schema";
+import type { HarnessAdapter } from "@michaelfromyeg/weft-adapter-kit";
+import type { Target } from "@michaelfromyeg/weft-schema";
 
 /**
  * Adapters registered by Target (spec §7). Core depends only on the adapter-kit

@@ -1,4 +1,4 @@
-import type { Badge } from "@michaelfromyeg/loom-schema";
+import type { Badge } from "@michaelfromyeg/weft-schema";
 
 /**
  * A managed-mode install policy (spec §11 rule 5): the same install mechanism as

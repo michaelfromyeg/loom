@@ -2,7 +2,7 @@ import { cpSync, existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import claudeAdapter from "@michaelfromyeg/loom-adapter-claude";
+import claudeAdapter from "@michaelfromyeg/weft-adapter-claude";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import {
   AdapterRegistry,

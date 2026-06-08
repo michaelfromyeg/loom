@@ -1,12 +1,12 @@
-import claudeAdapter from "@michaelfromyeg/loom-adapter-claude";
-import codexAdapter from "@michaelfromyeg/loom-adapter-codex";
-import copilotAdapter from "@michaelfromyeg/loom-adapter-copilot";
-import cursorAdapter from "@michaelfromyeg/loom-adapter-cursor";
-import type { HarnessDriver } from "@michaelfromyeg/loom-adapter-kit";
-import opencodeAdapter from "@michaelfromyeg/loom-adapter-opencode";
-import { AdapterRegistry } from "@michaelfromyeg/loom-core";
-import { drivers } from "@michaelfromyeg/loom-eval";
-import type { Target } from "@michaelfromyeg/loom-schema";
+import claudeAdapter from "@michaelfromyeg/weft-adapter-claude";
+import codexAdapter from "@michaelfromyeg/weft-adapter-codex";
+import copilotAdapter from "@michaelfromyeg/weft-adapter-copilot";
+import cursorAdapter from "@michaelfromyeg/weft-adapter-cursor";
+import type { HarnessDriver } from "@michaelfromyeg/weft-adapter-kit";
+import opencodeAdapter from "@michaelfromyeg/weft-adapter-opencode";
+import { AdapterRegistry } from "@michaelfromyeg/weft-core";
+import { drivers } from "@michaelfromyeg/weft-eval";
+import type { Target } from "@michaelfromyeg/weft-schema";
 
 /**
  * Wire every concrete adapter into a registry. The CLI sits at the top of the
@@ -22,7 +22,7 @@ export function buildRegistry(): AdapterRegistry {
     .register(opencodeAdapter);
 }
 
-/** The headless eval drivers, keyed by Target (from @michaelfromyeg/loom-eval). */
+/** The headless eval drivers, keyed by Target (from @michaelfromyeg/weft-eval). */
 export function allDrivers(): Record<Target, HarnessDriver> {
   return drivers;
 }

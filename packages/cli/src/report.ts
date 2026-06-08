@@ -1,5 +1,5 @@
-import type { CompileResult, Diagnostic } from "@michaelfromyeg/loom-core";
-import type { EvalReport } from "@michaelfromyeg/loom-eval";
+import type { CompileResult, Diagnostic } from "@michaelfromyeg/weft-core";
+import type { EvalReport } from "@michaelfromyeg/weft-eval";
 import { log } from "./logger";
 
 export function formatDiagnostic(d: Diagnostic): string {

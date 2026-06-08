@@ -1,5 +1,5 @@
 {
-  "name": "@michaelfromyeg/loom-eval",
+  "name": "@michaelfromyeg/weft-eval",
   "version": "0.3.0",
   "description": "Loom eval runner + headless HarnessDriver implementations (real harnesses, local-first).",
   "type": "module",
@@ -19,9 +19,9 @@
     "build": "tsup"
   },
   "dependencies": {
-    "@michaelfromyeg/loom-adapter-kit": "workspace:*",
-    "@michaelfromyeg/loom-core": "workspace:*",
-    "@michaelfromyeg/loom-schema": "workspace:*",
+    "@michaelfromyeg/weft-adapter-kit": "workspace:*",
+    "@michaelfromyeg/weft-core": "workspace:*",
+    "@michaelfromyeg/weft-schema": "workspace:*",
     "execa": "^9.5.2"
   },
   "license": "MIT",
