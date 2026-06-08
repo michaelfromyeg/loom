@@ -3,6 +3,10 @@
 Weft is built in phase order. Each phase has explicit acceptance criteria, and a later
 phase's packages are not started before the current phase's acceptance passes.
 
+Status: released as **weft 1.1.0** on npm (`@michaelfromyeg/weft-*`), renamed from "loom".
+Phases 0-4 plus the post-v1 work in Phase 5 are done; everything under "Beyond v1" is the
+honest not-yet-built boundary.
+
 ## Phase 0: Prove the compile (Claude Code only), DONE
 
 Packages: `@michaelfromyeg/weft-schema`, `@michaelfromyeg/weft-core`, `@michaelfromyeg/weft-adapter-kit`, `@michaelfromyeg/weft-adapter-claude`,
@@ -109,6 +113,42 @@ Beyond the original spec, two lifecycle commands round out the loop:
 - [x] `weft uninstall` removes everything `install` placed, using the paths recorded in
       `weft.lock`, then deletes the lockfile.
 
+## Phase 5: Rename, target-side lifecycle, and breadth, DONE
+
+Renamed from `loom` to `weft` (no backwards compat) and released **1.0.0** then **1.1.0** to
+npm; the repo is `github.com/michaelfromyeg/weft`. Tag-triggered CI publishes every
+`@michaelfromyeg/weft-*` package and cuts the matching GitHub release.
+
+- [x] Rebrand with no compat: `weft.yaml` / `weft.lock` / `weft.index/1` / `weft_min_version`,
+      the `weft` CLI, `~/.weft/cache`, `.weft/` secrets. A weft install will not read old loom
+      artifacts.
+- [x] The lockfile is the install **target's** ledger: `weft.lock` lives with the project you
+      installed into (not the source), holds every installed plugin in one file, and
+      accumulates across installs; `weft uninstall` runs from the project (one plugin or all).
+      This is what makes remote and marketplace installs behave sensibly.
+- [x] `weft install <marketplace>` installs every plugin in a marketplace across the
+      detected/specified harnesses in one command (the same primitive at marketplace scale).
+- [x] Remote + npm install: a `github:`/git/`npm:`/`owner/repo` target is fetched into
+      `~/.weft/cache` (git clone or `npm pack`), with a trailing `//subdir`. (Also under
+      Resolver depth below.)
+- [x] Evals work for every component kind. The runner is component-agnostic; the Claude driver
+      allows `Skill` (skills) + `Task` (sub-agents) under `acceptEdits` (which keeps the model
+      answering rather than executing); passthrough gained an `evals` field; hook/passthrough
+      are evaluated via a `setup`+`verify` shell check. `fixtures/all-kinds` + a stub-driver
+      test cover all six kinds. MCP/command real activation needs harness-specific tool names
+      the static driver can't enumerate, so those are reported UNTESTED there, never faked.
+- [x] Output assertions honor `minPassRate` across `samples`, so a flaky one-shot LLM answer
+      passes on a majority instead of needing all N (mirrors trace assertions).
+- [x] Generic skills-only adapter for the `.agents/skills/` family (zed/gemini/amp/aider).
+      (Detailed under More harnesses below.)
+- [x] `weft eval --compare <ref>`: the "vibes" A/B. Run each case against a prior git ref (or
+      a dir) and the working tree, and print the two transcripts side by side for a human (or
+      the pairwise judge) to pick.
+- [x] `weft build --bare`: write a single target straight to `--out` with no `<target>/`
+      subdir, so a repo root becomes a harness-native marketplace
+      (`weft build . --target claude --out . --bare` makes `marketplace add github:owner/repo`
+      work).
+
 ## Beyond v1 (planned)
 
 Not built yet; tracked so the boundary is honest. Grouped by theme, roughly in priority order
@@ -131,6 +171,8 @@ The one real gap in the trust story is ownership. Everything else here is a back
 - `weft dev` (watch mode): recompile on file change for a tight authoring loop.
 - `weft diff`: a dry run that shows exactly which artifacts an install/update would add,
   rewrite, or remove before touching disk (the content-hash plan already exists internally).
+- Interactive A/B for `weft eval --compare`: pick the better transcript in the terminal, and
+  auto-run the pairwise judge over the pair (today it prints both sides for a human to read).
 - Publish the JSON Schemas to a CDN for `$schema`-driven editor autocomplete, then an LSP /
   VS Code extension that validates `weft.yaml` and previews compiled output live.
 - More scaffolds: `weft init --template <mcp-wrapper|skill-pack|...>`.
