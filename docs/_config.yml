@@ -1,0 +1,12 @@
+# GitHub Pages (built from /docs). Theme docs:
+# https://docs.github.com/en/pages/setting-up-a-github-pages-site-with-jekyll/adding-a-theme-to-your-github-pages-site-using-jekyll
+title: Loom
+description: >-
+  A cross-harness agent-plugin framework: author once, compile to every
+  coding-agent harness, with built-in evals and trust.
+theme: jekyll-theme-cayman
+repository: michaelfromyeg/loom
+show_downloads: false
+
+# Supported swaps: jekyll-theme-minimal, jekyll-theme-architect,
+# jekyll-theme-slate, jekyll-theme-midnight, jekyll-theme-dinky, ...

@@ -1,6 +1,7 @@
 # Demo: real-world use cases
 
-A runnable script lives at [`examples/demo.sh`](../examples/demo.sh):
+A runnable script lives at
+[`examples/demo.sh`](https://github.com/michaelfromyeg/loom/blob/main/examples/demo.sh):
 
 ```sh
 bash examples/demo.sh
