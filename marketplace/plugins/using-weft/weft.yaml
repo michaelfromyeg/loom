@@ -1,0 +1,10 @@
+name: using-weft
+version: 0.1.0
+owner:
+  name: Weft
+  namespace: io.github.michaelfromyeg
+description: How to author a capability once and compile it to every coding-agent harness with Weft.
+license: MIT
+components:
+  - skill: skills/using-weft
+    evals: evals/using-weft.cases.yaml

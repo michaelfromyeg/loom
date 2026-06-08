@@ -1,4 +1,7 @@
-# Loom
+# Weft
+
+> **weft** /wɛft/ _(n.)_ — in weaving, the thread carried across and woven through all the
+> warp threads to make the cloth. Here: one capability, woven across every coding-agent harness.
 
 A cross-harness agent-plugin framework: author once, compile to every coding-agent
 harness, with built-in evals and trust.
@@ -11,11 +14,11 @@ Shipping one capability to all of them today means hand-writing several manifest
 submitting to several catalogs, and keeping versions in sync by hand, with no standard
 way to test a component or signal that it is trustworthy.
 
-Loom is a compiler plus conventions (not a hosted platform) that fixes this:
+Weft is a compiler plus conventions (not a hosted platform) that fixes this:
 
 - You author a plugin once, in each component's most upstream-standard format
   (`SKILL.md`, MCP `server.json`, ...).
-- `loom build` compiles the plugin to every harness's native manifests and the
+- `weft build` compiles the plugin to every harness's native manifests and the
   marketplace catalog, with no hand-written JSON.
 - Distribution stays git-first. An optional metadata-only index can federate
   existing marketplaces (notably the official MCP Registry).
@@ -27,10 +30,10 @@ Loom is a compiler plus conventions (not a hosted platform) that fixes this:
 ```sh
 pnpm install
 pnpm build                       # compile all packages
-loom init my-plugin              # scaffold loom.yaml + a sample skill
-loom validate my-plugin          # static validation (the "valid" badge)
-loom build my-plugin --out out   # compile to harness manifests
-loom install my-plugin --scope project   # place files + write loom.lock
+weft init my-plugin              # scaffold weft.yaml + a sample skill
+weft validate my-plugin          # static validation (the "valid" badge)
+weft build my-plugin --out out   # compile to harness manifests
+weft install my-plugin --scope project   # place files + write weft.lock
 ```
 
 During development the CLI runs straight off TypeScript source via Bun:
@@ -43,14 +46,14 @@ bun packages/cli/src/index.ts validate fixtures/sample-plugin
 
 All four phases are implemented and tested (212 tests, ~92% coverage). A plugin
 compiles to every harness's native manifests with zero hand-written JSON, passes
-`claude plugin validate --strict`, installs with a content-addressed `loom.lock`, and is
+`claude plugin validate --strict`, installs with a content-addressed `weft.lock`, and is
 proven end-to-end against a real headless Claude (see the [demo](docs/demo.md)).
 
 - Phase 0: the compile loop (Claude Code).
-- Phase 1: all five adapters plus `@michaelfromyeg/loom-eval` (real headless drivers, honest UNTESTED,
-  Copilot trace->output degradation), plus remote resolver, dependencies, secrets, `loom update`.
-- Phase 2: `@michaelfromyeg/loom-index` (build + MCP-Registry federation), `valid`/`tested` badges,
-  the `loom publish` deterministic gate plus a CI action.
+- Phase 1: all five adapters plus `@michaelfromyeg/weft-eval` (real headless drivers, honest UNTESTED,
+  Copilot trace->output degradation), plus remote resolver, dependencies, secrets, `weft update`.
+- Phase 2: `@michaelfromyeg/weft-index` (build + MCP-Registry federation), `valid`/`tested` badges,
+  the `weft publish` deterministic gate plus a CI action.
 - Phase 3: judge + differential evals + baselines, security scan, ed25519 signing
   (`signed` badge), and managed-mode install gating.
 
@@ -61,9 +64,9 @@ See [docs/roadmap.md](docs/roadmap.md) for the per-criterion acceptance status.
 - [Concepts](docs/concepts.md): start here, plugin vs marketplace.
 - [Demo](docs/demo.md): real-world use cases, end to end (`bash examples/demo.sh`).
 - [Getting started](docs/getting-started.md): a full CLI walkthrough.
-- [CLI reference](docs/cli.md): a generated map of every command (`loom docs`).
+- [CLI reference](docs/cli.md): a generated map of every command (`weft docs`).
 - [Architecture](docs/architecture.md): the compile pipeline, packages, and the adapter seam.
-- [Authoring plugins](docs/authoring.md): the `loom.yaml` / `marketplace.yaml` / `cases.yaml` reference.
+- [Authoring plugins](docs/authoring.md): the `weft.yaml` / `marketplace.yaml` / `cases.yaml` reference.
 - [Writing an adapter](docs/writing-adapters.md): the public contract a community adapter implements.
 - [Harness research](docs/harness-research.md): verified facts per harness (mid-2026).
 - [Roadmap](docs/roadmap.md): phased build plan and acceptance status.
@@ -72,14 +75,14 @@ See [docs/roadmap.md](docs/roadmap.md) for the per-criterion acceptance status.
 
 ```
 packages/
-  schema/          @michaelfromyeg/loom-schema       Zod schemas + types + JSON-Schema export
-  core/            @michaelfromyeg/loom-core         compile pipeline, resolver, deps, secrets, lockfile,
+  schema/          @michaelfromyeg/weft-schema       Zod schemas + types + JSON-Schema export
+  core/            @michaelfromyeg/weft-core         compile pipeline, resolver, deps, secrets, lockfile,
                                       signing, managed-mode, namespacing
-  adapter-kit/     @michaelfromyeg/loom-adapter-kit  public HarnessAdapter/Driver interfaces + helpers
-  adapter-claude/  @michaelfromyeg/loom-adapter-claude   (+ codex, cursor, copilot, opencode)
-  eval/            @michaelfromyeg/loom-eval         headless drivers + runner + judge/differential + baselines
-  index/           @michaelfromyeg/loom-index        metadata index, MCP-Registry federation, badges, publish gate
-  cli/             @michaelfromyeg/loom-cli          the `loom` binary (thin shell over the above)
+  adapter-kit/     @michaelfromyeg/weft-adapter-kit  public HarnessAdapter/Driver interfaces + helpers
+  adapter-claude/  @michaelfromyeg/weft-adapter-claude   (+ codex, cursor, copilot, opencode)
+  eval/            @michaelfromyeg/weft-eval         headless drivers + runner + judge/differential + baselines
+  index/           @michaelfromyeg/weft-index        metadata index, MCP-Registry federation, badges, publish gate
+  cli/             @michaelfromyeg/weft-cli          the `weft` binary (thin shell over the above)
 fixtures/
   sample-plugin/                      end-to-end test plugin (1 skill + 1 mcp + evals)
   sample-marketplace/                 a 2-plugin marketplace

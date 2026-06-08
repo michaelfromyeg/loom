@@ -1,9 +1,9 @@
 ---
-name: developing-loom
-description: Work on Loom itself, covering the pnpm monorepo layout, the HarnessAdapter seam, adding a new harness adapter, and the test/coverage gates. Use when contributing to the Loom compiler rather than authoring a plugin.
+name: developing-weft
+description: Work on Weft itself, covering the pnpm monorepo layout, the HarnessAdapter seam, adding a new harness adapter, and the test/coverage gates. Use when contributing to the Weft compiler rather than authoring a plugin.
 ---
 
-Loom is a pnpm + Bun monorepo. Every package publishes as `@michaelfromyeg/loom-*` and is
+Weft is a pnpm + Bun monorepo. Every package publishes as `@michaelfromyeg/weft-*` and is
 meant to be depended on independently, so the dependency direction is strict: adapters depend
 only on `adapter-kit` + `schema`, never on `core`.
 
@@ -13,7 +13,7 @@ only on `adapter-kit` + `schema`, never on `core`.
   parsed in 1.2 "core" mode so `country: NO` stays a string (the Norway problem).
 - `core` is the compile pipeline: load -> static pass (validate, namespace/alias) ->
   transform/emitManifest/emitCatalog per adapter -> place (build vs install) -> a
-  content-addressed `loom.lock`. Also resolve (git/file refs), deps, config/secrets,
+  content-addressed `weft.lock`. Also resolve (git/file refs), deps, config/secrets,
   managed-mode, and ed25519 signing.
 - `adapter-kit` is the `HarnessAdapter` interface and helpers. This is the seam.
 - `adapter-claude|codex|cursor|copilot|opencode` are the compiler backends, one per harness.

@@ -1,6 +1,6 @@
 name: Release
 
-# Publishes every @michaelfromyeg/loom-* package to npm and cuts a GitHub Release.
+# Publishes every @michaelfromyeg/weft-* package to npm and cuts a GitHub Release.
 # Trigger by pushing a version tag (git tag v0.2.0 && git push origin v0.2.0), or
 # run manually for a re-publish. Requires an NPM_TOKEN repo secret (an npm
 # automation / granular token with "bypass 2FA" enabled). Idempotent: pnpm skips

@@ -1,5 +1,5 @@
-name: "Loom publish gate"
-description: "Run `loom publish` and block when the deterministic eval tier (static valid + trace/output) fails."
+name: "Weft publish gate"
+description: "Run `weft publish` and block when the deterministic eval tier (static valid + trace/output) fails."
 
 inputs:
   plugin-dir:

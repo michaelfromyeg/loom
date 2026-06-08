@@ -1,0 +1,15 @@
+component: io.github.michaelfromyeg/developing-weft:developing-weft
+harnesses: [claude]
+cases:
+  - name: adapter-dependency-rule
+    prompt: "In the Weft monorepo, a harness adapter package may only depend on which two Weft packages? Answer with the package names."
+    assert:
+      - kind: output
+        matches: "(?i)adapter-kit"
+      - kind: output
+        matches: "(?i)schema"
+  - name: coverage-gate
+    prompt: "What minimum test coverage percentage must changes to Weft keep, per its contributor guidance? Give the number."
+    assert:
+      - kind: output
+        matches: "80"

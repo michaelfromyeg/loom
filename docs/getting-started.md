@@ -15,7 +15,7 @@ pnpm install
 ## Running the CLI
 
 During development the CLI runs straight off TypeScript source via Bun (it resolves
-`@michaelfromyeg/loom-*` through the workspace tsconfig `paths`):
+`@michaelfromyeg/weft-*` through the workspace tsconfig `paths`):
 
 ```sh
 bun packages/cli/src/index.ts <command>
@@ -25,7 +25,7 @@ After `pnpm build`, the Node-compatible binary is at `packages/cli/dist/index.js
 standalone executable can be produced with:
 
 ```sh
-bun build packages/cli/src/index.ts --compile --outfile loom
+bun build packages/cli/src/index.ts --compile --outfile weft
 ```
 
 ## 1. Scaffold a plugin
@@ -34,7 +34,7 @@ bun build packages/cli/src/index.ts --compile --outfile loom
 bun packages/cli/src/index.ts init my-plugin --namespace com.example
 ```
 
-Creates `my-plugin/loom.yaml` and a sample `skills/hello/SKILL.md`. `init` never clobbers
+Creates `my-plugin/weft.yaml` and a sample `skills/hello/SKILL.md`. `init` never clobbers
 an existing plugin.
 
 ## 2. Validate
@@ -79,7 +79,7 @@ bun packages/cli/src/index.ts install fixtures/sample-plugin \
 
 `install` prints a trust summary (components by kind, every executable artifact, every
 MCP server that will run, publisher-verification state), copies the plugin tree into
-`<cwd>/.claude/plugins/<plugin>/`, and writes `loom.lock` next to `loom.yaml`.
+`<cwd>/.claude/plugins/<plugin>/`, and writes `weft.lock` next to `weft.yaml`.
 
 Install never executes plugin code. It is strictly fetch, compile, place.
 Executable and passthrough artifacts are placed disabled; enabling them is a separate
@@ -90,7 +90,7 @@ explicit opt-in (spec §11).
 `fixtures/sample-plugin` is the canonical end-to-end fixture:
 
 ```
-loom.yaml                         # 2 components: a skill + an MCP server
+weft.yaml                         # 2 components: a skill + an MCP server
 skills/code-review/SKILL.md       # standard SKILL.md, stored verbatim
 mcp/weather/server.json           # MCP-standard server.json, stored verbatim
 evals/code-review.cases.yaml      # eval cases (run in a later phase)

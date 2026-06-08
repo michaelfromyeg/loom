@@ -21,6 +21,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: ./.github/actions/loom-publish
+      - uses: ./.github/actions/weft-publish
         with:
           plugin-dir: ${{ github.event.inputs.plugin-dir || 'fixtures/sample-plugin' }}

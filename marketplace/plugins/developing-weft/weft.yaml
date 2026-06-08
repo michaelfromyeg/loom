@@ -1,0 +1,10 @@
+name: developing-weft
+version: 0.1.0
+owner:
+  name: Weft
+  namespace: io.github.michaelfromyeg
+description: How to work on Weft itself, the monorepo layout, the adapter seam, and the tests.
+license: MIT
+components:
+  - skill: skills/developing-weft
+    evals: evals/developing-weft.cases.yaml

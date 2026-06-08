@@ -1,0 +1,17 @@
+component: io.github.michaelfromyeg/using-weft:using-weft
+harnesses: [claude]
+cases:
+  - name: install-to-specific-harnesses
+    prompt: "Using Weft, what is the exact command to install the plugin in the current directory to only Claude Code and Codex? Reply with just the command."
+    assert:
+      - kind: output
+        matches: "(?i)weft install"
+      - kind: output
+        matches: "(?i)--target"
+      - kind: output
+        matches: "(?i)codex"
+  - name: build-without-installing
+    prompt: "With Weft, which single command compiles a plugin to every harness WITHOUT installing it into any harness? Name the command."
+    assert:
+      - kind: output
+        matches: "(?i)weft build"

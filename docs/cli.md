@@ -1,41 +1,41 @@
-# Loom CLI reference
+# Weft CLI reference
 
-_Generated from the CLI definition by `loom docs` -- do not edit by hand._
+_Generated from the CLI definition by `weft docs` -- do not edit by hand._
 
-## `loom`
+## `weft`
 
 ```
-Author once, compile to every coding-agent harness. (loom v0.3.0)
+Author once, compile to every coding-agent harness. (weft v1.0.0)
 
-USAGE `loom init|validate|build|install|uninstall|update|import|eval|publish|sign|verify|index|docs`
+USAGE `weft init|validate|build|install|uninstall|update|import|eval|publish|sign|verify|index|docs`
 
 COMMANDS
 
-       `init`    Scaffold a new plugin (loom.yaml + a sample skill)                               
+       `init`    Scaffold a new plugin (weft.yaml + a sample skill)                               
    `validate`    Statically validate a plugin (the valid badge)                                   
       `build`    Compile a plugin (or a marketplace of plugins) to harness manifests              
     `install`    Compile + place a plugin (or a whole marketplace) into harness scopes            
-  `uninstall`    Remove what install placed into this project (read from its loom.lock)           
+  `uninstall`    Remove what install placed into this project (read from its weft.lock)           
      `update`    Re-resolve refs, recompile, and re-place only artifacts whose hash changed       
-     `import`    Reverse-compile an existing native plugin/marketplace into a Loom plugin         
+     `import`    Reverse-compile an existing native plugin/marketplace into a Weft plugin         
        `eval`    Run a component's evals against the real harnesses (reports UNTESTED honestly)   
     `publish`    Run the deterministic publish gate (static valid + trace/output evals)           
-       `sign`    Sign loom.lock's artifact set (ed25519) -> loom.sig + loom.pub (the signed badge)
-     `verify`    Verify loom.sig against loom.lock and the on-disk artifacts                      
+       `sign`    Sign weft.lock's artifact set (ed25519) -> weft.sig + weft.pub (the signed badge)
+     `verify`    Verify weft.sig against weft.lock and the on-disk artifacts                      
       `index`    Build a metadata index from plugin dirs (optionally federating the MCP Registry) 
        `docs`    Print the full CLI reference (a CLI map), generated from the command tree        
 
-Use `loom <command> --help` for more information about a command.
+Use `weft <command> --help` for more information about a command.
 ```
 
-## `loom build`
+## `weft build`
 
 Compile a plugin (or a marketplace of plugins) to harness manifests
 
 ```
-Compile a plugin (or a marketplace of plugins) to harness manifests (loom build v0.3.0)
+Compile a plugin (or a marketplace of plugins) to harness manifests (weft build v1.0.0)
 
-USAGE `loom build [OPTIONS] [DIR]`
+USAGE `weft build [OPTIONS] [DIR]`
 
 ARGUMENTS
 
@@ -43,32 +43,32 @@ ARGUMENTS
 
 OPTIONS
 
-  `--out=".loom-out"`    Output directory                                 
+  `--out=".weft-out"`    Output directory                                 
            `--target`    Comma-separated targets (default: all registered)
 ```
 
-## `loom docs`
+## `weft docs`
 
 Print the full CLI reference (a CLI map), generated from the command tree
 
 ```
-Print the full CLI reference (a CLI map), generated from the command tree (loom docs v0.3.0)
+Print the full CLI reference (a CLI map), generated from the command tree (weft docs v1.0.0)
 
-USAGE `loom docs [OPTIONS] `
+USAGE `weft docs [OPTIONS] `
 
 OPTIONS
 
   `--out`    Write the Markdown reference to this file instead of stdout
 ```
 
-## `loom eval`
+## `weft eval`
 
 Run a component's evals against the real harnesses (reports UNTESTED honestly)
 
 ```
-Run a component's evals against the real harnesses (reports UNTESTED honestly) (loom eval v0.3.0)
+Run a component's evals against the real harnesses (reports UNTESTED honestly) (weft eval v1.0.0)
 
-USAGE `loom eval [OPTIONS] [DIR]`
+USAGE `weft eval [OPTIONS] [DIR]`
 
 ARGUMENTS
 
@@ -80,14 +80,14 @@ OPTIONS
     `--harness`    Restrict to these harnesses (comma-separated)
 ```
 
-## `loom import`
+## `weft import`
 
-Reverse-compile an existing native plugin/marketplace into a Loom plugin
+Reverse-compile an existing native plugin/marketplace into a Weft plugin
 
 ```
-Reverse-compile an existing native plugin/marketplace into a Loom plugin (loom import v0.3.0)
+Reverse-compile an existing native plugin/marketplace into a Weft plugin (weft import v1.0.0)
 
-USAGE `loom import [OPTIONS] [DIR]`
+USAGE `weft import [OPTIONS] [DIR]`
 
 ARGUMENTS
 
@@ -100,14 +100,14 @@ OPTIONS
        `--namespace`    Reverse-DNS namespace to assign (default com.imported)
 ```
 
-## `loom index`
+## `weft index`
 
 Build a metadata index from plugin dirs (optionally federating the MCP Registry)
 
 ```
-Build a metadata index from plugin dirs (optionally federating the MCP Registry) (loom index v0.3.0)
+Build a metadata index from plugin dirs (optionally federating the MCP Registry) (weft index v1.0.0)
 
-USAGE `loom index [OPTIONS] [DIR]`
+USAGE `weft index [OPTIONS] [DIR]`
 
 ARGUMENTS
 
@@ -119,14 +119,14 @@ OPTIONS
           `--federate`    Ingest the MCP Registry (GET /v0.1/servers)
 ```
 
-## `loom init`
+## `weft init`
 
-Scaffold a new plugin (loom.yaml + a sample skill)
+Scaffold a new plugin (weft.yaml + a sample skill)
 
 ```
-Scaffold a new plugin (loom.yaml + a sample skill) (loom init v0.3.0)
+Scaffold a new plugin (weft.yaml + a sample skill) (weft init v1.0.0)
 
-USAGE `loom init [OPTIONS] [DIR]`
+USAGE `weft init [OPTIONS] [DIR]`
 
 ARGUMENTS
 
@@ -138,14 +138,14 @@ OPTIONS
   `--namespace`    Reverse-DNS namespace, e.g. com.acme
 ```
 
-## `loom install`
+## `weft install`
 
 Compile + place a plugin (or a whole marketplace) into harness scopes
 
 ```
-Compile + place a plugin (or a whole marketplace) into harness scopes (loom install v0.3.0)
+Compile + place a plugin (or a whole marketplace) into harness scopes (weft install v1.0.0)
 
-USAGE `loom install [OPTIONS] [DIR]`
+USAGE `weft install [OPTIONS] [DIR]`
 
 ARGUMENTS
 
@@ -161,14 +161,14 @@ OPTIONS
               `--cwd`    Project root for project-scope placement (default: cwd)
 ```
 
-## `loom publish`
+## `weft publish`
 
 Run the deterministic publish gate (static valid + trace/output evals)
 
 ```
-Run the deterministic publish gate (static valid + trace/output evals) (loom publish v0.3.0)
+Run the deterministic publish gate (static valid + trace/output evals) (weft publish v1.0.0)
 
-USAGE `loom publish [OPTIONS] [DIR]`
+USAGE `weft publish [OPTIONS] [DIR]`
 
 ARGUMENTS
 
@@ -179,32 +179,32 @@ OPTIONS
   `--snapshot`    Snapshot eval scores into evals/.baselines/ for the next release
 ```
 
-## `loom sign`
+## `weft sign`
 
-Sign loom.lock's artifact set (ed25519) -> loom.sig + loom.pub (the signed badge)
+Sign weft.lock's artifact set (ed25519) -> weft.sig + weft.pub (the signed badge)
 
 ```
-Sign loom.lock's artifact set (ed25519) -> loom.sig + loom.pub (the signed badge) (loom sign v0.3.0)
+Sign weft.lock's artifact set (ed25519) -> weft.sig + weft.pub (the signed badge) (weft sign v1.0.0)
 
-USAGE `loom sign [OPTIONS] [DIR]`
+USAGE `weft sign [OPTIONS] [DIR]`
 
 ARGUMENTS
 
-  `DIR="."`    Plugin dir with loom.lock
+  `DIR="."`    Plugin dir with weft.lock
 ```
 
-## `loom uninstall`
+## `weft uninstall`
 
-Remove what install placed into this project (read from its loom.lock)
+Remove what install placed into this project (read from its weft.lock)
 
 ```
-Remove what install placed into this project (read from its loom.lock) (loom uninstall v0.3.0)
+Remove what install placed into this project (read from its weft.lock) (weft uninstall v1.0.0)
 
-USAGE `loom uninstall [OPTIONS] [DIR]`
+USAGE `weft uninstall [OPTIONS] [DIR]`
 
 ARGUMENTS
 
-  `DIR="."`    Install target holding loom.lock (default: derived from --scope)    
+  `DIR="."`    Install target holding weft.lock (default: derived from --scope)    
 
 OPTIONS
 
@@ -212,14 +212,14 @@ OPTIONS
            `--plugin`    Remove only this plugin (id or bare name); default removes all
 ```
 
-## `loom update`
+## `weft update`
 
 Re-resolve refs, recompile, and re-place only artifacts whose hash changed
 
 ```
-Re-resolve refs, recompile, and re-place only artifacts whose hash changed (loom update v0.3.0)
+Re-resolve refs, recompile, and re-place only artifacts whose hash changed (weft update v1.0.0)
 
-USAGE `loom update [OPTIONS] [DIR]`
+USAGE `weft update [OPTIONS] [DIR]`
 
 ARGUMENTS
 
@@ -232,31 +232,31 @@ OPTIONS
               `--cwd`    Project root for project-scope placement (default: cwd)
 ```
 
-## `loom validate`
+## `weft validate`
 
 Statically validate a plugin (the valid badge)
 
 ```
-Statically validate a plugin (the valid badge) (loom validate v0.3.0)
+Statically validate a plugin (the valid badge) (weft validate v1.0.0)
 
-USAGE `loom validate [OPTIONS] [DIR]`
+USAGE `weft validate [OPTIONS] [DIR]`
 
 ARGUMENTS
 
   `DIR="."`    Plugin directory
 ```
 
-## `loom verify`
+## `weft verify`
 
-Verify loom.sig against loom.lock and the on-disk artifacts
+Verify weft.sig against weft.lock and the on-disk artifacts
 
 ```
-Verify loom.sig against loom.lock and the on-disk artifacts (loom verify v0.3.0)
+Verify weft.sig against weft.lock and the on-disk artifacts (weft verify v1.0.0)
 
-USAGE `loom verify [OPTIONS] [DIR]`
+USAGE `weft verify [OPTIONS] [DIR]`
 
 ARGUMENTS
 
-  `DIR="."`    Plugin dir with loom.lock
+  `DIR="."`    Plugin dir with weft.lock
 ```
 

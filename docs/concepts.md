@@ -1,28 +1,28 @@
 # Concepts: plugin vs marketplace
 
-Loom uses the two words coding-agent harnesses already use, plugin and
+Weft uses the two words coding-agent harnesses already use, plugin and
 marketplace, and adds no new top-level concept. The only subtlety is that
 "plugin" names both what you author (once, cross-harness) and what it compiles to
-(one per harness); we disambiguate as "Loom plugin" vs "Claude plugin" where it matters.
+(one per harness); we disambiguate as "Weft plugin" vs "Claude plugin" where it matters.
 
 ## Plugin: one capability, authored once
 
-A plugin is the authoring unit: a directory with one `loom.yaml` and the component
+A plugin is the authoring unit: a directory with one `weft.yaml` and the component
 files it references (skills, MCP servers, agents, hooks, commands), each in its most
-upstream-standard format (`SKILL.md`, `server.json`). A Loom plugin is harness-agnostic
+upstream-standard format (`SKILL.md`, `server.json`). A Weft plugin is harness-agnostic
 source. It compiles to one native plugin per target harness:
 
 ```
                         +--> Claude plugin   (.claude-plugin/plugin.json + skills/ ...)
-   plugin (loom.yaml) --+--> Cursor plugin   (.cursor-plugin/plugin.json + ...)
+   plugin (weft.yaml) --+--> Cursor plugin   (.cursor-plugin/plugin.json + ...)
                         +--> OpenCode layout (directory-convention, no manifest)
                         +--> ...
 ```
 
-So a Loom plugin is to a Claude plugin as source is to a compiled binary for one platform.
+So a Weft plugin is to a Claude plugin as source is to a compiled binary for one platform.
 The adapter for each harness is the compiler backend that knows that harness's plugin
 format. "Plugin" is already the harnesses' own word for their native installable unit, and
-Loom's canonical format is a superset that any single harness's plugin maps into.
+Weft's canonical format is a superset that any single harness's plugin maps into.
 
 ## Marketplace: a catalog that packages many plugins
 
@@ -38,24 +38,24 @@ marketplace.yaml  -->  .claude-plugin/marketplace.json  (lists plugin A, plugin 
 ```
 
 A marketplace references plugins (by `github:owner/repo`, a git URL, `npm:`, or a local
-path); `loom build` on it resolves and compiles each, vendors the compiled plugin trees
+path); `weft build` on it resolves and compiles each, vendors the compiled plugin trees
 under `plugins/`, and emits one catalog pointing at them.
 
-## Loom extends what you already have
+## Weft extends what you already have
 
-Loom does not replace plugins and marketplaces; it wraps and cross-compiles them:
+Weft does not replace plugins and marketplaces; it wraps and cross-compiles them:
 
 - The canonical plugin format is a superset of any one harness's plugin, so "author a
   plugin once, compile to every harness" needs no new noun.
-- `loom import` reads an existing native plugin or marketplace and reverse-compiles it into
-  the Loom model, so `loom build` can cross-compile it to the others. This is the "federate,
+- `weft import` reads an existing native plugin or marketplace and reverse-compiles it into
+  the Weft model, so `weft build` can cross-compile it to the others. This is the "federate,
   don't wall off" goal applied to assets you already maintain. Every harness has an
-  `importNative`, so import is any-to-any (`loom import --from <harness>`).
+  `importNative`, so import is any-to-any (`weft import --from <harness>`).
 
 ## The one wrinkle: building a single plugin emits a marketplace too
 
 `claude plugin validate` and the harness install flows expect a marketplace directory,
-not a bare plugin. So `loom build <single-plugin>` wraps the one compiled plugin in a
+not a bare plugin. So `weft build <single-plugin>` wraps the one compiled plugin in a
 synthetic one-entry marketplace:
 
 ```
@@ -67,14 +67,14 @@ out/claude/
     mcp/weather/server.json
 ```
 
-A single plugin is not a marketplace; Loom just gift-wraps it in one so the output is
+A single plugin is not a marketplace; Weft just gift-wraps it in one so the output is
 immediately installable and `claude plugin validate`-able. When you author a real
 `marketplace.yaml`, that synthetic step is replaced by your curated catalog (and an entry's
 `version` override flows into the compiled `plugin.json` so the two always agree).
 
 ## Piecemeal installation
 
-You do not have to take a whole plugin. `loom install <plugin> --only code-review` installs
+You do not have to take a whole plugin. `weft install <plugin> --only code-review` installs
 just that one component (one skill, one MCP server); the generated manifest reflects only
 what you selected. This is the same mechanism dependencies use to pull a subset of another
 plugin (`components: [...]`).
@@ -83,6 +83,6 @@ plugin (`components: [...]`).
 
 | Layer        | Authored file      | Compiles to (Claude)                  | Analogy            |
 |--------------|--------------------|---------------------------------------|--------------------|
-| plugin       | `loom.yaml`        | a plugin (`plugin.json` + components)  | source code        |
+| plugin       | `weft.yaml`        | a plugin (`plugin.json` + components)  | source code        |
 | (per harness)| (generated)        | `.claude-plugin/plugin.json`           | compiled binary    |
 | marketplace  | `marketplace.yaml` | `.claude-plugin/marketplace.json`      | app store listing  |

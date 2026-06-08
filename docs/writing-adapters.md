@@ -2,16 +2,16 @@
 
 A harness adapter is the "compiler backend" that turns canonical components into one
 harness's native plugin format. It is a plain object implementing `HarnessAdapter` from
-`@michaelfromyeg/loom-adapter-kit`, and it depends only on `@michaelfromyeg/loom-adapter-kit` and `@michaelfromyeg/loom-schema`, never
+`@michaelfromyeg/weft-adapter-kit`, and it depends only on `@michaelfromyeg/weft-adapter-kit` and `@michaelfromyeg/weft-schema`, never
 on core internals. The consumer (the CLI, or an embedding app) registers it.
 
 ## The contract
 
 ```ts
-import type { HarnessAdapter } from "@michaelfromyeg/loom-adapter-kit";
+import type { HarnessAdapter } from "@michaelfromyeg/weft-adapter-kit";
 
 export const myAdapter: HarnessAdapter = {
-  target: "myharness",            // must be a known Target (extend @michaelfromyeg/loom-schema's enum)
+  target: "myharness",            // must be a known Target (extend @michaelfromyeg/weft-schema's enum)
   version: "0.1.0",               // this adapter package's version (lockfile axis 3)
   targetSchema: "myharness/1.0",  // the harness manifest schema version you emit
 
@@ -91,10 +91,10 @@ reports the harness honestly rather than faking a pass.
 ## Registering it
 
 ```ts
-import { AdapterRegistry } from "@michaelfromyeg/loom-core";
-import { myAdapter } from "@michaelfromyeg/loom-adapter-myharness";
+import { AdapterRegistry } from "@michaelfromyeg/weft-core";
+import { myAdapter } from "@michaelfromyeg/weft-adapter-myharness";
 
 const registry = new AdapterRegistry().register(myAdapter);
 ```
 
-Publish it as an npm package; anyone can register it without forking Loom.
+Publish it as an npm package; anyone can register it without forking Weft.

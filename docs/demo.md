@@ -1,7 +1,7 @@
 # Demo: real-world use cases
 
 A runnable script lives at
-[`examples/demo.sh`](https://github.com/michaelfromyeg/loom/blob/main/examples/demo.sh):
+[`examples/demo.sh`](https://github.com/michaelfromyeg/weft/blob/main/examples/demo.sh):
 
 ```sh
 bash examples/demo.sh
@@ -13,7 +13,7 @@ annotated.
 
 ## 1. A solo dev ships one capability to every harness
 
-You author a plugin once (`loom.yaml` + a `SKILL.md`), with no per-harness JSON, and compile
+You author a plugin once (`weft.yaml` + a `SKILL.md`), with no per-harness JSON, and compile
 it to all five harnesses. `install` only touches the harnesses you actually have.
 
 ```
@@ -59,7 +59,7 @@ and computes badges. Signing makes the compiled artifacts tamper-evident.
   badges: valid, scanned
 Publish gate passed.
 
-Signed 2 artifacts -> loom.sig (key kept in .loom/, public key in loom.pub)
+Signed 2 artifacts -> weft.sig (key kept in .weft/, public key in weft.pub)
 signature: valid
 tampered artifacts: 0
 signed badge verified.
@@ -80,7 +80,7 @@ install correctly BLOCKED (com.acme not in the com.enterprise allowlist)
 ## 5. Evals against the REAL harness
 
 The headline of the eval system: drive the actual headless Claude and assert over what it
-did. Here Loom installs the `code-review` skill into a scratch project, asks Claude to
+did. Here Weft installs the `code-review` skill into a scratch project, asks Claude to
 review a file with a planted bug, parses the live `stream-json` trace, and checks that
 Claude read the file and named the bug. It's a real pass, not a mock:
 

@@ -1,12 +1,12 @@
-name: loom
+name: weft
 owner:
-  name: Loom
+  name: Weft
   namespace: io.github.michaelfromyeg
-description: Loom's own skills, compiled with Loom. One for using Loom, one for developing it.
+description: Weft's own skills, compiled with Weft. One for using Weft, one for developing it.
 plugins:
-  - plugin: ./plugins/using-loom
+  - plugin: ./plugins/using-weft
     category: docs
-    tags: [loom, getting-started]
-  - plugin: ./plugins/developing-loom
+    tags: [weft, getting-started]
+  - plugin: ./plugins/developing-weft
     category: docs
-    tags: [loom, contributing]
+    tags: [weft, contributing]
