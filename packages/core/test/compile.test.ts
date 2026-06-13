@@ -23,6 +23,12 @@ const CLAUDE_AVAILABLE = await execa("claude", ["--version"])
   .then(() => true)
   .catch(() => false);
 
+// The CLI exit-code test shells out via `bun` (the runtime the CLI ships under);
+// CI runs on plain node, so skip there rather than fail on a missing binary.
+const BUN_AVAILABLE = await execa("bun", ["--version"])
+  .then(() => true)
+  .catch(() => false);
+
 let tmp: string;
 beforeAll(() => {
   tmp = mkdtempSync(join(tmpdir(), "weft-test-"));
@@ -178,7 +184,7 @@ describe("build --check (drift guard)", () => {
     expect(drifted.drift?.stale).toContain(CATALOG_REL);
   });
 
-  it("CLI exits 1 on drift and 0 when up to date", async () => {
+  it.skipIf(!BUN_AVAILABLE)("CLI exits 1 on drift and 0 when up to date", async () => {
     const repoRoot = fileURLToPath(new URL("../../../", import.meta.url));
     const cli = ["packages/cli/src/index.ts", "build", FIXTURE];
     const out = join(tmp, "chk-cli");
