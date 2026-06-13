@@ -170,7 +170,14 @@ The one real gap in the trust story is ownership. Everything else here is a back
 
 - `weft dev` (watch mode): recompile on file change for a tight authoring loop.
 - `weft diff`: a dry run that shows exactly which artifacts an install/update would add,
-  rewrite, or remove before touching disk (the content-hash plan already exists internally).
+  rewrite, or **remove** in a harness scope before touching disk, reading the prior set from
+  `weft.lock` (the content-hash plan already exists internally). Removal/orphan detection is
+  the part `weft build --check` deliberately leaves to this command.
+
+Shipped: `weft build --check` compares `--out` against a fresh compile (via `diffPlanned`
+over the build plan's content hashes) and exits 1 on drift, writing nothing. It is the
+build-output side of the same content-hash machinery: the CI guard that keeps a committed
+`weft build . --target claude --out . --bare` marketplace from silently drifting from source.
 - Interactive A/B for `weft eval --compare`: pick the better transcript in the terminal, and
   auto-run the pairwise judge over the pair (today it prints both sides for a human to read).
 - Publish the JSON Schemas to a CDN for `$schema`-driven editor autocomplete, then an LSP /

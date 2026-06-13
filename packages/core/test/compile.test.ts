@@ -1,4 +1,4 @@
-import { cpSync, existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { cpSync, existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -79,6 +79,122 @@ describe("build", () => {
       reject: false,
     });
     expect(res.exitCode).toBe(0);
+  });
+});
+
+describe("build --check (drift guard)", () => {
+  const SKILL_REL = "plugins/sample-plugin/skills/code-review/SKILL.md";
+  const CATALOG_REL = ".claude-plugin/marketplace.json";
+
+  it("reports a clean tree right after a build", async () => {
+    const out = join(tmp, "chk-clean");
+    const w = await build({ pluginDir: FIXTURE, outDir: out, registry: registry() });
+    const { written, drift } = await build({
+      pluginDir: FIXTURE,
+      outDir: out,
+      registry: registry(),
+      check: true,
+    });
+    expect(drift?.clean).toBe(true);
+    expect(drift?.missing).toEqual([]);
+    expect(drift?.stale).toEqual([]);
+    // Check reports the same artifact set a write would produce, and nothing extra.
+    expect(drift?.checked).toBe(w.written.length);
+    expect(written.length).toBe(w.written.length);
+  });
+
+  it("flags a hand-edited manifest as stale", async () => {
+    const out = join(tmp, "chk-stale");
+    await build({ pluginDir: FIXTURE, outDir: out, registry: registry() });
+    writeFileSync(join(out, "claude", CATALOG_REL), "{ not the compiled catalog }");
+    const { drift } = await build({
+      pluginDir: FIXTURE,
+      outDir: out,
+      registry: registry(),
+      check: true,
+    });
+    expect(drift?.clean).toBe(false);
+    expect(drift?.stale).toContain(CATALOG_REL);
+    expect(drift?.missing).toEqual([]);
+  });
+
+  it("flags a deleted artifact as missing", async () => {
+    const out = join(tmp, "chk-missing");
+    await build({ pluginDir: FIXTURE, outDir: out, registry: registry() });
+    rmSync(join(out, "claude", SKILL_REL));
+    const { drift } = await build({
+      pluginDir: FIXTURE,
+      outDir: out,
+      registry: registry(),
+      check: true,
+    });
+    expect(drift?.clean).toBe(false);
+    expect(drift?.missing).toContain(SKILL_REL);
+  });
+
+  it("never writes: an empty out dir is all-missing and is not created", async () => {
+    const out = join(tmp, "chk-nowrite");
+    const { drift } = await build({
+      pluginDir: FIXTURE,
+      outDir: out,
+      registry: registry(),
+      check: true,
+    });
+    expect(drift?.clean).toBe(false);
+    expect(drift?.missing.length).toBe(drift?.checked);
+    expect(drift?.stale).toEqual([]);
+    expect(existsSync(out)).toBe(false);
+  });
+
+  it("checks a bare marketplace at the out root and catches drift", async () => {
+    const out = join(tmp, "chk-bare");
+    await buildMarketplace({
+      marketplaceDir: MARKETPLACE,
+      outDir: out,
+      registry: registry(),
+      targets: ["claude"],
+      bare: true,
+    });
+    const clean = await buildMarketplace({
+      marketplaceDir: MARKETPLACE,
+      outDir: out,
+      registry: registry(),
+      targets: ["claude"],
+      bare: true,
+      check: true,
+    });
+    expect(clean.drift?.clean).toBe(true);
+
+    writeFileSync(join(out, CATALOG_REL), "{ drifted }");
+    const drifted = await buildMarketplace({
+      marketplaceDir: MARKETPLACE,
+      outDir: out,
+      registry: registry(),
+      targets: ["claude"],
+      bare: true,
+      check: true,
+    });
+    expect(drifted.drift?.clean).toBe(false);
+    expect(drifted.drift?.stale).toContain(CATALOG_REL);
+  });
+
+  it("CLI exits 1 on drift and 0 when up to date", async () => {
+    const repoRoot = fileURLToPath(new URL("../../../", import.meta.url));
+    const cli = ["packages/cli/src/index.ts", "build", FIXTURE];
+    const out = join(tmp, "chk-cli");
+
+    const empty = await execa("bun", [...cli, "--out", out, "--check"], {
+      cwd: repoRoot,
+      reject: false,
+    });
+    expect(empty.exitCode).toBe(1);
+
+    await execa("bun", [...cli, "--out", out], { cwd: repoRoot });
+    const fresh = await execa("bun", [...cli, "--out", out, "--check"], {
+      cwd: repoRoot,
+      reject: false,
+    });
+    expect(fresh.exitCode).toBe(0);
   });
 });
 

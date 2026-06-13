@@ -7,6 +7,7 @@ import {
   build,
   buildMarketplace,
   CompileError,
+  type DriftReport,
   generateSigningKeys,
   hasMarketplaceManifest,
   importNativePlugin,
@@ -56,6 +57,21 @@ function countByTarget(written: { target: string }[]): Map<string, number> {
   const counts = new Map<string, number>();
   for (const w of written) counts.set(w.target, (counts.get(w.target) ?? 0) + 1);
   return counts;
+}
+
+/** Print a `--check` drift report and exit 1 if `--out` is stale (the CI guard). */
+function reportDrift(drift: DriftReport, out: string): void {
+  log.data({ check: true, out, ...drift });
+  if (drift.clean) {
+    log.info(`${out} is up to date (${drift.checked} files)`);
+    return;
+  }
+  for (const p of drift.missing) log.error(`  + missing ${p}`);
+  for (const p of drift.stale) log.error(`  ~ stale   ${p}`);
+  log.error(
+    `\n${out} is out of date with source (${drift.missing.length} missing, ${drift.stale.length} stale); rerun the same build without --check and commit the result`,
+  );
+  process.exit(1);
 }
 
 function fail(err: unknown): never {
@@ -154,6 +170,11 @@ const buildCmd = defineCommand({
       description:
         "Write straight to --out without the <target>/ subdir (one --target only); e.g. `--target claude --out . --bare` makes a repo root a Claude marketplace",
     },
+    check: {
+      type: "boolean",
+      description:
+        "Verify --out is already up to date with a fresh compile instead of writing (exit 1 on drift); the CI guard for a committed `--out . --bare` marketplace. Does not detect orphaned files.",
+    },
   },
   async run({ args }) {
     try {
@@ -163,19 +184,25 @@ const buildCmd = defineCommand({
         log.error("--bare requires exactly one --target (e.g. --target claude)");
         process.exit(1);
       }
+      const check = Boolean(args.check);
       // A remote ref (github:/git/owner-repo, optionally //subdir) clones into the
       // cache; a local path is used as-is.
       const { dir } = await resolveSourceDir(args.dir, process.cwd());
 
       // A marketplace.yaml packages many plugins into one catalog.
       if (hasMarketplaceManifest(dir)) {
-        const { marketplace, plugins, written } = await buildMarketplace({
+        const { marketplace, plugins, written, drift } = await buildMarketplace({
           marketplaceDir: dir,
           outDir: args.out,
           registry,
           targets,
           bare: Boolean(args.bare),
+          check,
         });
+        if (drift) {
+          reportDrift(drift, args.out);
+          return;
+        }
         log.data({
           marketplace: marketplace.name,
           plugins: plugins.length,
@@ -189,14 +216,19 @@ const buildCmd = defineCommand({
         return;
       }
 
-      const { result, written } = await build({
+      const { result, written, drift } = await build({
         pluginDir: dir,
         outDir: args.out,
         registry,
         targets,
         bare: Boolean(args.bare),
+        check,
       });
       if (result.diagnostics.items.length > 0) printDiagnostics(result.diagnostics.items);
+      if (drift) {
+        reportDrift(drift, args.out);
+        return;
+      }
       log.data({ id: result.id, out: args.out, files: Object.fromEntries(countByTarget(written)) });
       log.info(`Built ${result.id} -> ${args.out}/`);
       for (const [t, n] of countByTarget(written)) {

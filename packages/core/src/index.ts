@@ -54,13 +54,18 @@ export type { ManagedPolicy, PolicyContext } from "./managed";
 export { checkManagedPolicy } from "./managed";
 export type { AliasInput, AliasResult } from "./namespace";
 export { resolveAliases } from "./namespace";
-export type { PlannedArtifact, WrittenArtifact } from "./place";
+export type { DriftReport, PlannedArtifact, PlannedWrite, WrittenArtifact } from "./place";
 export {
   buildToDir,
+  diffPlanned,
   installToScope,
   placeCatalog,
   placePluginArtifacts,
+  planBuild,
+  planCatalog,
+  planPluginArtifacts,
   planScopeArtifacts,
+  writePlanned,
 } from "./place";
 export { AdapterRegistry } from "./registry";
 export type { ResolvedPlugin, ResolvedSource, Source } from "./resolve";

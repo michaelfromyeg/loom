@@ -25,12 +25,16 @@ import {
 } from "./lockfile";
 import { checkManagedPolicy, type ManagedPolicy } from "./managed";
 import {
-  buildToDir,
+  type DriftReport,
+  diffPlanned,
   installToScope,
-  placeCatalog,
-  placePluginArtifacts,
+  type PlannedWrite,
+  planBuild,
+  planCatalog,
+  planPluginArtifacts,
   planScopeArtifacts,
   type WrittenArtifact,
+  writePlanned,
 } from "./place";
 import type { AdapterRegistry } from "./registry";
 import { gitInfo, type ResolvedPlugin, resolvePluginRefFull } from "./resolve";
@@ -78,11 +82,21 @@ export interface BuildOptions {
   targets?: Target[];
   /** Write straight to outDir without the <target>/ subdir (single target only). */
   bare?: boolean;
+  /** Compare against on-disk output instead of writing; populates `drift`, writes nothing. */
+  check?: boolean;
 }
 
 export interface BuildResult {
   result: CompileResult;
+  /** The artifacts written (or, in check mode, the artifacts a write would produce). */
   written: WrittenArtifact[];
+  /** Present only in check mode: how the on-disk output differs from a fresh compile. */
+  drift?: DriftReport;
+}
+
+/** Drop the planned contents so a plan can be reported as `written` (check mode). */
+function asWritten(planned: PlannedWrite[]): WrittenArtifact[] {
+  return planned.map(({ contents: _contents, ...rest }) => rest);
 }
 
 /** Compile a plugin and write its marketplace + plugin layout into `outDir` (no install). */
@@ -92,8 +106,11 @@ export async function build(opts: BuildOptions): Promise<BuildResult> {
   if (result.diagnostics.hasErrors) {
     throw new CompileError("compile failed", result.diagnostics.errors);
   }
-  const written = buildToDir(result, opts.outDir, opts.bare);
-  return { result, written };
+  const planned = planBuild(result, opts.outDir, opts.bare);
+  if (opts.check) {
+    return { result, written: asWritten(planned), drift: diffPlanned(planned) };
+  }
+  return { result, written: writePlanned(planned) };
 }
 
 export interface BuildMarketplaceOptions {
@@ -103,12 +120,17 @@ export interface BuildMarketplaceOptions {
   targets?: Target[];
   /** Write straight to outDir without the <target>/ subdir (single target only). */
   bare?: boolean;
+  /** Compare against on-disk output instead of writing; populates `drift`, writes nothing. */
+  check?: boolean;
 }
 
 export interface BuildMarketplaceResult {
   marketplace: Marketplace;
   plugins: CompileResult[];
+  /** The artifacts written (or, in check mode, the artifacts a write would produce). */
   written: WrittenArtifact[];
+  /** Present only in check mode: how the on-disk output differs from a fresh compile. */
+  drift?: DriftReport;
 }
 
 /**
@@ -152,7 +174,7 @@ export async function buildMarketplace(
   }
 
   const targets = opts.targets ?? opts.registry.targets;
-  const written: WrittenArtifact[] = [];
+  const planned: PlannedWrite[] = [];
   for (const target of targets) {
     const adapter = opts.registry.get(target);
     if (!adapter) continue;
@@ -162,7 +184,7 @@ export async function buildMarketplace(
       const output = result.targets.find((t) => t.target === target);
       if (!output) continue;
       const p = result.fb.plugin;
-      written.push(...placePluginArtifacts(output, base, p.name));
+      planned.push(...planPluginArtifacts(output, base, p.name));
       entries.push({
         name: p.name,
         source: `./plugins/${p.name}`,
@@ -178,10 +200,14 @@ export async function buildMarketplace(
       ...(marketplace.description ? { description: marketplace.description } : {}),
       entries,
     };
-    written.push(...placeCatalog(adapter, resolved, base));
+    planned.push(...planCatalog(adapter, resolved, base));
   }
 
-  return { marketplace, plugins: compiled.map((c) => c.result), written };
+  const plugins = compiled.map((c) => c.result);
+  if (opts.check) {
+    return { marketplace, plugins, written: asWritten(planned), drift: diffPlanned(planned) };
+  }
+  return { marketplace, plugins, written: writePlanned(planned) };
 }
 
 export interface InstallOptions {

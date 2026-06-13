@@ -1,4 +1,4 @@
-import { mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import type {
   ArtifactKind,
@@ -18,16 +18,110 @@ export interface WrittenArtifact {
   kind?: ArtifactKind;
 }
 
-function writeArtifact(
+/** A planned artifact: where it would land and its content hash, not yet written. */
+export interface PlannedWrite extends WrittenArtifact {
+  contents: Buffer;
+}
+
+/** Where one plugin's artifacts would land under `<baseDir>/plugins/<pluginName>/`, with hashes. */
+export function planPluginArtifacts(
+  target: TargetOutput,
   baseDir: string,
-  relPath: string,
-  contents: string | Buffer,
-): { abs: string; hash: string } {
-  const abs = join(baseDir, relPath);
-  mkdirSync(dirname(abs), { recursive: true });
-  const buf = typeof contents === "string" ? Buffer.from(contents, "utf8") : contents;
-  writeFileSync(abs, buf);
-  return { abs, hash: sha256(buf) };
+  pluginName: string,
+): PlannedWrite[] {
+  // Flat adapters drop the plugins/<name>/ grouping (directory-convention harnesses).
+  return target.artifacts.map(({ artifact }) => {
+    const rel = target.adapter.flat
+      ? artifact.relPath
+      : join("plugins", pluginName, artifact.relPath);
+    const contents = toBuffer(artifact.contents);
+    return {
+      target: target.target,
+      relPath: rel,
+      abs: join(baseDir, rel),
+      hash: sha256(contents),
+      kind: artifact.kind,
+      contents,
+    };
+  });
+}
+
+/** Where a harness's native catalog would land at `<baseDir>/`, with hashes. */
+export function planCatalog(
+  adapter: HarnessAdapter,
+  marketplace: ResolvedMarketplace,
+  baseDir: string,
+): PlannedWrite[] {
+  return adapter.emitCatalog(marketplace).map((artifact) => {
+    const contents = toBuffer(artifact.contents);
+    return {
+      target: adapter.target,
+      relPath: artifact.relPath,
+      abs: join(baseDir, artifact.relPath),
+      hash: sha256(contents),
+      kind: artifact.kind,
+      contents,
+    };
+  });
+}
+
+/**
+ * `weft build` placement plan for a single plugin (spec §9.1 step 6, inspect-only):
+ * the plugin tree at `outDir/<target>/plugins/<plugin>/` plus a synthetic one-entry
+ * catalog at the target root. `bare` writes straight to outDir (one target only) so a
+ * repo root becomes the harness's native marketplace.
+ */
+export function planBuild(result: CompileResult, outDir: string, bare = false): PlannedWrite[] {
+  const planned: PlannedWrite[] = [];
+  const { plugin } = result.fb;
+  const marketplace = synthMarketplace(plugin);
+  for (const t of result.targets) {
+    const base = bare ? outDir : join(outDir, t.target);
+    planned.push(...planPluginArtifacts(t, base, plugin.name));
+    planned.push(...planCatalog(t.adapter, marketplace, base));
+  }
+  return planned;
+}
+
+/** Write each planned artifact to disk (mkdir as needed); drops `contents` from the result. */
+export function writePlanned(planned: PlannedWrite[]): WrittenArtifact[] {
+  return planned.map(({ contents, ...rest }) => {
+    mkdirSync(dirname(rest.abs), { recursive: true });
+    writeFileSync(rest.abs, contents);
+    return rest;
+  });
+}
+
+export interface DriftReport {
+  clean: boolean;
+  /** relPaths the build would create that are absent on disk. */
+  missing: string[];
+  /** relPaths whose on-disk content differs from the compiled artifact. */
+  stale: string[];
+  /** Total artifacts compared. */
+  checked: number;
+}
+
+/**
+ * Compare a build plan against what is on disk, reading only (never writes). Backs
+ * `weft build --check`: a committed `--bare` marketplace that drifted from source
+ * shows up as `stale`/`missing` so CI can fail before publish. Does NOT detect
+ * orphans (files a prior build wrote that this one no longer would) -- that needs
+ * the lockfile's history and belongs to `weft diff`.
+ */
+export function diffPlanned(planned: PlannedWrite[]): DriftReport {
+  const missing: string[] = [];
+  const stale: string[] = [];
+  for (const p of planned) {
+    if (!existsSync(p.abs)) missing.push(p.relPath);
+    else if (sha256(readFileSync(p.abs)) !== p.hash) stale.push(p.relPath);
+  }
+  return {
+    clean: missing.length === 0 && stale.length === 0,
+    missing,
+    stale,
+    checked: planned.length,
+  };
 }
 
 /** Write one plugin's artifacts under `<baseDir>/plugins/<pluginName>/`. */
@@ -36,14 +130,7 @@ export function placePluginArtifacts(
   baseDir: string,
   pluginName: string,
 ): WrittenArtifact[] {
-  // Flat adapters drop the plugins/<name>/ grouping (directory-convention harnesses).
-  return target.artifacts.map(({ artifact }) => {
-    const rel = target.adapter.flat
-      ? artifact.relPath
-      : join("plugins", pluginName, artifact.relPath);
-    const { abs, hash } = writeArtifact(baseDir, rel, artifact.contents);
-    return { target: target.target, relPath: rel, abs, hash, kind: artifact.kind };
-  });
+  return writePlanned(planPluginArtifacts(target, baseDir, pluginName));
 }
 
 /** Emit and write a harness's native catalog at `<baseDir>/`. */
@@ -52,29 +139,12 @@ export function placeCatalog(
   marketplace: ResolvedMarketplace,
   baseDir: string,
 ): WrittenArtifact[] {
-  return adapter.emitCatalog(marketplace).map((artifact) => {
-    const { abs, hash } = writeArtifact(baseDir, artifact.relPath, artifact.contents);
-    return { target: adapter.target, relPath: artifact.relPath, abs, hash, kind: artifact.kind };
-  });
+  return writePlanned(planCatalog(adapter, marketplace, baseDir));
 }
 
-/**
- * `weft build` placement for a single plugin (spec §9.1 step 6, inspect-only):
- * writes the plugin tree at `outDir/<target>/plugins/<plugin>/` plus a synthetic
- * one-entry catalog at the target root, leaving harness install dirs untouched.
- */
+/** Compile-and-write a single plugin's build output (write-mode `weft build`). */
 export function buildToDir(result: CompileResult, outDir: string, bare = false): WrittenArtifact[] {
-  const written: WrittenArtifact[] = [];
-  const { plugin } = result.fb;
-  const marketplace = synthMarketplace(plugin);
-  for (const t of result.targets) {
-    // `bare` writes straight to outDir (one target only) so a repo root becomes the
-    // harness's native marketplace; otherwise each target nests under <outDir>/<target>/.
-    const base = bare ? outDir : join(outDir, t.target);
-    written.push(...placePluginArtifacts(t, base, plugin.name));
-    written.push(...placeCatalog(t.adapter, marketplace, base));
-  }
-  return written;
+  return writePlanned(planBuild(result, outDir, bare));
 }
 
 function toBuffer(contents: string | Buffer): Buffer {
